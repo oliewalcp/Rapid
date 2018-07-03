@@ -13,7 +13,7 @@ template<typename T>
 class Stack
 {
 private:
-    unsigned int number;
+    unsigned int number = 0;
     StackNode<T> *topNode = nullptr;
 public:
     unsigned int size(){return number;}//获取元素个数
@@ -40,5 +40,17 @@ public:
             return T();
         return topNode->arg;
     }
+    void clear();
 };
+template<typename T>
+void Stack<T>::clear()
+{
+    while(topNode != nullptr)
+    {
+        StackNode<T> *temp = topNode;
+        topNode = topNode->next;
+        delete temp;
+    }
+    number = 0;
+}
 #endif // STACK_H
