@@ -22,6 +22,7 @@ private:
     inline void create_list();//创建链表
 public:
     inline unsigned int size();//获取链表的长度
+    inline bool empty(){return number > 0 ? false : true;}
     inline void push_back(T& arg);//从后面插入元素
     inline void push_front(T& arg);//从前面插入元素
     inline void pop_back();//删除最后一个元素
