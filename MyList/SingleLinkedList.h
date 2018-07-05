@@ -5,6 +5,7 @@
 template<typename T>
 struct SingleNode
 {
+    SingleNode(){next = nullptr;}
     SingleNode *next;
     T value;
 };
@@ -20,7 +21,7 @@ private:
     inline void create_list();//创建链表
 public:
     inline unsigned int size();//获取链表的长度
-    inline bool empty(){return number > 0 ? false : true;}
+    inline bool empty(){return ElementNumber > 0 ? false : true;}
     inline void push_back(T& arg);//从后面插入元素
     inline void push_front(T& arg);//从前面插入元素
     void pop_back();//删除最后一个元素
@@ -28,6 +29,7 @@ public:
     void insert(unsigned int index, T& arg);//在某一个位置插入元素
     void remove(T &arg);//移除某一个元素
     void remove(unsigned int index);//移除索引号为index的元素
+    void reverse();//反转
     void clear();//清空链表
     inline T &front();//获取头结点的值
     inline T &back();//获取尾节点的值
@@ -39,23 +41,26 @@ public:
     {
     private:
         SingleNode<T> *current = nullptr;
-    public:
+        SingleNode<T> *last = nullptr;
         iterator(SingleNode<T> *p = nullptr) : current(p){}
+        friend class SingleLinkedList;
+    public:
         T operator*() const
         {
             return current->value;
         }
         iterator& operator++() {
+            last = current;
             current = current->next;
             return *this;
         }
         iterator operator++(int) {
-            SingleNode<T>* tmp = current;
+            last = current;
             current = current->next;
-            return iterator(tmp);
+            return iterator(last);
         }
-        SingleNode<T>* operator->() const {
-            return current;
+        T* operator->() const {
+            return &current->value;
         }
         bool operator==(const iterator &arg) const {
             return arg.current == this->current;
@@ -247,5 +252,23 @@ void SingleLinkedList<T>::remove(unsigned int index)
         memcpy(temp, noNeed, sizeof(SingleNode<T>));
         delete noNeed;
     }
+}
+
+template<typename T>
+void SingleLinkedList<T>::reverse()
+{
+    if(ElementNumber <= 0) return;
+    SingleNode<T> *node = head, *save = node->next, *temp;
+    while(save != nullptr)
+    {
+        temp = node;
+        node = save;
+        save = save->next;
+        node->next = temp;
+    }
+    node = head;
+    head = tail;
+    tail = node;
+    tail->next = nullptr;
 }
 #endif // SINGLELINKEDLIST_H
