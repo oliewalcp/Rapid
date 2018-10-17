@@ -1,22 +1,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
-#include <string.h>
-#include "Array.h"
-#include <type_traits>
-
-typedef unsigned int __uint32;
-
-template<__uint32 __line, __uint32 __column, typename value_type>
-class _M_Base
-{
-protected:
-    value_type __data[__line][__column];
-public:
-    virtual __uint32 line() { return __line; }
-    virtual __uint32 column() { return __column; }
-    virtual value_type operator()(__uint32 line, __uint32 column)
-    { return __data[line][column]; }
-};
+#include "TypeBase.h"
 
 template<__uint32 __line, __uint32 __column>
 class Matrix : public _M_Base<__line, __column, double>
