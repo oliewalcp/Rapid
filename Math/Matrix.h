@@ -12,13 +12,13 @@ public:
     Matrix operator=(const Matrix<__line, __column> &arg);
     Matrix operator+(const Matrix<__line, __column> &arg);
     Matrix operator-(const Matrix<__line, __column> &arg);
-    Matrix operator*(const double arg);
+    Matrix operator+=(const Matrix<__line, __column> &arg);
+    Matrix operator-=(const Matrix<__line, __column> &arg);
 
     template<__uint32 _line_, __uint32 _column_>
-    Matrix operator*(const Matrix<_line_, _column_> &arg) const
+    Matrix<__line, _column_> operator*(const Matrix<_line_, _column_> &arg) const
     {
-        if(__column != _line_ || __line != _column_)
-            return Matrix<0, 0>();
+        static_assert(!(__column != _line_), "the column of firth matrix is different from the line of second matrix");
         Matrix<__line, _column_> result;
         for(__uint32 line = 0; line < __line; line++)
             for(__uint32 column = 0; column < _column_; column++)
@@ -26,9 +26,8 @@ public:
                     result.__data[line][column] = this->__data[line][index] * arg.__data[index][column];
         return result;
     }
-    Matrix operator+=(const Matrix<__line, __column> &arg);
-    Matrix operator-=(const Matrix<__line, __column> &arg);
-    Matrix operator*=(const double arg);
+
+    void Multiply(const double arg, const __uint32 line);
 };
 
 template<__uint32 __line, __uint32 __column>
@@ -75,13 +74,6 @@ Matrix<__line, __column> Matrix<__line, __column>::operator-(const Matrix<__line
 }
 
 template<__uint32 __line, __uint32 __column>
-Matrix<__line, __column> Matrix<__line, __column>::operator*(const double arg)
-{
-    Matrix<__line, __column> result;
-    return result *= arg;
-}
-
-template<__uint32 __line, __uint32 __column>
 Matrix<__line, __column> Matrix<__line, __column>::operator+=(const Matrix<__line, __column> &arg)
 {
     for(__uint32 i = 0; i < __line; i++)
@@ -100,12 +92,10 @@ Matrix<__line, __column> Matrix<__line, __column>::operator-=(const Matrix<__lin
 }
 
 template<__uint32 __line, __uint32 __column>
-Matrix<__line, __column> Matrix<__line, __column>::operator*=(const double arg)
+void Matrix<__line, __column>::Multiply(const double arg, const __uint32 line)
 {
-    for(__uint32 i = 0; i < __line; i++)
-        for(__uint32 j = 0; j < __column; j++)
-            this->__data[i][j] *= arg;
-    return *this;
+    for(__uint32 i = 0; i < __column; i++)
+        this->__data[line][i] *= arg;
 }
 
 #endif // MATRIX_H

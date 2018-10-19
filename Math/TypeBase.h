@@ -7,9 +7,8 @@ typedef unsigned int __uint32;
 template<__uint32 __line, __uint32 __column, typename value_type>
 class _M_Base
 {
-protected:
-    value_type __data[__line][__column];
 public:
+    value_type __data[__line][__column];
     virtual __uint32 line() { return __line; }
     virtual __uint32 column() { return __column; }
     virtual value_type operator()(__uint32 line, __uint32 column)
