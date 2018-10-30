@@ -1,64 +1,136 @@
 #ifndef TYPEBASE_H
 #define TYPEBASE_H
-#include <string.h>
+#include <cstring>
+#include <vector>
+#include "../Exception.h"
 
 typedef unsigned int __uint32;
 
-template<__uint32 __line, __uint32 __column, typename value_type>
+template<typename value_type>
 class _M_Base
 {
+protected:
+    std::vector<value_type *> *__data;//begin at 0
+    __uint32 __column;
 public:
-    value_type __data[__line][__column];
+    _M_Base()
+    {
+        __data = nullptr;
+        __column = 0;
+    }
+    _M_Base(const __uint32 line, const __uint32 column, const value_type &default_value);
+    virtual ~_M_Base();
 
-    virtual __uint32 line() { return __line; }
+    virtual __uint32 line() { return __data->size(); }
     virtual __uint32 column() { return __column; }
-
     /* get the value at the position of the line and column
      * param[line]:position of the line, begin at 0
      * param[column]:position of the column, begin at 0
      */
-    virtual value_type operator()(__uint32 line, __uint32 column)
-    { return __data[line][column]; }
-    virtual value_type get_value(__uint32 line, __uint32 column)
-    { return __data[line][column];}
-    /* swap the value of two line */
-    virtual void swap_line(__uint32 line1, __uint32 line2)
+    virtual inline value_type& get_value(const __uint32 line, const __uint32 column)
     {
-        value_type *temp = reinterpret_cast<value_type *>(::operator new(sizeof(value_type)));
-        for(__uint32 i = 0; i < __column; i++)
-        {
-            memmove(temp, &__data[line1][i], sizeof(value_type));
-            memmove(&__data[line1][i], &__data[line2][i], sizeof(value_type));
-            memmove(&__data[line2][i], temp, sizeof(value_type));
-        }
-        ::operator delete(temp);
+        value_type *temp = __data->at(line);
+        return temp[column];
+    }
+    virtual inline void swap_line(const __uint32 line1, const __uint32 line2)
+    {
+        value_type *temp1 = __data->at(line1);
+        value_type *temp2 = __data->at(line2);
+        value_type *temp = temp1;
+        (*__data)[line1] = temp2;
+        (*__data)[line2] = temp;
+    }
+    virtual inline void set_value(const __uint32 line, const __uint32 column, const value_type &value)
+    {
+        value_type *temp = __data->at(line);
+        memcpy(temp + sizeof(value_type), &value, sizeof(value_type));
     }
     /* let all the value of src line plus the value of dst line
      * param[src]: the value of src line will change
      * param[dst]: the value of src line will not change
      */
-    virtual void line_add(__uint32 src, __uint32 dst)
-    {
-        for(__uint32 i = 0; i < __column; i++)
-            __data[src][i] += __data[dst][i];
-    }
+    virtual void line_add(const __uint32 src, const __uint32 dst);
     /* let all the value of src line minus the value of dst line
      * param[src]: the value of src line will change
      * param[dst]: the value of src line will not change
      */
-    virtual void line_sub(__uint32 src, __uint32 dst)
-    {
-        for(__uint32 i = 0; i < __column; i++)
-            __data[src][i] -= __data[dst][i];
-    }
-    /* change the value at the position of the line and column
-     * param[line]: the position of the line
-     * param[column]: the position of the column
+    virtual void line_sub(const __uint32 src, const __uint32 dst);
+    /* let all the value of src column plus the value of dst column
+     * param[src]: the value of src line will change
+     * param[dst]: the value of src line will not change
      */
-    virtual void set_value(const __uint32 line, const __uint32 column, const value_type& value)
-    {
-        memcpy(&__data[line][column], &value, sizeof(value_type));
-    }
+    virtual void column_add(const __uint32 src, const __uint32 dst);
+    /* let all the value of src column minus the value of dst column
+     * param[src]: the value of src line will change
+     * param[dst]: the value of src line will not change
+     */
+    virtual void column_sub(const __uint32 src, const __uint32 dst);
 };
+
+template<typename value_type>
+_M_Base<value_type>::_M_Base(const __uint32 line, const __uint32 column, const value_type &default_value)
+{
+    __column = column;
+    __data = new std::vector<value_type *>(line);
+    for(__uint32 i = 0; i < line; i++)
+    {
+        value_type *temp = new value_type[column];
+        for(__uint32 j = 0; j < column; j++)
+            temp[j] = default_value;
+        __data->push_back(temp);
+    }
+}
+
+template<typename value_type>
+_M_Base<value_type>::~_M_Base()
+{
+    __uint32 row = __data->size();
+    for(__uint32 i = 0; i < row; i++)
+    {
+        value_type *temp = __data->at(i);
+        delete[] temp;
+    }
+    __data->clear();
+}
+
+template<typename value_type>
+void _M_Base<value_type>::line_add(const __uint32 src, const __uint32 dst)
+{
+    value_type *line1 = __data->at(src);
+    value_type *line2 = __data->at(dst);
+    for(__uint32 i = 0; i < __column; i++)
+        line1[i] += line2[i];
+}
+
+template<typename value_type>
+void _M_Base<value_type>::line_sub(const __uint32 src, const __uint32 dst)
+{
+    value_type *line1 = __data->at(src);
+    value_type *line2 = __data->at(dst);
+    for(__uint32 i = 0; i < __column; i++)
+        line1[i] -= line2[i];
+}
+
+template<typename value_type>
+void _M_Base<value_type>::column_add(const __uint32 src, const __uint32 dst)
+{
+    __uint32 line_num = __data->size();
+    for(__uint32 i = 0; i < line_num; i++)
+    {
+        value_type *temp = __data->at(i);
+        temp[src] += temp[dst];
+    }
+}
+
+template<typename value_type>
+void _M_Base<value_type>::column_sub(const __uint32 src, const __uint32 dst)
+{
+    __uint32 line_num = __data->size();
+    for(__uint32 i = 0; i < line_num; i++)
+    {
+        value_type *temp = __data->at(i);
+        temp[src] -= temp[dst];
+    }
+}
 
 #endif // TYPEBASE_H
