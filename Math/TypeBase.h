@@ -32,6 +32,10 @@ public:
         value_type *temp = __data->at(line);
         return temp[column];
     }
+    virtual inline value_type* get_line_value(const __uint32 line)
+    {
+        return __data->at(line);
+    }
     virtual inline void swap_line(const __uint32 line1, const __uint32 line2)
     {
         value_type *temp1 = __data->at(line1);
@@ -76,7 +80,7 @@ template<typename value_type>
 _M_Base<value_type>::_M_Base(const __uint32 line, const __uint32 column, const value_type &default_value)
 {
     __column = column;
-    __data = new std::vector<value_type *>(line);
+    __data = new std::vector<value_type *>;
     for(__uint32 i = 0; i < line; i++)
     {
         value_type *temp = new value_type[column];

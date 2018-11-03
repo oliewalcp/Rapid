@@ -3,16 +3,17 @@
 #include "../Math/TypeBase.h"
 #include "FileBase.h"
 #include "../Exception.h"
+#include <iostream>
 
 struct RGB
 {
 private:
     typedef unsigned char __uint8;
 public:
-    __uint8 r;
-    __uint8 g;
-    __uint8 b;
-    __uint8 a;
+    __uint8 r = 0;
+    __uint8 g = 0;
+    __uint8 b = 0;
+    __uint8 a = 0;
 };
 
 struct BMP
@@ -41,7 +42,7 @@ private:
 
     struct FILE_HEADER
     {
-        __uint16 file_logo = 0x424D;
+        __uint16 file_logo = 0x4D42;
         __uint32 file_size = 0;
         __uint32 reserve = 0;
         __uint32 begin_pos = 1078;
@@ -95,7 +96,35 @@ public:
     }
     static void save(const char* filename, _M_Base<__uint8> *content)
     {
-
+        struct FILE_HEADER *header = new struct FILE_HEADER;
+        struct FILE_INFO *info = new struct FILE_INFO;
+        info->image_width = content->column();
+        info->image_height = content->line();
+        info->data_size = info->image_height * info->image_width;
+        header->file_size = 1078 + info->data_size;
+        struct RGB *rgb = new struct RGB[256];
+        for(__uint16 i = 0; i < 256; i++)
+        {
+            rgb[i].a = rgb[i].b = rgb[i].g = i;
+        }
+        char *file_content = new char[header->file_size];
+        memcpy(file_content, &header->file_logo, 2);
+        memcpy(file_content + 2, &header->file_size, 4);
+        memcpy(file_content + 6, &header->reserve, 4);
+        memcpy(file_content + 10, &header->begin_pos, 4);
+        memcpy(file_content + 14, info, 40);
+        memcpy(file_content + 54, rgb, 1024);
+        delete info;
+        delete[] rgb;
+        __uint64 index = 1078;
+        for(__uint32 i = 0; i < content->line(); i++)
+        {
+            __uint8 *temp = content->get_line_value(i);
+            memcpy(file_content + index, temp, content->column());
+            index += content->column();
+        }
+        FileBaes::save(filename, file_content, header->file_size);
+        delete header;
     }
 };
 

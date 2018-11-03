@@ -24,7 +24,10 @@ public:
     template<typename func = BMP>
     static GrayImage* parse(const char *filename, Format format = Format::BMP)
     {
-        return reinterpret_cast<GrayImage*>(func::parse(filename));
+        switch (format) {
+        case Format::BMP: return reinterpret_cast<GrayImage*>(func::parse(filename));
+        }
+        return nullptr;
     }
 };
 
