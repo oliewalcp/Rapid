@@ -2,7 +2,9 @@
 #define GRAYIMAGE_H
 #include <typeinfo>
 #include "../TypeBase.h"
-#include "ImageParsing.h"
+#include "../../File/Image.h"
+
+typedef unsigned char __uint8;
 
 // support .bmp file currently
 enum class Format : __uint8
@@ -19,21 +21,10 @@ class GrayImage : public _M_Base<__uint8>
 public:
     GrayImage(const __uint32 line, const __uint32 column, const __uint8 default_value = 0);
 
-    template<typename func = Image>
+    template<typename func = BMP>
     static GrayImage* parse(const char *filename, Format format = Format::BMP)
     {
-        if(typeid(func) != typeid(Image))
-            return reinterpret_cast<GrayImage*>(func::parse(filename));
-        else
-        {
-            switch (format) {
-            case Format::BMP: return reinterpret_cast<GrayImage*>(func::parse_gray_image_by_bmp(filename));
-            case Format::JPEG: return reinterpret_cast<GrayImage*>(func::parse_gray_image_by_jpeg(filename));
-            case Format::JPG: return reinterpret_cast<GrayImage*>(func::parse_gray_image_by_jpg(filename));
-            case Format::PNG: return reinterpret_cast<GrayImage*>(func::parse_gray_image_by_png(filename));
-            }
-        }
-        return nullptr;
+        return reinterpret_cast<GrayImage*>(func::parse(filename));
     }
 };
 

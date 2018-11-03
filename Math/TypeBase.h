@@ -43,7 +43,12 @@ public:
     virtual inline void set_value(const __uint32 line, const __uint32 column, const value_type &value)
     {
         value_type *temp = __data->at(line);
-        memcpy(temp + sizeof(value_type), &value, sizeof(value_type));
+        memcpy(temp + sizeof(value_type) * column, &value, sizeof(value_type));
+    }
+    virtual inline void set_line_value(const value_type* value, const __uint32 line)
+    {
+        value_type *temp = __data->at(line);
+        memcpy(temp, value, column());
     }
     /* let all the value of src line plus the value of dst line
      * param[src]: the value of src line will change
