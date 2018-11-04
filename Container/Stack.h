@@ -2,7 +2,6 @@
 #define STACK_H
 #include "C_Base.h"
 #include "../Exception.h"
-#include <bits/move.h>
 
 template<typename T>
 struct StackNode

@@ -2,7 +2,7 @@
 #define DOUBLELINKEDLIST_H
 #include "../Exception.h"
 #include "C_Base.h"
-#include <string>
+
 template<typename T>
 struct DoubleNode
 {
@@ -78,40 +78,9 @@ public:
     void insert(const unsigned int index, const T& arg);//在某一个位置插入元素
     void insert(const unsigned int index, T && arg);//在某一个位置插入元素
     void remove(const unsigned int index);//移除索引号为index的元素
-    inline void erase(iterator it)
-    {
-        __remove(it.current);
-    }
-    inline void erase(reverse_iterator it)
-    {
-        __remove(it.current);
-    }
+
     void reverse();//反转
     void clear();//清空链表
-    inline T &front()//获取头结点的值
-    {
-        return *iterator(head);
-    }
-    inline T &back()//获取尾节点的值
-    {
-        return *iterator(tail);
-    }
-    inline iterator begin() const
-    {
-        return iterator(head);
-    }
-    inline iterator end() const
-    {
-        return iterator();
-    }
-    inline reverse_iterator rbegin() const
-    {
-        return reverse_iterator(tail);
-    }
-    inline reverse_iterator rend() const
-    {
-        return reverse_iterator();
-    }
     T& operator[](const unsigned int index);//获取某个位置的元素
     ~DoubleLinkedList();
 
@@ -199,20 +168,25 @@ public:
     {
         return reverse_iterator(nullptr);
     }
+
+    inline void erase(iterator it)
+    {
+        __remove(it.current);
+    }
+    inline void erase(reverse_iterator it)
+    {
+        __remove(it.current);
+    }
+    inline T &front()//获取头结点的值
+    {
+        return *iterator(head);
+    }
+    inline T &back()//获取尾节点的值
+    {
+        return *iterator(tail);
+    }
 };
 
-template<typename T>
-inline T& DoubleLinkedList<T>::front()
-{
-    if(head == nullptr) throw Exception("List is empty");
-    return head->value;
-}
-template<typename T>
-inline T& DoubleLinkedList<T>::back()
-{
-    if(tail == nullptr) throw Exception("List is empty");
-    return tail->value;
-}
 template<typename T>
 DoubleLinkedList<T>::~DoubleLinkedList()
 {
@@ -318,7 +292,7 @@ void DoubleLinkedList<T>::insert(const unsigned int index, const T &arg)
 }
 
 template<typename T>
-void DoubleLinkedList::insert(const unsigned int index, T &&arg)
+void DoubleLinkedList<T>::insert(const unsigned int index, T &&arg)
 {
     if(ElementNumber == 0) push_front(std::move(arg));
     else if(index >= ElementNumber) push_back(std::move(arg));

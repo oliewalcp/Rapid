@@ -1,6 +1,5 @@
 #ifndef SINGLELINKEDLIST_H
 #define SINGLELINKEDLIST_H
-#include <string>
 #include "C_Base.h"
 
 template<typename T>
@@ -67,14 +66,6 @@ public:
     void remove(unsigned int index);//移除索引号为index的元素
     void reverse();//反转
     void clear();//清空链表
-    inline T &front()//获取头结点的值
-    {
-        return *iterator(head);
-    }
-    inline T &back()//获取尾节点的值
-    {
-        return *iterator(tail);
-    }
     T& operator[](unsigned int index);//获取某个位置的元素
     ~SingleLinkedList();
 
@@ -120,24 +111,20 @@ public:
     {
         return iterator(nullptr);
     }
+    inline T &front()//获取头结点的值
+    {
+        return *iterator(head);
+    }
+    inline T &back()//获取尾节点的值
+    {
+        return *iterator(tail);
+    }
 };
 
 template<typename T>
 inline unsigned int SingleLinkedList<T>::size()
 {
     return ElementNumber;
-}
-template<typename T>
-inline T& SingleLinkedList<T>::front()
-{
-    if(head == nullptr) return 0;
-    return head->value;
-}
-template<typename T>
-inline T& SingleLinkedList<T>::back()
-{
-    if(tail == nullptr) return 0;
-    return tail->value;
 }
 template<typename T>
 SingleLinkedList<T>::~SingleLinkedList()
