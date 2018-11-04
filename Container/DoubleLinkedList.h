@@ -1,14 +1,15 @@
 #ifndef DOUBLELINKEDLIST_H
 #define DOUBLELINKEDLIST_H
-#include <exception>
+#include "../Exception.h"
+#include "C_Base.h"
 #include <string>
 template<typename T>
 struct DoubleNode
 {
-    DoubleNode(){next = nullptr; previous = nullptr;}
+    DoubleNode(_C_Base<T> *arg) : next(nullptr), previous(nullptr), value(arg) {}
     DoubleNode *next;
     DoubleNode *previous;
-    T value;
+    _C_Base<T> *value;
 };
 
 template<typename T>
@@ -19,22 +20,99 @@ private:
     DoubleNode<T> *tail = nullptr;//尾结点
     unsigned int ElementNumber = 0;//元素个数
 
-    inline void create_list();//创建链表
+    inline void __create_list(const T& arg)//创建链表
+    {
+        head = __get_node(arg);
+        tail = head;
+    }
+    inline void __create_list(T && arg)//创建链表
+    {
+        head = __get_node(std::move(arg));
+        tail = head;
+    }
+    inline DoubleNode<T>* __get_node(const T & arg)
+    {
+        return new DoubleNode<T>((_C_Base<T> *)(&arg));
+    }
+    inline DoubleNode<T>* __get_node(T && arg)
+    {
+        return new DoubleNode<T>((_C_Base<T> *)(&arg));
+    }
+    inline void __add_tail(DoubleNode<T> *arg)
+    {
+        tail->next = arg;
+        arg->previous = tail;
+        tail = arg;
+    }
+    inline void __add_head(DoubleNode<T> *arg)
+    {
+        arg->next = head;
+        head->previous = arg;
+        head = arg;
+    }
+    inline void __add_middle(DoubleNode<T> *new_n, DoubleNode<T> *old_n)
+    {
+        new_n->next = old_n->next;
+        old_n->next->previous = new_n;
+        new_n->previous = old_n;
+        old_n->next = new_n;
+        ElementNumber++;
+    }
+    inline void __remove(DoubleNode<T> *arg)
+    {
+        if(arg->previous != nullptr) arg->previous->next = arg->next;
+        if(arg->next != nullptr) arg->next->previous = arg->previous;
+        delete arg->value;
+        delete arg;
+        ElementNumber--;
+    }
 public:
-    inline unsigned int size();//获取链表的长度
-    inline bool empty(){return ElementNumber > 0 ? false : true;}
-    inline void push_back(T& arg);//从后面插入元素
-    inline void push_front(T& arg);//从前面插入元素
+    inline unsigned int size(){ return ElementNumber; }//获取链表的长度
+    inline bool empty(){ return ElementNumber > 0 ? false : true; }
+    void push_back(const T& arg);//从后面插入元素
+    void push_back(T && arg);
+    void push_front(const T& arg);//从前面插入元素
+    void push_front(T && arg);
     inline void pop_back();//删除最后一个元素
     inline void pop_front();//删除最前一个元素
-    void insert(unsigned int index, T& arg);//在某一个位置插入元素
-    void remove(T &arg);//移除某一个元素
-    void remove(unsigned int index);//移除索引号为index的元素
+    void insert(const unsigned int index, const T& arg);//在某一个位置插入元素
+    void insert(const unsigned int index, T && arg);//在某一个位置插入元素
+    void remove(const unsigned int index);//移除索引号为index的元素
+    inline void erase(iterator it)
+    {
+        __remove(it.current);
+    }
+    inline void erase(reverse_iterator it)
+    {
+        __remove(it.current);
+    }
     void reverse();//反转
     void clear();//清空链表
-    inline T &front();//获取头结点的值
-    inline T &back();//获取尾节点的值
-    T& operator[](unsigned int index);//获取某个位置的元素
+    inline T &front()//获取头结点的值
+    {
+        return *iterator(head);
+    }
+    inline T &back()//获取尾节点的值
+    {
+        return *iterator(tail);
+    }
+    inline iterator begin() const
+    {
+        return iterator(head);
+    }
+    inline iterator end() const
+    {
+        return iterator();
+    }
+    inline reverse_iterator rbegin() const
+    {
+        return reverse_iterator(tail);
+    }
+    inline reverse_iterator rend() const
+    {
+        return reverse_iterator();
+    }
+    T& operator[](const unsigned int index);//获取某个位置的元素
     ~DoubleLinkedList();
 
     //迭代器
@@ -42,11 +120,13 @@ public:
     {
     private:
         DoubleNode<T> *current = nullptr;
-    public:
         iterator(DoubleNode<T> *p = nullptr) : current(p){}
-        T operator*() const
+
+        friend class DoubleLinkedList;
+    public:
+        T& operator*() const
         {
-            return current->value;
+            return current->value->__data;
         }
         iterator& operator++() {
             current = current->next;
@@ -58,7 +138,7 @@ public:
             return iterator(tmp);
         }
         T* operator->() const {
-            return &current->value;
+            return &current->value->__data;
         }
         bool operator==(const iterator &arg) const {
             return arg.current == this->current;
@@ -89,7 +169,7 @@ public:
     public:
         T operator*() const
         {
-            return current->value;
+            return current->value->__data;
         }
         reverse_iterator& operator++() {
             current = current->previous;
@@ -101,7 +181,7 @@ public:
             return reverse_iterator(temp);
         }
         T* operator->() const {
-            return &current->value;
+            return &current->value->__data;
         }
         bool operator==(const reverse_iterator &arg) const {
             return arg.current == this->current;
@@ -122,20 +202,15 @@ public:
 };
 
 template<typename T>
-inline unsigned int DoubleLinkedList<T>::size()
-{
-    return ElementNumber;
-}
-template<typename T>
 inline T& DoubleLinkedList<T>::front()
 {
-    if(head == nullptr) return 0;
+    if(head == nullptr) throw Exception("List is empty");
     return head->value;
 }
 template<typename T>
 inline T& DoubleLinkedList<T>::back()
 {
-    if(tail == nullptr) return 0;
+    if(tail == nullptr) throw Exception("List is empty");
     return tail->value;
 }
 template<typename T>
@@ -145,39 +220,49 @@ DoubleLinkedList<T>::~DoubleLinkedList()
 }
 
 template<typename T>
-inline void DoubleLinkedList<T>::push_back(T &arg)
+void DoubleLinkedList<T>::push_back(const T &arg)
 {
     if(tail == nullptr)
-    {
-        create_list();
-        tail->value = arg;
-    }
+        __create_list(arg);
     else
     {
-        DoubleNode<T> *rear = new DoubleNode<T>;
-        rear->value = arg;
-        rear->previous = tail;
-        tail->next = rear;
-        tail = rear;
+        __add_tail(__get_node(arg));
     }
     ElementNumber++;
 }
 
 template<typename T>
-inline void DoubleLinkedList<T>::push_front(T &arg)
+void DoubleLinkedList<T>::push_back(T &&arg)
 {
-    if(head == nullptr)
-    {
-        create_list();
-        head->value = arg;
-    }
+    if(tail == nullptr)
+        __create_list(std::move(arg));
     else
     {
-        DoubleNode<T> *temp = new DoubleNode<T>;
-        temp->value = arg;
-        temp->next = head;
-        head->previous = temp;
-        head = temp;
+        __add_tail(__get_node(std::move(arg)));
+    }
+    ElementNumber++;
+}
+
+template<typename T>
+void DoubleLinkedList<T>::push_front(const T &arg)
+{
+    if(head == nullptr)
+        __create_list(arg);
+    else
+    {
+        __add_head(__get_node(arg));
+    }
+    ElementNumber++;
+}
+
+template<typename T>
+void DoubleLinkedList<T>::push_front(T &&arg)
+{
+    if(head == nullptr)
+        __create_list(arg);
+    else
+    {
+        __add_head(__get_node(std::move(arg)));
     }
     ElementNumber++;
 }
@@ -188,17 +273,11 @@ void DoubleLinkedList<T>::clear()
     for(DoubleNode<T>* point = head; point != nullptr;)
     {
         DoubleNode<T>* temp = point->next;
+        delete point->value;
         delete point;
         point = temp;
     }
     ElementNumber = 0;
-}
-
-template<typename T>
-inline void DoubleLinkedList<T>::create_list()
-{
-    head = new DoubleNode<T>;
-    tail = head;
 }
 
 template<typename T>
@@ -208,8 +287,7 @@ inline void DoubleLinkedList<T>::pop_back()
     tail = tail->previous;
     if(ElementNumber == 1) head = nullptr;
     else tail->next = nullptr;
-    delete temp;
-    ElementNumber--;
+    __remove(temp);
 }
 
 template<typename T>
@@ -219,12 +297,11 @@ inline void DoubleLinkedList<T>::pop_front()
     head = head->next;
     if(ElementNumber == 1) tail = nullptr;
     else head->previous = nullptr;
-    delete temp;
-    ElementNumber--;
+    __remove(temp);
 }
 
 template<typename T>
-void DoubleLinkedList<T>::insert(unsigned int index, T &arg)
+void DoubleLinkedList<T>::insert(const unsigned int index, const T &arg)
 {
     if(ElementNumber == 0) push_front(arg);
     else if(index >= ElementNumber) push_back(arg);
@@ -236,48 +313,44 @@ void DoubleLinkedList<T>::insert(unsigned int index, T &arg)
         while(i++ < index - 1)
             temp = temp->next;
         //新建结点
-        DoubleNode<T> *n = new DoubleNode<T>;
-        n->value = arg;
-        n->next = temp->next;
-        temp->next->previous = n;
-        n->previous = temp;
-        temp->next = n;
-        ElementNumber++;
+        __add_middle(__get_node(arg), temp);
     }
 }
 
 template<typename T>
-T& DoubleLinkedList<T>::operator [](unsigned int index)
+void DoubleLinkedList::insert(const unsigned int index, T &&arg)
 {
-    if(ElementNumber == 0) return std::exception("EmptyException");
-    if(index >= ElementNumber) return tail->value;
+    if(ElementNumber == 0) push_front(std::move(arg));
+    else if(index >= ElementNumber) push_back(std::move(arg));
+    else
+    {
+        //找到目标节点的前一个节点
+        DoubleNode<T> *temp = head;
+        unsigned int i = 0;
+        while(i++ < index - 1)
+            temp = temp->next;
+        //新建结点
+        __add_middle(__get_node(std::move(arg)), temp);
+    }
+}
+
+template<typename T>
+T& DoubleLinkedList<T>::operator [](const unsigned int index)
+{
+    if(empty()) throw Exception("List is empty");
+    if(index >= ElementNumber) return tail->value->__data;
     DoubleNode<T> *temp = head;
     unsigned int i = 0;
     while(i++ < index)
         temp = temp->next;
-    return temp->value;
+    return temp->value->__data;
 }
 
 template<typename T>
-void DoubleLinkedList<T>::remove(T &arg)
-{
-    for(DoubleNode<T> *temp = head; temp != nullptr; temp = temp->next)
-    {
-        if(temp->value == arg)
-        {
-            temp->previous->next = temp->next;
-            temp->next->previous = temp->previous;
-            delete temp;
-            break;
-        }
-    }
-}
-
-template<typename T>
-void DoubleLinkedList<T>::remove(unsigned int index)
+void DoubleLinkedList<T>::remove(const unsigned int index)
 {
     if(ElementNumber == 0) return;
-    else if(ElementNumber == 1) pop_front();
+    if(ElementNumber == 1) pop_front();
     else if(index >= ElementNumber) pop_back();
     else
     {
@@ -288,9 +361,7 @@ void DoubleLinkedList<T>::remove(unsigned int index)
             if(temp->next == nullptr) break;
             temp = temp->next;
         }
-        temp->previous->next = temp->next;
-        temp->next->previous = temp->previous;
-        delete temp;
+        __remove(temp);
     }
 }
 template<typename T>

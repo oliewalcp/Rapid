@@ -1,12 +1,15 @@
 #ifndef STACK_H
 #define STACK_H
+#include "C_Base.h"
+#include "../Exception.h"
+#include <bits/move.h>
 
 template<typename T>
 struct StackNode
 {
-    StackNode() {next = nullptr;}
+    StackNode(_C_Base<T> *data) : next(nullptr), data(data) {}
     StackNode<T> *next;
-    T arg;
+    _C_Base<T> *data;
 };
 
 template<typename T>
@@ -15,33 +18,51 @@ class Stack
 private:
     unsigned int number = 0;
     StackNode<T> *topNode = nullptr;
-public:
-    unsigned int size(){return number;}//获取元素个数
-    inline bool empty(){return topNode != nullptr ? false : true;}
-    void pop()
+
+    inline void __push(T && arg)
     {
-        if(topNode == nullptr) return;
+        StackNode<T> *temp = new StackNode<T>((_C_Base<T> *)(&arg));
+        temp->next = topNode;
+        topNode = temp;
+    }
+public:
+    ~Stack();
+    inline unsigned int size(){return number;}//获取元素个数
+    inline bool empty(){return topNode != nullptr ? false : true;}
+    inline void pop()
+    {
+        if(topNode == nullptr)
+            return;
         StackNode<T> *temp = topNode;
         topNode = topNode->next;
+        delete temp->data;
         delete temp;
         number--;
     }
-    void push(const T& arg)
+    inline void push(const T& arg)
     {
-        StackNode<T> *temp = new StackNode<T>;
-        temp->arg = arg;
+        StackNode<T> *temp = new StackNode<T>((_C_Base<T> *)(&arg));
         temp->next = topNode;
         topNode = temp;
-        number++;
     }
-    T top()
+    inline void push(T && arg)
+    {
+        __push(std::move(arg));
+    }
+    inline T& top()
     {
         if(topNode == nullptr)
-            return T();
-        return topNode->arg;
+            throw Exception("Stack is empty");
+        return topNode->data->__data;
     }
     void clear();
 };
+
+template<typename T>
+Stack<T>::~Stack()
+{
+    clear();
+}
 
 template<typename T>
 void Stack<T>::clear()
@@ -50,6 +71,7 @@ void Stack<T>::clear()
     {
         StackNode<T> *temp = topNode;
         topNode = topNode->next;
+        delete temp->data;
         delete temp;
     }
     number = 0;
