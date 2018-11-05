@@ -89,10 +89,10 @@ public:
     {
     private:
         DoubleNode<T> *current = nullptr;
-        iterator(DoubleNode<T> *p = nullptr) : current(p){}
 
         friend class DoubleLinkedList;
     public:
+        iterator(DoubleNode<T> *p = nullptr) : current(p){}
         T& operator*() const
         {
             return current->value->__data;
@@ -132,10 +132,10 @@ public:
     {
     private:
         DoubleNode<T> *current = nullptr;
-        reverse_iterator(DoubleNode<T> *p = nullptr) : current(p){}
 
         friend class DoubleLinkedList;
     public:
+        reverse_iterator(DoubleNode<T> *p = nullptr) : current(p){}
         T operator*() const
         {
             return current->value->__data;
