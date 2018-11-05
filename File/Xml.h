@@ -29,7 +29,11 @@ public:
             delete __parent;
         clear();
     }
-    inline void append_text(std::string text)
+    inline void append_text(const std::string& text)
+    {
+        __text += text;
+    }
+    inline void append_text(const char& text)
     {
         __text += text;
     }
