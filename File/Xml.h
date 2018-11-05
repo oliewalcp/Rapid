@@ -16,28 +16,22 @@ private:
 
     std::string __name;
     std::string __text;
-    __List __child;
-    XmlNode *__parent;
+    __List *__child;
     __Map *__attributes;
+    XmlNode *__parent;
 public:
-
     XmlNode(std::string name, std::string text = "") : __text(text), __parent(nullptr), __attributes(new __Map), __name(name) {}
-    XmlNode(XmlNode *parent, std::string text = "") : __parent(parent), __text(text), __attributes(new __Map) {}
-    ~XmlNode()
+    XmlNode(XmlNode *parent, std::string name, std::string text = "") :
+        __parent(parent), __text(text), __attributes(new __Map), __name(name) {}
+    virtual ~XmlNode()
     {
         if(__parent != nullptr)
             delete __parent;
-        delete __attributes;
+        clear();
     }
-    void set_attribute(std::string key, std::string value)
+    inline void append_text(std::string text)
     {
-        (*__attributes)[key] = value;
-    }
-    std::string get_attribute(std::string key)
-    {
-        __Map::iterator it = __attributes->find(key);
-        if(it == __attributes->end()) return "";
-        return (*it).second;
+        __text += text;
     }
     inline void set_text(std::string arg)
     {
@@ -55,41 +49,60 @@ public:
     {
         return __parent;
     }
-    inline void append_child(XmlNode *node)
-    {
-        __child.push_back(node);
-        node->set_parent(this);
-    }
     inline std::string get_name()
     {
         return __name;
     }
-    inline const __List& get_children()
+    void set_attribute(std::string key, std::string value)
     {
-        return __child;
+        (*__attributes)[key] = value;
+    }
+    std::string get_attribute(std::string key)
+    {
+        __Map::iterator it = __attributes->find(key);
+        if(it == __attributes->end()) return "";
+        return (*it).second;
+    }
+    inline void append_child(XmlNode *node)
+    {
+        __child->push_back(node);
+        node->set_parent(this);
     }
     void remove_child(std::string name)
     {
-        for(__Iter it = __child.begin(); it != __child.end(); it++)
+        for(__Iter it = __child->begin(); it != __child->end(); it++)
         {
             if((*it)->get_name() == name)
             {
-                __child.erase(it);
+                __child->erase(it);
                 break;
             }
         }
     }
     void remove_children(std::string name)
     {
-        for(__Iter it = __child.begin(); it != __child.end(); it++)
+        for(__Iter it = __child->begin(); it != __child->end(); it++)
         {
             if((*it)->get_name() == name)
             {
                 __Iter temp = it;
                 it++;
-                __child.erase(temp);
+                __child->erase(temp);
             }
         }
+    }
+    inline const __List& get_children()
+    {
+        return *__child;
+    }
+    void clear()
+    {
+        while(__child->size() > 0)
+        {
+            delete __child->front();
+            __child->pop_front();
+        }
+        delete __attributes;
     }
 };
 
@@ -99,6 +112,7 @@ private:
     typedef DoubleLinkedList<XmlNode *> __List;
     typedef __List::iterator __Iter;
     typedef std::unordered_map<std::string, std::string> __Map;
+    typedef std::unordered_map<std::string, char> __Dictionary;
     typedef unsigned long long __uint64;
 
     static constexpr __uint64 START = 0;
@@ -117,9 +131,9 @@ private:
     static constexpr __uint64 COMMENT = 0x1000;
 
     std::string *__file_name;
-    __List *__root;
-    __Map *__header;
-    __Map *__char_dictionary;
+    __Dictionary *__char_dictionary;
+    __List *__child;
+    __Map *__attributes;
 
     inline bool __is_word(const char& ch)
     {
@@ -131,49 +145,61 @@ private:
     }
     inline bool __is_name(const char& ch)
     {
-        return __is_name_start(ch) || (ch >= '0' && ch <= '9');
+        return __is_name_start(ch) || (ch >= '0' && ch <= '9') || ch == '.' || ch == '-';
     }
-    inline bool __is_space(const char ch)
+    inline bool __is_space(const char& ch)
     {
         return (ch == '\t' || ch == '\n' || ch == ' ' || ch == '\r');
     }
+    inline bool __is_special_char(const char& ch)
+    {
+        return ch == '<' || ch == '>' || ch == '&' || ch == '"' || ch == '\'';
+    }
 public:
-    XmlDocument(std::string filename = "") : __root(nullptr), __header(new __Map), __file_name(nullptr)
+    XmlDocument(std::string filename = "") : __child(nullptr), __attributes(new __Map), __file_name(nullptr)
     {
         if(filename != "")
             parse(filename);
-        __char_dictionary = new __Map();
-        (*__char_dictionary)["lt"] = "<";
-        (*__char_dictionary)["gt"] = ">";
-        (*__char_dictionary)["amp"] = "&";
-        (*__char_dictionary)["quot"] = "\"";
-        (*__char_dictionary)["apos"] = "'";
+        __char_dictionary = new __Dictionary();
+        (*__char_dictionary)["&lt;"] = '<';
+        (*__char_dictionary)["&gt;"] = '>';
+        (*__char_dictionary)["&amp;"] = '&';
+        (*__char_dictionary)["&quot;"] = '"';
+        (*__char_dictionary)["&apos;"] = '\'';
     }
-    ~XmlDocument()
+    virtual ~XmlDocument()
     {
         if(__file_name != nullptr)
             delete __file_name;
-        if(__root != nullptr)
-            delete __root;
-        delete __header;
+        this->clear();
     }
     inline void set_attribute(std::string key, std::string value)
     {
-        (*__header)[key] = value;
+        (*__attributes)[key] = value;
     }
     inline XmlNode* get_root_node()
     {
-        return __root->front();
+        return __child->front();
     }
     std::string get_attribute(std::string key)
     {
-        __Map::iterator it = __header->find(key);
-        if(it == __header->end()) return "";
+        __Map::iterator it = __attributes->find(key);
+        if(it == __attributes->end()) return "";
         return (*it).second;
     }
     void append_child(XmlNode *root)
     {
-        __root->push_back(root);
+        __child->push_back(root);
+        root->set_parent(nullptr);
+    }
+    void clear()
+    {
+        while(__child->size() > 0)
+        {
+            delete __child->front();
+            __child->pop_front();
+        }
+        delete __attributes;
     }
     void parse(std::string filename);
     void save();
@@ -184,102 +210,182 @@ public:
 void XmlDocument::parse(std::string filename)
 {
     __file_name = new std::string(filename);
+    Stack<XmlNode *> *node = new Stack<XmlNode *>;
     std::string file_content = FileBaes::open(filename.data());
-//    std::ifstream file(filename);
-//    if(!file) throw Exception("fail to open file");
-    Stack<std::string> *node = new Stack<std::string>;
     __uint64 current_signal = START;
     std::string key = "", value = "", special = "";
     std::string *temp = &key;
     const char* content = file_content.data();
     for(__uint64 index = 0; index < file_content.length(); index++)
     {
-        ch = content[index];
-        if(current_signal == START)
+        char ch = content[index];
+        if((current_signal & NODE_TEXT) > 0 && (current_signal & (NODE_NAME | HEADER | NODE_OPEN | COMMENT)) == 0)
+        {
+            if(ch == '&')
+            {
+                special = ch;
+                current_signal |= SPECIAL_CHAR;
+            }
+            else if((current_signal & SPECIAL_CHAR) > 0)
+            {
+                if(ch == ';')
+                {
+                    special += ch;
+                    current_signal ^= SPECIAL_CHAR;
+                    auto it = __char_dictionary->find(special);
+                    if(it == __char_dictionary->end()) throw Exception("illegal character");
+                    (*temp) += (*it).second;
+                    special = "";
+                }
+                else if(__is_word(ch)) special += ch;
+                else throw Exception("illegal character");
+            }
+            else if(ch == '<')
+            {
+                current_signal ^= NODE_OPEN;
+            }
+            else if(__is_special_char(ch))
+            {
+                throw Exception("illegal character");
+            }
+            else node->top()->append_text(ch);
+        }
+        else if(current_signal == START)
         {
             if(__is_space(ch)) continue;
             if(ch == '<') current_signal = NODE_OPEN;
         }
-        else if(current_signal & COMMENT > 0)
+        else if((current_signal & COMMENT) > 0)
         {
-            if(ch == '-' && content[++index] == '-' && content[++index] == '>')
-                current_signal ^= COMMENT;
+            if(ch == '-')
+            {
+                if(index + 2 >= file_content.length())
+                    throw Exception("there is no end of file");
+                else if(content[++index] == '-' && content[index + 1] == '>')
+                    current_signal ^= COMMENT;
+            }
         }
         else if(current_signal == NODE_OPEN)
         {
-            if(ch == '?') current_signal = HEADER;
-            else if(ch == '>') current_signal = START;
-            else if(__is_name_start(ch))
+            if(__is_name_start(ch))
             {
-                current_signal = NODE_NAME;
+                special = "";
+                temp = &special;
+                current_signal ^= NODE_NAME | NODE_OPEN;
             }
-            else if(ch == '!' && content[++index] == '-' && content[++index] == '-') current_signal = COMMENT;
+            else if(ch == '?' && content[++index] == 'x' && content[++index] == 'm' && content[++index] == 'l')
+                current_signal ^= HEADER | NODE_OPEN;
+            else if(ch == '!' && content[++index] == '-' && content[++index] == '-') current_signal ^= COMMENT | NODE_OPEN;
+            else if(ch == '<' && content[++index] == '!' && content[++index] == '-' && content[++index] == '-')
+                current_signal ^= COMMENT;
             else throw Exception("a grammar mistake occurs");
         }
-        else if(current_signal & HEADER > 0)
+        else if((current_signal & ATTRIBUTE_NAME) > 0)
         {
-            if(current_signal & ATTRIBUTE_NAME > 0)
+            if(__is_space(ch)) current_signal |= SPACE;
+            else if(__is_name(ch))
             {
-                if(__is_space(ch) && (*temp) != "") current_signal |= SPACE;
-                else if(__is_name(ch))
+                if((current_signal & SPACE) > 0)
+                    throw Exception("a grammar mistake occurs");
+                (*temp) += ch;
+            }
+            else if(ch == '=')
+            {
+                value = "";
+                temp = &value;
+                current_signal ^= ATTRIBUTE_VALUE | ATTRIBUTE_NAME | ATTRIBUTE_VALUE_START;
+            }
+            else throw Exception("a grammar mistake occurs");
+        }
+        else if((current_signal & ATTRIBUTE_VALUE) > 0)
+        {
+            if(ch == '\"')
+            {
+                if((current_signal & ATTRIBUTE_VALUE_START) == 0) current_signal |= ATTRIBUTE_VALUE_START;
+                else
                 {
-                    if(current_signal & SPACE > 0)
-                        throw Exception("a grammar mistake occurs");
-                    (*temp) += ch;
-                }
-                else if(ch == '=')
-                {
-                    temp = &value;
-                    current_signal = ATTRIBUTE_VALUE | HEADER;
+                    if((current_signal & HEADER) > 0) set_attribute(key, value);
+                    else node->top()->set_attribute(key, value);
+                    current_signal ^= ATTRIBUTE_VALUE_START | ATTRIBUTE_VALUE;
                 }
             }
-            else if(current_signal & ATTRIBUTE_VALUE > 0)
+            else if((current_signal & ATTRIBUTE_VALUE_START) > 0 && ch == '&')
             {
-                if(ch == '\"')
-                {
-                    if(current_signal & ATTRIBUTE_VALUE_START == 0) current_signal |= ATTRIBUTE_VALUE_START;
-                    else current_signal ^= ATTRIBUTE_VALUE_START | ATTRIBUTE_VALUE;
-                }
-                else if(current_signal & ATTRIBUTE_VALUE_START > 0 && ch == '&')
-                    current_signal |= SPECIAL_CHAR;
-                else if(current_signal & SPECIAL_CHAR > 0)
-                {
-                    if(ch == ';')
-                    {
-                        current_signal ^= SPECIAL_CHAR;
-                        auto it = __char_dictionary->find(special);
-                        if(it == __char_dictionary->end()) throw Exception("illegal character");
-                        (*temp) += (*it).second;
-                        special = "";
-                    }
-                    else if(__is_word(ch)) special += ch;
-                }
-                else if(__is_space(ch) && current_signal & ATTRIBUTE_VALUE_START == 0) current_signal |= SPACE;
-                else if(__is_name(ch))
-                {
-                    if(current_signal & SPACE > 0)
-                        throw Exception("a grammar mistake occurs");
-                    (*temp) += ch;
-                }
+                current_signal |= SPECIAL_CHAR;
+                special = ch;
             }
-            else if(ch == '?') current_signal |= HEADER_END;
-            else if(current_signal & HEADER_END > 0 && ch == '>')
+            else if((current_signal & SPECIAL_CHAR) > 0)
             {
-                current_signal = START;
+                if(ch == ';')
+                {
+                    current_signal ^= SPECIAL_CHAR;
+                    special += ch;
+                    auto it = __char_dictionary->find(special);
+                    if(it == __char_dictionary->end()) throw Exception("illegal character");
+                    (*temp) += (*it).second;
+                    special = "";
+                }
+                else if(__is_word(ch)) special += ch;
+                else throw Exception("illegal character");
             }
+            else if(__is_space(ch) && (current_signal & ATTRIBUTE_VALUE_START) == 0) current_signal |= SPACE;
+            else (*temp) += ch;
+        }
+        else if((current_signal & HEADER) > 0)
+        {
+            if(ch == '?' && content[++index] == '>') current_signal ^= HEADER;
             else if(__is_space(ch)) continue;
             else if(__is_name_start(ch))
             {
+                key = "";
+                temp = &key;
                 current_signal |= ATTRIBUTE_NAME;
                 (*temp) += ch;
             }
+            else throw Exception("illegal character");
         }
-        else if(current_signal & NODE_NAME)
+        else if((current_signal & NODE_NAME) > 0)
         {
-
+            if(ch == '>')
+            {
+                if((current_signal & SPACE) == 0)
+                {
+                    if(node->size() > 1) node->push(new XmlNode(node->top(), *temp));
+                    else node->push(new XmlNode(*temp));
+                }
+                current_signal ^= NODE_NAME | NODE_TEXT;
+            }
+            else if(ch == '/' && content[++index] == '>')
+            {
+                if(node->top()->get_name() != *temp) throw Exception(node->top()->get_name() + " is not matched");
+                node->pop();
+                current_signal ^= NODE_NAME;
+            }
+            else if((current_signal & SPACE) > 0)
+            {
+                if(__is_space(ch)) continue;
+                if(__is_name_start(ch))
+                {
+                    current_signal ^= ATTRIBUTE_NAME | SPACE;
+                    key = "";
+                    temp = &key;
+                    (*temp) += ch;
+                }
+                else throw Exception("a grammar mistake occurs");
+            }
+            else if(__is_name(ch)) (*temp) += ch;
+            else if(__is_space(ch))
+            {
+                if(node->size() > 1) node->push(new XmlNode(node->top(), *temp));
+                else node->push(new XmlNode(*temp));
+                current_signal |= SPACE;
+            }
+            else throw Exception("illegal character");
         }
+        else throw Exception("a grammar mistake occurs");
     }
-    if(node->size() > 0 || (current_signal != END && current_signal != HEADER)) throw Exception(node->top() + " is not matched");
+    if(node->size() > 0) throw Exception(node->top()->get_name() + " is not matched");
+    if(current_signal != END && current_signal != HEADER) throw Exception("a grammar mistake occurs");
     delete node;
 }
 
@@ -296,11 +402,11 @@ void XmlDocument::save_as(std::string filename)
 
 void XmlDocument::remove_child(XmlNode *node)
 {
-    for(__Iter it = __root->begin(); it != __root->end(); it++)
+    for(__Iter it = __child->begin(); it != __child->end(); it++)
     {
         if((*it) == node)
         {
-            __root->erase(it);
+            __child->erase(it);
             break;
         }
     }
