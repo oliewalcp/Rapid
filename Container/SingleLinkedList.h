@@ -191,12 +191,11 @@ void SingleLinkedList::push_front(T &&arg)
 template<typename T>
 void SingleLinkedList<T>::clear()
 {
-    for(SingleNode<T>* point = head; point != nullptr;)
+    while(size() > 0)
     {
-        SingleNode<T>* temp = point->next;
-        delete point->value;
-        delete point;
-        point = temp;
+        SingleNode<T>* temp = head;
+        delete temp->value;
+        pop_front();
     }
     ElementNumber = 0;
 }

@@ -23,6 +23,7 @@ private:
         StackNode<T> *temp = new StackNode<T>((_C_Base<T> *)(&arg));
         temp->next = topNode;
         topNode = temp;
+        number++;
     }
 public:
     ~Stack();
@@ -43,6 +44,7 @@ public:
         StackNode<T> *temp = new StackNode<T>((_C_Base<T> *)(&arg));
         temp->next = topNode;
         topNode = temp;
+        number++;
     }
     inline void push(T && arg)
     {
@@ -66,12 +68,11 @@ Stack<T>::~Stack()
 template<typename T>
 void Stack<T>::clear()
 {
-    while(topNode != nullptr)
+    while(size() > 0)
     {
         StackNode<T> *temp = topNode;
-        topNode = topNode->next;
         delete temp->data;
-        delete temp;
+        pop();
     }
     number = 0;
 }

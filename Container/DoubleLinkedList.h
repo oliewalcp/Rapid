@@ -18,7 +18,7 @@ class DoubleLinkedList
 private:
     DoubleNode<T> *head = nullptr;//头结点
     DoubleNode<T> *tail = nullptr;//尾结点
-    unsigned int ElementNumber = 0;//元素个数
+    unsigned int ElementNumber;//元素个数
 
     inline void __create_list(const T& arg)//创建链表
     {
@@ -244,12 +244,11 @@ void DoubleLinkedList<T>::push_front(T &&arg)
 template<typename T>
 void DoubleLinkedList<T>::clear()
 {
-    for(DoubleNode<T>* point = head; point != nullptr;)
+    while(size() > 0)
     {
-        DoubleNode<T>* temp = point->next;
-        delete point->value;
-        delete point;
-        point = temp;
+        DoubleNode<T>* temp = head;
+        delete temp->value;
+        pop_front();
     }
     ElementNumber = 0;
 }

@@ -3,14 +3,16 @@
 #include <string>
 #include <unordered_map>
 #include <fstream>
-#include "../Container/Stack.h"
-#include "../Container/DoubleLinkedList.h"
+#include <stack>
+#include <list>
 #include "FileBase.h"
+#include <iostream>
+#include "../Exception.h"
 
 class XmlNode
 {
 private:
-    typedef DoubleLinkedList<XmlNode *> __List;
+    typedef std::list<XmlNode *> __List;
     typedef __List::iterator __Iter;
     typedef std::unordered_map<std::string, std::string> __Map;
 
@@ -53,7 +55,7 @@ public:
     {
         return __parent;
     }
-    inline std::string get_name()
+    inline std::string node_name()
     {
         return __name;
     }
@@ -76,7 +78,7 @@ public:
     {
         for(__Iter it = __child->begin(); it != __child->end(); it++)
         {
-            if((*it)->get_name() == name)
+            if((*it)->node_name() == name)
             {
                 __child->erase(it);
                 break;
@@ -87,7 +89,7 @@ public:
     {
         for(__Iter it = __child->begin(); it != __child->end(); it++)
         {
-            if((*it)->get_name() == name)
+            if((*it)->node_name() == name)
             {
                 __Iter temp = it;
                 it++;
@@ -113,11 +115,12 @@ public:
 class XmlDocument
 {
 private:
-    typedef DoubleLinkedList<XmlNode *> __List;
+    typedef std::list<XmlNode *> __List;
     typedef __List::iterator __Iter;
     typedef std::unordered_map<std::string, std::string> __Map;
     typedef std::unordered_map<std::string, char> __Dictionary;
     typedef unsigned long long __uint64;
+    typedef std::stack<XmlNode *> __Stack;
 
     static constexpr __uint64 START = 0;
     static constexpr __uint64 HEADER = 0x01;
@@ -157,7 +160,7 @@ private:
     }
     inline bool __is_special_char(const char& ch)
     {
-        return ch == '<' || ch == '>' || ch == '&' || ch == '"' || ch == '\'';
+        return ch == '<' || ch == '>' || ch == '"' || ch == '\'';
     }
 public:
     XmlDocument(std::string filename = "") : __child(nullptr), __attributes(new __Map), __file_name(nullptr)
@@ -214,7 +217,7 @@ public:
 void XmlDocument::parse(std::string filename)
 {
     __file_name = new std::string(filename);
-    Stack<XmlNode *> *node = new Stack<XmlNode *>;
+    __Stack *node = new __Stack;
     std::string file_content = FileBaes::open(filename.data());
     __uint64 current_signal = START;
     std::string key = "", value = "", special = "";
@@ -223,7 +226,7 @@ void XmlDocument::parse(std::string filename)
     for(__uint64 index = 0; index < file_content.length(); index++)
     {
         char ch = content[index];
-        if((current_signal & NODE_TEXT) > 0 && (current_signal & (NODE_NAME | HEADER | NODE_OPEN | COMMENT)) == 0)
+        if((current_signal & NODE_TEXT) > 0 && (current_signal & (NODE_NAME | HEADER | NODE_OPEN | COMMENT | NODE_CLOSE)) == 0)
         {
             if(ch == '&')
             {
@@ -269,12 +272,13 @@ void XmlDocument::parse(std::string filename)
                     current_signal ^= COMMENT;
             }
         }
-        else if(current_signal == NODE_OPEN)
+        else if((current_signal & NODE_OPEN) > 0)
         {
             if(__is_name_start(ch))
             {
                 special = "";
                 temp = &special;
+                (*temp) += ch;
                 current_signal ^= NODE_NAME | NODE_OPEN;
             }
             else if(ch == '?' && content[++index] == 'x' && content[++index] == 'm' && content[++index] == 'l')
@@ -282,6 +286,7 @@ void XmlDocument::parse(std::string filename)
             else if(ch == '!' && content[++index] == '-' && content[++index] == '-') current_signal ^= COMMENT | NODE_OPEN;
             else if(ch == '<' && content[++index] == '!' && content[++index] == '-' && content[++index] == '-')
                 current_signal ^= COMMENT;
+            else if(ch == '/')  current_signal ^= NODE_CLOSE | NODE_OPEN;
             else throw Exception("a grammar mistake occurs");
         }
         else if((current_signal & ATTRIBUTE_NAME) > 0)
@@ -297,7 +302,7 @@ void XmlDocument::parse(std::string filename)
             {
                 value = "";
                 temp = &value;
-                current_signal ^= ATTRIBUTE_VALUE | ATTRIBUTE_NAME | ATTRIBUTE_VALUE_START;
+                current_signal ^= ATTRIBUTE_VALUE | ATTRIBUTE_NAME;
             }
             else throw Exception("a grammar mistake occurs");
         }
@@ -352,17 +357,35 @@ void XmlDocument::parse(std::string filename)
         {
             if(ch == '>')
             {
-                if((current_signal & SPACE) == 0)
+                if((current_signal & NODE_CLOSE) > 0)
                 {
-                    if(node->size() > 1) node->push(new XmlNode(node->top(), *temp));
-                    else node->push(new XmlNode(*temp));
+                    if(node->top()->node_name() != (*temp))
+                        throw Exception(node->top()->node_name() + " is not matched");
+                    std::cout << "node : " << node->top()->node_name() << " is popped" << std::endl;
+                    node->pop();
+                    std::cout << "now the node : " << (node->size() > 0 ? node->top()->node_name() : "null") << std::endl;
+                    current_signal ^= NODE_CLOSE;
                 }
-                current_signal ^= NODE_NAME | NODE_TEXT;
+                else if((current_signal & SPACE) == 0)
+                {
+                    if(node->size() > 0) node->push(new XmlNode(node->top(), *temp));
+                    else node->push(new XmlNode(*temp));
+                    std::cout << "node : " << *temp << " push" << std::endl;
+                    std::cout << "is's parent is : " << (node->top()->get_parent() != nullptr ? node->top()->get_parent()->node_name() : "null") << std::endl;
+                }
+                current_signal |= NODE_TEXT;
+                current_signal ^= NODE_NAME;
             }
             else if(ch == '/' && content[++index] == '>')
             {
-                if(node->top()->get_name() != *temp) throw Exception(node->top()->get_name() + " is not matched");
-                node->pop();
+                if(current_signal & SPACE == 0)
+                {
+                    if(node->top()->node_name() != *temp)
+                        throw Exception(node->top()->node_name() + " is not matched");
+                    std::cout << "node : " << node->top()->node_name() << " is popped" << std::endl;
+                    node->pop();
+                    std::cout << "now the node : " << (node->size() > 0 ? node->top()->node_name() : "null") << std::endl;
+                }
                 current_signal ^= NODE_NAME;
             }
             else if((current_signal & SPACE) > 0)
@@ -380,16 +403,33 @@ void XmlDocument::parse(std::string filename)
             else if(__is_name(ch)) (*temp) += ch;
             else if(__is_space(ch))
             {
-                if(node->size() > 1) node->push(new XmlNode(node->top(), *temp));
-                else node->push(new XmlNode(*temp));
-                current_signal |= SPACE;
+                if((current_signal & NODE_CLOSE) == 0)
+                {
+                    if(node->size() > 0) node->push(new XmlNode(node->top(), *temp));
+                    else node->push(new XmlNode(*temp));
+                    std::cout << "node : " << *temp << " push" << std::endl;
+                    std::cout << "is's parent is : " << (node->top()->get_parent() != nullptr ? node->top()->get_parent()->node_name() : "null") << std::endl;
+                    current_signal |= SPACE;
+                }
+                else current_signal ^= NODE_NAME;
             }
             else throw Exception("illegal character");
         }
+        else if((current_signal & NODE_CLOSE) > 0)
+        {
+            if(__is_space(ch)) continue;
+            else if(__is_name_start(ch))
+            {
+                special = "";
+                temp = &special;
+                (*temp) += ch;
+                current_signal ^= NODE_NAME;
+            }
+            else throw Exception("a grammar mistake occurs");
+        }
         else throw Exception("a grammar mistake occurs");
     }
-    if(node->size() > 0) throw Exception(node->top()->get_name() + " is not matched");
-    if(current_signal != END && current_signal != HEADER) throw Exception("a grammar mistake occurs");
+    if(node->size() > 0) throw Exception(node->top()->node_name() + " is not matched");
     delete node;
 }
 
