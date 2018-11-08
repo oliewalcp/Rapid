@@ -22,14 +22,36 @@ private:
     __Map *__attributes;
     XmlNode *__parent;
 public:
-    XmlNode(std::string name, std::string text = "") : __text(text), __parent(nullptr), __attributes(new __Map), __name(name) {}
+    XmlNode(std::string name, std::string text = "") :
+        __text(text), __parent(nullptr), __attributes(new __Map), __name(name), __child(new __List) {}
     XmlNode(XmlNode *parent, std::string name, std::string text = "") :
-        __parent(parent), __text(text), __attributes(new __Map), __name(name) {}
+        __parent(parent), __text(text), __attributes(new __Map), __name(name), __child(new __List)
+    {
+        __parent->append_child(this);
+    }
     virtual ~XmlNode()
     {
         if(__parent != nullptr)
             delete __parent;
         clear();
+    }
+    std::string get_attribute_text()
+    {
+        std::string result = "";
+        for(__Map::iterator it = __attributes->begin(); it != __attributes->end(); it++)
+        {
+            if(result != "") result += " ";
+            result += (*it).first + "=\"" + (*it).second + "\"";
+        }
+        return result;
+    }
+    inline bool has_child()
+    {
+        return __child->size() > 0;
+    }
+    inline void remove_text()
+    {
+        __text = "";
     }
     inline void append_text(const std::string& text)
     {
@@ -103,11 +125,12 @@ public:
     }
     void clear()
     {
-        while(__child->size() > 0)
-        {
-            delete __child->front();
-            __child->pop_front();
-        }
+        __child->clear();
+//        while(__child->size() > 0)
+//        {
+//            delete __child->front();
+//            __child->pop_front();
+//        }
         delete __attributes;
     }
 };
@@ -118,6 +141,7 @@ private:
     typedef std::list<XmlNode *> __List;
     typedef __List::iterator __Iter;
     typedef std::unordered_map<std::string, std::string> __Map;
+    typedef __Map::iterator __Attr_iter;
     typedef std::unordered_map<std::string, char> __Dictionary;
     typedef unsigned long long __uint64;
     typedef std::stack<XmlNode *> __Stack;
@@ -162,23 +186,30 @@ private:
     {
         return ch == '<' || ch == '>' || ch == '"' || ch == '\'';
     }
-public:
-    XmlDocument(std::string filename = "") : __child(nullptr), __attributes(new __Map), __file_name(nullptr)
+    void __write_space(std::ofstream &file, int num)
     {
-        if(filename != "")
-            parse(filename);
+        for(int i = 0; i < num; i++)
+            file << " ";
+    }
+    void __write_child_info(std::ofstream &file, XmlNode *node, int layer, int indent_width);
+public:
+    XmlDocument(std::string filename = "") : __child(new __List), __attributes(new __Map), __file_name(nullptr)
+    {
         __char_dictionary = new __Dictionary();
         (*__char_dictionary)["&lt;"] = '<';
         (*__char_dictionary)["&gt;"] = '>';
         (*__char_dictionary)["&amp;"] = '&';
         (*__char_dictionary)["&quot;"] = '"';
         (*__char_dictionary)["&apos;"] = '\'';
+        if(filename != "")
+            parse(filename);
     }
     virtual ~XmlDocument()
     {
         if(__file_name != nullptr)
             delete __file_name;
         this->clear();
+        delete __char_dictionary;
     }
     inline void set_attribute(std::string key, std::string value)
     {
@@ -186,6 +217,7 @@ public:
     }
     inline XmlNode* get_root_node()
     {
+        if(__child->size() == 0) return nullptr;
         return __child->front();
     }
     std::string get_attribute(std::string key)
@@ -209,10 +241,34 @@ public:
         delete __attributes;
     }
     void parse(std::string filename);
-    void save();
-    void save_as(std::string filename);
+    void save(int indent);
+    void save_as(std::string filename, int indent);
     void remove_child(XmlNode *node);
 };
+
+void XmlDocument::__write_child_info(std::ofstream &file, XmlNode *node, int layer, int indent_width)
+{
+    __write_space(file, layer * indent_width);
+    file << "<" + node->node_name();
+    std::string attr = node->get_attribute_text();
+    if(attr != "") file << " " << attr << " ";
+    file << ">";
+    __List children = node->get_children();
+    if(children.size() > 0)
+    {
+        file << std::endl;
+        for(XmlNode *child : children)
+        {
+            __write_child_info(file, child, layer + 1, indent_width);
+        }
+        __write_space(file, layer * indent_width);
+    }
+    else
+    {
+        file << node->get_text();
+    }
+    file << "</" << node->node_name() << ">" << std::endl;
+}
 
 void XmlDocument::parse(std::string filename)
 {
@@ -368,8 +424,18 @@ void XmlDocument::parse(std::string filename)
                 }
                 else if((current_signal & SPACE) == 0)
                 {
-                    if(node->size() > 0) node->push(new XmlNode(node->top(), *temp));
-                    else node->push(new XmlNode(*temp));
+                    XmlNode *new_node = nullptr;
+                    if(node->size() > 0)
+                    {
+                        new_node = new XmlNode(node->top(), *temp);
+                        node->push(new_node);
+                    }
+                    else
+                    {
+                        new_node = new XmlNode(*temp);
+                        node->push(new_node);
+                        __child->push_back(new_node);
+                    }
                     std::cout << "node : " << *temp << " push" << std::endl;
                     std::cout << "is's parent is : " << (node->top()->get_parent() != nullptr ? node->top()->get_parent()->node_name() : "null") << std::endl;
                 }
@@ -405,8 +471,18 @@ void XmlDocument::parse(std::string filename)
             {
                 if((current_signal & NODE_CLOSE) == 0)
                 {
-                    if(node->size() > 0) node->push(new XmlNode(node->top(), *temp));
-                    else node->push(new XmlNode(*temp));
+                    XmlNode *new_node = nullptr;
+                    if(node->size() > 0)
+                    {
+                        new_node = new XmlNode(node->top(), *temp);
+                        node->push(new_node);
+                    }
+                    else
+                    {
+                        new_node = new XmlNode(*temp);
+                        node->push(new_node);
+                        __child->push_back(new_node);
+                    }
                     std::cout << "node : " << *temp << " push" << std::endl;
                     std::cout << "is's parent is : " << (node->top()->get_parent() != nullptr ? node->top()->get_parent()->node_name() : "null") << std::endl;
                     current_signal |= SPACE;
@@ -433,15 +509,33 @@ void XmlDocument::parse(std::string filename)
     delete node;
 }
 
-void XmlDocument::save()
+void XmlDocument::save(int indent)
 {
-    if(__file_name == nullptr) throw Exception("file name is empty");
+    if(__file_name == nullptr || (*__file_name) == "") throw Exception("file name is empty");
+    std::ofstream file(*__file_name);
+    if(__attributes->size() > 0)
+    {
+        __Attr_iter it_end = __attributes->end();
+        file << "<?xml ";
+        for(__Attr_iter it = __attributes->begin(); it != it_end; it++)
+        {
+            file << (*it).first << "=\"" << (*it).second << "\" ";
+        }
+        file << "?>" << std::endl;
+    }
+    XmlNode *temp = get_root_node();
+    if(temp != nullptr)
+    {
+        __write_child_info(file, temp, 0, indent);
+    }
+    file.close();
 }
 
-void XmlDocument::save_as(std::string filename)
+void XmlDocument::save_as(std::string filename, int indent)
 {
-    __file_name = new std::string(filename);
-    save();
+    if(__file_name == nullptr) __file_name = new std::string(filename);
+    else *__file_name = filename;
+    save(indent);
 }
 
 void XmlDocument::remove_child(XmlNode *node)
