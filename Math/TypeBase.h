@@ -93,12 +93,6 @@ _M_Base<value_type>::_M_Base(const __uint32 line, const __uint32 column, const v
 template<typename value_type>
 _M_Base<value_type>::~_M_Base()
 {
-    __uint32 row = __data->size();
-    for(__uint32 i = 0; i < row; i++)
-    {
-        value_type *temp = __data->at(i);
-        delete[] temp;
-    }
     __data->clear();
 }
 

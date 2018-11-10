@@ -126,11 +126,6 @@ public:
     void clear()
     {
         __child->clear();
-//        while(__child->size() > 0)
-//        {
-//            delete __child->front();
-//            __child->pop_front();
-//        }
         delete __attributes;
     }
 };
@@ -233,11 +228,7 @@ public:
     }
     void clear()
     {
-        while(__child->size() > 0)
-        {
-            delete __child->front();
-            __child->pop_front();
-        }
+        __child->clear();
         delete __attributes;
     }
     void parse(std::string filename);

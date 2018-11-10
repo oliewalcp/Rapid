@@ -6,55 +6,52 @@
 template<typename T>
 struct StackNode
 {
-    StackNode(_C_Base<T> *data) : next(nullptr), data(data) {}
-    StackNode<T> *next;
-    _C_Base<T> *data;
+    StackNode(_C_Base<T> *Data) : Next(nullptr), Data(Data) {}
+    StackNode<T> *Next;
+    _C_Base<T> *Data;
 };
 
 template<typename T>
 class Stack
 {
 private:
-    unsigned int number = 0;
-    StackNode<T> *topNode = nullptr;
+    unsigned int __Number = 0;
+    StackNode<T> *__TopNode = nullptr;
 
-    inline void __push(T && arg)
+    inline void __push(const T & arg)
     {
         StackNode<T> *temp = new StackNode<T>((_C_Base<T> *)(&arg));
-        temp->next = topNode;
-        topNode = temp;
-        number++;
+        temp->Next = __TopNode;
+        __TopNode = temp;
+        __Number++;
     }
 public:
     ~Stack();
-    inline unsigned int size(){return number;}//获取元素个数
-    inline bool empty(){return topNode != nullptr ? false : true;}
+    inline unsigned int size(){return __Number;}//获取元素个数
+    inline bool empty(){return __TopNode != nullptr ? false : true;}
     inline void pop()
     {
-        if(topNode == nullptr)
+        if(__TopNode == nullptr)
             return;
-        StackNode<T> *temp = topNode;
-        topNode = topNode->next;
-        delete temp->data;
+        StackNode<T> *temp = __TopNode;
+        __TopNode = __TopNode->Next;
+        delete temp->Data;
         delete temp;
-        number--;
+        __Number--;
     }
     inline void push(const T& arg)
     {
-        StackNode<T> *temp = new StackNode<T>((_C_Base<T> *)(&arg));
-        temp->next = topNode;
-        topNode = temp;
-        number++;
+        __push(arg);
     }
     inline void push(T && arg)
     {
-        __push(std::move(arg));
+        __push(std::forward<T&&>(arg));
     }
     inline T& top()
     {
-        if(topNode == nullptr)
+        if(__TopNode == nullptr)
             throw Exception("Stack is empty");
-        return topNode->data->__data;
+        return __TopNode->Data->Data;
     }
     void clear();
 };
@@ -70,10 +67,8 @@ void Stack<T>::clear()
 {
     while(size() > 0)
     {
-        StackNode<T> *temp = topNode;
-        delete temp->data;
         pop();
     }
-    number = 0;
+    __Number = 0;
 }
 #endif // STACK_H
