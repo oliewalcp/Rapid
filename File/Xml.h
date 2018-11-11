@@ -16,29 +16,29 @@ private:
     typedef __List::iterator __Iter;
     typedef std::unordered_map<std::string, std::string> __Map;
 
-    std::string __name;
-    std::string __text;
-    __List *__child;
-    __Map *__attributes;
-    XmlNode *__parent;
+    std::string __Name;
+    std::string __Text;
+    __List *__Child;
+    __Map *__Attributes;
+    XmlNode *__Parent;
 public:
     XmlNode(std::string name, std::string text = "") :
-        __text(text), __parent(nullptr), __attributes(new __Map), __name(name), __child(new __List) {}
+        __Text(text), __Parent(nullptr), __Attributes(new __Map), __Name(name), __Child(new __List) {}
     XmlNode(XmlNode *parent, std::string name, std::string text = "") :
-        __parent(parent), __text(text), __attributes(new __Map), __name(name), __child(new __List)
+        __Parent(parent), __Text(text), __Attributes(new __Map), __Name(name), __Child(new __List)
     {
-        __parent->append_child(this);
+        __Parent->append_child(this);
     }
     virtual ~XmlNode()
     {
-        if(__parent != nullptr)
-            delete __parent;
+        if(__Parent != nullptr)
+            delete __Parent;
         clear();
     }
     std::string get_attribute_text()
     {
         std::string result = "";
-        for(__Map::iterator it = __attributes->begin(); it != __attributes->end(); it++)
+        for(__Map::iterator it = __Attributes->begin(); it != __Attributes->end(); it++)
         {
             if(result != "") result += " ";
             result += (*it).first + "=\"" + (*it).second + "\"";
@@ -47,86 +47,86 @@ public:
     }
     inline bool has_child()
     {
-        return __child->size() > 0;
+        return __Child->size() > 0;
     }
     inline void remove_text()
     {
-        __text = "";
+        __Text = "";
     }
     inline void append_text(const std::string& text)
     {
-        __text += text;
+        __Text += text;
     }
     inline void append_text(const char& text)
     {
-        __text += text;
+        __Text += text;
     }
     inline void set_text(std::string arg)
     {
-        __text = arg;
+        __Text = arg;
     }
     inline std::string get_text()
     {
-        return __text;
+        return __Text;
     }
     inline void set_parent(XmlNode *parent)
     {
-        this->__parent = parent;
+        this->__Parent = parent;
     }
     inline XmlNode* get_parent()
     {
-        return __parent;
+        return __Parent;
     }
     inline std::string node_name()
     {
-        return __name;
+        return __Name;
     }
     void set_attribute(std::string key, std::string value)
     {
-        (*__attributes)[key] = value;
+        (*__Attributes)[key] = value;
     }
     std::string get_attribute(std::string key)
     {
-        __Map::iterator it = __attributes->find(key);
-        if(it == __attributes->end()) return "";
+        __Map::iterator it = __Attributes->find(key);
+        if(it == __Attributes->end()) return "";
         return (*it).second;
     }
     inline void append_child(XmlNode *node)
     {
-        __child->push_back(node);
+        __Child->push_back(node);
         node->set_parent(this);
     }
     void remove_child(std::string name)
     {
-        for(__Iter it = __child->begin(); it != __child->end(); it++)
+        for(__Iter it = __Child->begin(); it != __Child->end(); it++)
         {
             if((*it)->node_name() == name)
             {
-                __child->erase(it);
+                __Child->erase(it);
                 break;
             }
         }
     }
     void remove_children(std::string name)
     {
-        for(__Iter it = __child->begin(); it != __child->end(); it++)
+        for(__Iter it = __Child->begin(); it != __Child->end(); it++)
         {
             if((*it)->node_name() == name)
             {
                 __Iter temp = it;
                 it++;
-                __child->erase(temp);
+                __Child->erase(temp);
             }
         }
     }
     inline const __List& get_children()
     {
-        return *__child;
+        return *__Child;
     }
     void clear()
     {
-        __child->clear();
-        delete __attributes;
+        __Child->clear();
+        delete __Attributes;
     }
 };
 
@@ -158,8 +158,8 @@ private:
 
     std::string *__file_name;
     __Dictionary *__char_dictionary;
-    __List *__child;
-    __Map *__attributes;
+    __List *__Child;
+    __Map *__Attributes;
 
     inline bool __is_word(const char& ch)
     {
@@ -188,7 +188,7 @@ private:
     }
     void __write_child_info(std::ofstream &file, XmlNode *node, int layer, int indent_width);
 public:
-    XmlDocument(std::string filename = "") : __child(new __List), __attributes(new __Map), __file_name(nullptr)
+    XmlDocument(std::string filename = "") : __Child(new __List), __Attributes(new __Map), __file_name(nullptr)
     {
         __char_dictionary = new __Dictionary();
         (*__char_dictionary)["&lt;"] = '<';
@@ -208,28 +208,28 @@ public:
     }
     inline void set_attribute(std::string key, std::string value)
     {
-        (*__attributes)[key] = value;
+        (*__Attributes)[key] = value;
     }
     inline XmlNode* get_root_node()
     {
-        if(__child->size() == 0) return nullptr;
-        return __child->front();
+        if(__Child->size() == 0) return nullptr;
+        return __Child->front();
     }
     std::string get_attribute(std::string key)
     {
-        __Map::iterator it = __attributes->find(key);
-        if(it == __attributes->end()) return "";
+        __Map::iterator it = __Attributes->find(key);
+        if(it == __Attributes->end()) return "";
         return (*it).second;
     }
     void append_child(XmlNode *root)
     {
-        __child->push_back(root);
+        __Child->push_back(root);
         root->set_parent(nullptr);
     }
     void clear()
     {
-        __child->clear();
-        delete __attributes;
+        __Child->clear();
+        delete __Attributes;
     }
     void parse(std::string filename);
     void save(int indent);
@@ -425,7 +425,7 @@ void XmlDocument::parse(std::string filename)
                     {
                         new_node = new XmlNode(*temp);
                         node->push(new_node);
-                        __child->push_back(new_node);
+                        __Child->push_back(new_node);
                     }
                     std::cout << "node : " << *temp << " push" << std::endl;
                     std::cout << "is's parent is : " << (node->top()->get_parent() != nullptr ? node->top()->get_parent()->node_name() : "null") << std::endl;
@@ -472,7 +472,7 @@ void XmlDocument::parse(std::string filename)
                     {
                         new_node = new XmlNode(*temp);
                         node->push(new_node);
-                        __child->push_back(new_node);
+                        __Child->push_back(new_node);
                     }
                     std::cout << "node : " << *temp << " push" << std::endl;
                     std::cout << "is's parent is : " << (node->top()->get_parent() != nullptr ? node->top()->get_parent()->node_name() : "null") << std::endl;
@@ -504,11 +504,11 @@ void XmlDocument::save(int indent)
 {
     if(__file_name == nullptr || (*__file_name) == "") throw Exception("file name is empty");
     std::ofstream file(*__file_name);
-    if(__attributes->size() > 0)
+    if(__Attributes->size() > 0)
     {
-        __Attr_iter it_end = __attributes->end();
+        __Attr_iter it_end = __Attributes->end();
         file << "<?xml ";
-        for(__Attr_iter it = __attributes->begin(); it != it_end; it++)
+        for(__Attr_iter it = __Attributes->begin(); it != it_end; it++)
         {
             file << (*it).first << "=\"" << (*it).second << "\" ";
         }
@@ -531,11 +531,11 @@ void XmlDocument::save_as(std::string filename, int indent)
 
 void XmlDocument::remove_child(XmlNode *node)
 {
-    for(__Iter it = __child->begin(); it != __child->end(); it++)
+    for(__Iter it = __Child->begin(); it != __Child->end(); it++)
     {
         if((*it) == node)
         {
-            __child->erase(it);
+            __Child->erase(it);
             break;
         }
     }

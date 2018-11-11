@@ -6,9 +6,7 @@ struct _C_Base
 {
     T Data;
     ~_C_Base()
-    {
-        Data.~T();
-    }
+    { Data.~T(); }
 };
 
 struct Compare
