@@ -1,7 +1,16 @@
 #ifndef BINARYTREE_H
 #define BINARYTREE_H
 #include "C_Base.h"
-#include <stack>
+#include "../Exception.h"
+
+template<typename _First, typename _Second>
+struct Pair
+{
+    Pair() {}
+    Pair(const _First *first, const _Second *second) : First(*first), Second(*second) {}
+    _First First;
+    _Second Second;
+};
 
 template <typename Key, typename Value>
 struct BinaryNode
@@ -9,18 +18,12 @@ struct BinaryNode
 private:
     typedef unsigned int __uint32;
 public:
-    BinaryNode(_C_Base<Key> *key = nullptr, _C_Base<Value> *value = nullptr) :
-        First(key), Second(value), Left(nullptr), Right(nullptr), Parent(nullptr) {}
-    ~BinaryNode()
-    {
-        delete First;
-        delete Second;
-    }
+    BinaryNode(Pair<Key, Value>* pair) :
+        Data(pair), Left(nullptr), Right(nullptr), Parent(nullptr) {}
     BinaryNode<Key, Value> *Left;
     BinaryNode<Key, Value> *Right;
     BinaryNode<Key, Value> *Parent;
-    _C_Base<Key> *First;
-    _C_Base<Value> *Second;
+    Pair<Key, Value> *Data;
     __uint32 LeftChildSize = 0;
     __uint32 RightChildSize = 0;
 };
@@ -28,33 +31,12 @@ public:
 template<typename _Key, typename _Value, typename _Compare = Compare>
 class BinarySortTree
 {
-protected:
-    typedef unsigned int _uint32;
-    BinaryNode<_Key, _Value> *_Root;
-    _uint32 _ElementNumber;
-
-    virtual void _insert_node(const _Key &key, const _Value &value)
-    {
-        BinaryNode<_Key, _Value> *node = new BinaryNode<_Key, _Value>((_C_Base<_Key> *)&key, (_C_Base<_Value> *)&value);
-        _insert_node(node);
-    }
-    virtual void _insert_node(BinaryNode<_Key, _Value> *node);
-    virtual void _add_size(BinaryNode<_Key, _Value> *new_node, int size = 1);
-    virtual BinaryNode<_Key, _Value> *_get_leftchild(BinaryNode<_Key, _Value> *node);
-    virtual BinaryNode<_Key, _Value> * _get_rightchild(BinaryNode<_Key, _Value> *node);
-    virtual void _remove_node(const _Key &key);
-    virtual void _remove_node(_Key && key);
-    virtual void _remove_node(const miterator &it);
-    virtual void _remove_node(const fiterator &it);
-    virtual void _remove_node(const aiterator &it);
-    virtual void _remove_node(const BinaryNode<_Key, _Value> *node);
-    virtual bool _contains_node(const _Key &key);
 public:
     BinarySortTree() : _ElementNumber(0), _Root(nullptr) {}
     virtual ~BinarySortTree() { clear(); }
     virtual void clear();
 
-    virtual void size() { return _ElementNumber; }
+    virtual unsigned int size() { return _ElementNumber; }
 
     virtual void insert(const _Key& key, const _Value& value);
     virtual void insert(_Key && key, _Value && value);
@@ -67,11 +49,8 @@ public:
     virtual bool contains(const _Key& key);
     virtual bool contains(_Key && key);
 
-    virtual const BinaryNode<_Key, _Value> *get_node(const _Key& key);
-    virtual const BinaryNode<_Key, _Value> *get_node(_Key && key);
-
-    const BinaryNode<_Key, _Value> * operator[](const _Key& key);
-    const BinaryNode<_Key, _Value> * operator[](_Key && key);
+    _Value& operator[](const _Key& key);
+    _Value& operator[](_Key && key);
 
     typedef class Former_iterator
     {
@@ -79,28 +58,47 @@ public:
         BinaryNode<_Key, _Value> *__Current;
         BinaryNode<_Key, _Value> *__Next;
 
+        BinaryNode<_Key, _Value> *__get_current_node()
+        { return __Current; }
         void __get_next_node()
         {
             if(__Next == nullptr) __Current = nullptr;
             else
             {
                 BinaryNode<_Key, _Value> *temp = __Next;
-                //如果下一个节点是当前结点的左孩子
-                if(__Next == __Current->Left)
-                    __Next = __Next->Left != nullptr ? __Next->Left : __Current->Right;
-                //如果下一个节点是当前结点的兄弟结点
+                //if [__Next] is a child of [__Current]
+                if(__Next->Parent == __Current)
+                {
+                    if(__Next->Left != nullptr) __Next = __Next->Left;
+                    else if(__Next->Right != nullptr) __Next = __Next->Right;
+                    else
+                    {
+                        if(__Current->Right != nullptr && __Next != __Current->Right) __Next = __Current->Right;
+                        else
+                        {
+                            BinaryNode<_Key, _Value> *t = __Next;
+                            while(true)
+                            {
+                                if(t->Parent->Parent == nullptr) break;
+                                t = t->Parent;
+                            }
+                            if(t == t->Parent->Left) __Next = t->Parent->Right;
+                            else __Next = nullptr;
+                        }
+                    }
+                }
+                //if [__Next] is a brother of [__Current]
                 else if(__Next == __Current->Parent->Right)
-                    __Next = __Current->Parent->Parent->Right;
-                //如果下一个节点是当前结点的叔叔结点
-                else if(__Next == __Current->Parent->Right)
-                    __Next = __Next->Left != nullptr ? __Next->Left : __Current->Right;
+                    __Next = __Current->Parent->Parent != nullptr ? __Current->Parent->Parent->Right : nullptr;
+                else __Next = __Next->Left != nullptr ? __Next->Left : __Next->Right;
                 __Current = temp;
             }
         }
     public:
         Former_iterator(BinaryNode<_Key, _Value> *cur, BinaryNode<_Key, _Value> *nex) : __Current(cur), __Next(nex) {}
         Former_iterator(BinaryNode<_Key, _Value> *arg = nullptr) :
-            __Current(arg), __Next(arg->Left == nullptr ? arg->Right : nullptr) {}
+            __Current(arg), __Next(arg == nullptr ? nullptr : (arg->Left == nullptr ? arg->Right : nullptr))
+        {}
         Former_iterator& operator++() {
             __get_next_node();
             return *this;
@@ -110,22 +108,24 @@ public:
             __get_next_node();
             return it;
         }
-        const BinaryNode<_Key, _Value> * operator->() const
-        { return __Current; }
-        const BinaryNode<_Key, _Value> * operator*() const
-        { return __Current; }
+        const Pair<_Key, _Value> * operator->() const
+        { return __Current->Data; }
+        Pair<_Key, _Value> operator*() const
+        { return *(__Current->Data); }
         bool operator==(const Former_iterator &arg) const {
             return arg.__Current == this->__Current;
         }
         bool operator!=(const Former_iterator &arg) const {
             return arg.__Current != this->__Current;
         }
+
+        friend class BinarySortTree;
     } fiterator;
 
     virtual fiterator fbegin()
-    { return fiterator(_Root, _Root->Left == nullptr ? _Root->Right : _Root->Left); }
+    { return fiterator(_Root, _Root == nullptr ? nullptr : (_Root->Left == nullptr ? _Root->Right : _Root->Left)); }
     virtual fiterator fend()
-    { return fiterator(); }
+    { return fiterator(nullptr, nullptr); }
 
     typedef class After_iterator
     {
@@ -133,47 +133,53 @@ public:
         BinaryNode<_Key, _Value> *__Current;
         BinaryNode<_Key, _Value> *__Next;
 
+        BinaryNode<_Key, _Value> *__get_current_node()
+        { return __Current; }
         void __get_next_node()
         {
             if(__Next == nullptr) __Current = nullptr;
             else
             {
                 BinaryNode<_Key, _Value> *temp = __Next;
-                //如果下一个节点是当前结点的父结点
+                //if [__Next] is [__Current]'s parent
                 if(__Next == __Current->Parent)
                 {
-                    //如果下一个节点的父结点不为空
+                    //if [__Next]'s parent is not null
                     if(__Next->Parent != nullptr)
                     {
-                        //如果下一个节点的父结点的右结点不为空
-                        if(__Next->Parent->Right != nullptr)
+                        //if [__Next] is left child
+                        if(__Next == __Next->Parent->Left)
                         {
-                            BinaryNode<_Key, _Value> *temp = _get_leftchild(__Next->Parent->Right);
-                            if(temp == __Next->Parent->Right) __Next = _get_rightchild(__Next->Parent->Right);
-                            else __Next = temp;
+                            BinaryNode<_Key, _Value> *brother = __Next->Parent->Right;
+                            if(brother == nullptr) __Next = __Next->Parent;
+                            else
+                            {
+                                while(true)
+                                {
+                                    if(brother->Left == nullptr)
+                                    {
+                                        if(brother->Right != nullptr)
+                                            brother = brother->Right;
+                                        else break;
+                                    }
+                                    else brother = brother->Left;
+                                }
+                                __Next = brother;
+                            }
                         }
                         else __Next = __Next->Parent;
                     }
                     else __Next = nullptr;
                 }
-                //如果下一个结点是当前结点的兄弟结点
+                //if [__Next] is brother of [__Current]
                 else if(__Next == __Current->Parent->Right)
                     __Next = __Current->Parent;
-                //如果下一个节点是当前结点的最近兄弟树枝中的最左结点
                 else
                 {
-                    //如果下一个节点的父结点不是当前结点的父结点
-                    if(__Next->Parent != __Current->Parent)
-                    {
-                        if(__Next->Parent->Right != nullptr)
-                        {
-                            BinaryNode<_Key, _Value> *temp = _get_leftchild(__Next->Parent->Right);
-                            if(temp == __Next->Parent->Right) __Next = _get_rightchild(__Next->Parent->Right);
-                            else __Next = temp;
-                        }
-                        else __Next = __Next->Parent;
-                    }
-                    else __Next = nullptr;
+                    if(__Next->Parent == nullptr) __Next = nullptr;
+                    else if(__Next == __Next->Parent->Left)
+                        __Next = __Next->Parent->Right == nullptr ? __Next->Parent : __Next->Parent->Right;
+                    else __Next = __Next->Parent;
                 }
                 __Current = temp;
             }
@@ -181,7 +187,7 @@ public:
     public:
         After_iterator(BinaryNode<_Key, _Value> *cur, BinaryNode<_Key, _Value> *nex) : __Current(cur), __Next(nex) {}
         After_iterator(BinaryNode<_Key, _Value> *arg = nullptr) :
-            __Current(arg), __Next(arg->Left == nullptr ? arg->Right : nullptr) {}
+            __Current(arg), __Next(arg == nullptr ? nullptr : (arg->Left == nullptr ? arg->Right : nullptr)) {}
         After_iterator& operator++()
         {
             __get_next_node();
@@ -193,31 +199,30 @@ public:
             __get_next_node();
             return it;
         }
-        const BinaryNode<_Key, _Value> * operator->() const
-        { return __Current; }
-        const BinaryNode<_Key, _Value> * operator*() const
-        { return __Current; }
+        const Pair<_Key, _Value> * operator->() const
+        { return __Current->Data; }
+        Pair<_Key, _Value> operator*() const
+        { return *(__Current->Data); }
         bool operator==(const After_iterator &arg) const {
             return arg.__Current == this->__Current;
         }
         bool operator!=(const After_iterator &arg) const {
             return arg.__Current != this->__Current;
         }
+
+        friend class BinarySortTree;
     } aiterator;
-    typedef aiterator iterator;
     virtual aiterator abegin()
     {
-        BinaryNode<_Key, _Value> *temp = _get_leftchild(_Root);
+        BinaryNode<_Key, _Value> *temp = _Root;
+        if(temp == nullptr) return aiterator(nullptr, nullptr);
+        temp = _get_under_node(temp);
         if(temp->Parent == nullptr) return aiterator(temp, nullptr);
-        return aiterator(temp, temp->Parent->Right == nullptr ? temp->Parent : temp->Parent->Right);
+        else if(temp->Parent->Right == temp || temp->Parent->Right == nullptr) return aiterator(temp, temp->Parent);
+        else return aiterator(temp, _get_under_node(temp->Parent->Right));
     }
     virtual aiterator aend()
-    { return aiterator(); }
-
-    virtual iterator begin()
-    { return abegin(); }
-    virtual iterator end()
-    { return aend(); }
+    { return aiterator(nullptr, nullptr); }
 
     typedef class Middle_iterator
     {
@@ -225,37 +230,47 @@ public:
         BinaryNode<_Key, _Value> *__Current;
         BinaryNode<_Key, _Value> *__Next;
 
+        BinaryNode<_Key, _Value> *__get_current_node()
+        { return __Current; }
+        BinaryNode<_Key, _Value> * __get_closest_left_parent(BinaryNode<_Key, _Value> *node)
+        {
+            BinaryNode<_Key, _Value> *temp = node;
+            while(temp != nullptr)
+            {
+                if(temp->Parent == nullptr) return nullptr;
+                if(temp == temp->Parent->Left) return temp->Parent;
+                temp = temp->Parent;
+            }
+            return temp;
+        }
         void __get_next_node()
         {
             if(__Next == nullptr) __Current = nullptr;
             else
             {
                 BinaryNode<_Key, _Value> *temp = __Next;
-                //如果下一个节点是当前结点的父结点
+                BinaryNode<_Key, _Value> *right = BinarySortTree<_Key, _Value, _Compare>::_get_leftchild(__Next->Right);
+                //if [__Next] is [__Current]'s parent
                 if(__Next == __Current->Parent)
-                {
-                    //如果下一个节点的右子结点不为空
-                    if(__Next->Right != nullptr)
-                        __Next = __Next->Parent->Right;
-                    else __Next = __Next->Parent;
-                }
-                //如果下一个结点是当前结点的右子结点
+                    __Next = right == nullptr ? __Next->Parent : right;
+                //if [__Next] is a right child of [__Current]
                 else if(__Next == __Current->Right)
-                    __Next = __Current->Parent;
-                //如果下一个节点是当前结点的爷爷结点
-                else if(__Next == __Current->Parent->Parent)
+                    __Next = right == nullptr ? __Current->Parent : right;
+                else if(__Next == __Next->Parent->Right)
                 {
-                    BinaryNode<_Key, _Value> *temp = _get_leftchild(__Next->Right);
-                    if(temp == __Next->Right) __Next = __Next->Right;
-                    else __Next = temp;
+                    BinaryNode<_Key, _Value> *t = __get_closest_left_parent(__Next);
+                    if(t == nullptr) __Next = right;
+                    else __Next = t->Right;
                 }
+                else
+                    __Next = right == nullptr ? __Next->Parent : right;
                 __Current = temp;
             }
         }
     public:
         Middle_iterator(BinaryNode<_Key, _Value> *cur, BinaryNode<_Key, _Value> *nex) : __Current(cur), __Next(nex) {}
         Middle_iterator(BinaryNode<_Key, _Value> *arg = nullptr) :
-            __Current(arg), __Next(arg->Left == nullptr ? arg->Right : nullptr) {}
+            __Current(arg), __Next(arg == nullptr ? nullptr : (arg->Left == nullptr ? arg->Right : nullptr)) {}
         Middle_iterator& operator++()
         {
             __get_next_node();
@@ -267,44 +282,105 @@ public:
             __get_next_node();
             return it;
         }
-        const BinaryNode<_Key, _Value> * operator->() const
-        { return __Current; }
-        const BinaryNode<_Key, _Value> * operator*() const
-        { return __Current; }
+        const Pair<_Key, _Value>* operator->() const
+        { return __Current->Data; }
+        Pair<_Key, _Value> operator*() const
+        { return *(__Current->Data); }
         bool operator==(const Middle_iterator &arg) const
         { return arg.__Current == this->__Current; }
         bool operator!=(const Middle_iterator &arg) const
         { return arg.__Current != this->__Current; }
+
+        friend class BinarySortTree;
     } miterator;
+    typedef miterator iterator;
     virtual miterator mbegin()
     {
-        BinaryNode<_Key, _Value> *temp = _get_leftchild(_Root);
-        if(temp->Parent == nullptr) return aiterator(temp, nullptr);
-        return aiterator(temp, temp->Parent);
+        BinaryNode<_Key, _Value> *temp = BinarySortTree<_Key, _Value, _Compare>::_get_leftchild(_Root);
+        if(temp->Parent == nullptr)
+            return miterator(temp, BinarySortTree<_Key, _Value, _Compare>::_get_leftchild(temp->Right));
+        return miterator(temp, temp->Parent);
     }
     virtual miterator mend()
-    { return miterator(); }
+    { return miterator(nullptr, nullptr); }
+
+    virtual iterator begin()
+    { return mbegin(); }
+    virtual iterator end()
+    { return mend(); }
+protected:
+    BinaryNode<_Key, _Value> *_Root;
+    unsigned int _ElementNumber;
+
+    virtual void _insert_node(const _Key &key, const _Value &value)
+    {
+        BinaryNode<_Key, _Value> *node = new BinaryNode<_Key, _Value>(_get_pair(key, value));
+        _insert_node(node);
+    }
+    virtual void _insert_node(BinaryNode<_Key, _Value> *node);
+    virtual void _add_size(const BinaryNode<_Key, _Value> *new_node, int size = 1);
+    virtual BinaryNode<_Key, _Value> * _left_child(BinaryNode<_Key, _Value> *node)
+    { return BinarySortTree<_Key, _Value, _Compare>::_get_leftchild(node); }
+    virtual BinaryNode<_Key, _Value> * _right_child(BinaryNode<_Key, _Value> *node)
+    { return BinarySortTree<_Key, _Value, _Compare>::_get_rightchild(node); }
+    static BinaryNode<_Key, _Value> * _get_leftchild(BinaryNode<_Key, _Value> *node)
+    {
+        BinaryNode<_Key, _Value> *result = node;
+        while(result != nullptr && result->Left != nullptr)
+            result = result->Left;
+        return result;
+    }
+    static BinaryNode<_Key, _Value> * _get_rightchild(BinaryNode<_Key, _Value> *node)
+    {
+        BinaryNode<_Key, _Value> *result = node;
+        while(result->Right != nullptr)
+            result = result->Right;
+        return result;
+    }
+    virtual void _remove_node(const _Key &key);
+    virtual void _remove_node(_Key && key);
+    virtual void _remove_node(Former_iterator &it);
+    virtual void _remove_node(Middle_iterator &it);
+    virtual void _remove_node(After_iterator &it);
+    virtual void _remove_node(const BinaryNode<_Key, _Value> *node);
+    virtual bool _contains_node(const _Key &key);
+    virtual BinaryNode<_Key, _Value> * _get_node(const _Key& key);
+    virtual void _release_node(const BinaryNode<_Key, _Value> *node)
+    {
+        delete node->Data;
+        delete node;
+    }
+    virtual Pair<_Key, _Value>* _get_pair(const _Key &key, const _Value &value)
+    { return new Pair<_Key, _Value>(&key, &value); }
+    virtual BinaryNode<_Key, _Value> * _get_under_node(BinaryNode<_Key, _Value> *node)
+    {
+        while(node != nullptr)
+        {
+            if(node->Left == nullptr)
+            {
+                if(node->Right != nullptr)
+                    node = node->Right;
+                else return node;
+            }
+            else node = node->Left;
+        }
+    }
 };
 
 template<typename _Key, typename _Value, typename _Compare>
 void BinarySortTree<_Key, _Value, _Compare>::_insert_node(BinaryNode<_Key, _Value> *node)
 {
+    if(_Root == nullptr)
+    {
+        _Root = node;
+        _add_size(_Root);
+        return;
+    }
     BinaryNode<_Key, _Value> *temp = _Root;
     _Compare com;
     while(temp != nullptr)
     {
-        if(com(temp->First, node->First))
-        {
-            if(temp->Left == nullptr)
-            {
-                temp->Left = node;
-                node->Parent = temp;
-                _add_size(node);
-                break;
-            }
-            else temp = temp->Left;
-        }
-        else if(com(node->First, temp->First))
+        if(com(temp->Data->First, node->Data->First))
         {
             if(temp->Right == nullptr)
             {
@@ -315,16 +391,23 @@ void BinarySortTree<_Key, _Value, _Compare>::_insert_node(BinaryNode<_Key, _Valu
             }
             else temp = temp->Right;
         }
-        else
+        else if(com(node->Data->First, temp->Data->First))
         {
-            temp->Left = node->Left;
-            temp->Right = node->Right;
+            if(temp->Left == nullptr)
+            {
+                temp->Left = node;
+                node->Parent = temp;
+                _add_size(node);
+                break;
+            }
+            else temp = temp->Left;
         }
+        else memcpy(&temp->Data->Second, &node->Data->Second, sizeof(_Value));
     }
 }
 
 template<typename _Key, typename _Value, typename _Compare>
-void BinarySortTree<_Key, _Value, _Compare>::_add_size(BinaryNode<_Key, _Value> *new_node, int size)
+void BinarySortTree<_Key, _Value, _Compare>::_add_size(const BinaryNode<_Key, _Value> *new_node, int size)
 {
     while(new_node != nullptr && new_node->Parent != nullptr)
     {
@@ -334,42 +417,25 @@ void BinarySortTree<_Key, _Value, _Compare>::_add_size(BinaryNode<_Key, _Value> 
             new_node->Parent->RightChildSize += size;
         new_node = new_node->Parent;
     }
-}
-
-template<typename _Key, typename _Value, typename _Compare>
-BinaryNode<_Key, _Value> * BinarySortTree<_Key, _Value, _Compare>::_get_leftchild(BinaryNode<_Key, _Value> *node)
-{
-    BinaryNode<_Key, _Value> *result = node;
-    while(result->Left != nullptr)
-        result = result->Left;
-    return result;
-}
-
-template<typename _Key, typename _Value, typename _Compare>
-BinaryNode<_Key, _Value> *BinarySortTree<_Key, _Value, _Compare>::_get_rightchild(BinaryNode<_Key, _Value> *node)
-{
-    BinaryNode<_Key, _Value> *result = node;
-    while(result->Right != nullptr)
-        result = result->Right;
-    return result;
+    _ElementNumber += size;
 }
 
 template<typename _Key, typename _Value, typename _Compare>
 void BinarySortTree<_Key, _Value, _Compare>::_remove_node(const _Key &key)
 {
-    const BinaryNode<_Key, _Value> *temp = get_node(key);
+    const BinaryNode<_Key, _Value> *temp = _get_node(key);
     _remove_node(temp);
 }
 
 template<typename _Key, typename _Value, typename _Compare>
-void BinarySortTree::_remove_node(_Key &&key)
-{  _remove_node(std::farward<_Key&&>(key)); }
+void BinarySortTree<_Key, _Value, _Compare>::_remove_node(_Key &&key)
+{  _remove_node(std::forward<_Key&&>(key)); }
 
 template<typename _Key, typename _Value, typename _Compare>
 void BinarySortTree<_Key, _Value, _Compare>::_remove_node(const BinaryNode<_Key, _Value> *node)
 {
     if(node == nullptr) return;
-    BinaryNode<_Key, _Value> *no_need = node;
+    const BinaryNode<_Key, _Value> *no_need = node;
     BinaryNode<_Key, _Value> *right_min = _get_leftchild(node->Right);
     //if [node] has right children
     if(right_min != nullptr)
@@ -396,24 +462,35 @@ void BinarySortTree<_Key, _Value, _Compare>::_remove_node(const BinaryNode<_Key,
             _add_size(node, -1);
         }
     }
-    delete no_need;
+    _release_node(no_need);
 }
 
 template<typename _Key, typename _Value, typename _Compare>
-void BinarySortTree<_Key, _Value, _Compare>::_remove_node(const BinarySortTree<_Key, _Value, _Compare>::miterator &it)
-{ _remove_node(*it); }
+void BinarySortTree<_Key, _Value, _Compare>::_remove_node(BinarySortTree<_Key, _Value, _Compare>::Middle_iterator &it)
+{ _remove_node(it.__get_current_node()); }
 
 template<typename _Key, typename _Value, typename _Compare>
-void BinarySortTree<_Key, _Value, _Compare>::_remove_node(const BinarySortTree<_Key, _Value, _Compare>::aiterator &it)
-{ _remove_node(*it); }
+void BinarySortTree<_Key, _Value, _Compare>::_remove_node(BinarySortTree<_Key, _Value, _Compare>::After_iterator &it)
+{ _remove_node(it.__get_current_node()); }
 
 template<typename _Key, typename _Value, typename _Compare>
-void BinarySortTree<_Key, _Value, _Compare>::_remove_node(const BinarySortTree<_Key, _Value, _Compare>::fiterator &it)
-{ _remove_node(*it); }
+void BinarySortTree<_Key, _Value, _Compare>::_remove_node(BinarySortTree<_Key, _Value, _Compare>::Former_iterator &it)
+{ _remove_node(it.__get_current_node()); }
 
 template<typename _Key, typename _Value, typename _Compare>
 bool BinarySortTree<_Key, _Value, _Compare>::_contains_node(const _Key &key)
-{ return get_node(key) != nullptr; }
+{ return _get_node(key) != nullptr; }
+
+template<typename _Key, typename _Value, typename _Compare>
+void BinarySortTree<_Key, _Value, _Compare>::clear()
+{
+    for(iterator it = begin(); it != end();)
+    {
+        BinaryNode<_Key, _Value> *node = it.__get_current_node();
+        it++;
+        _release_node(node);
+    }
+}
 
 template<typename _Key, typename _Value, typename _Compare>
 void BinarySortTree<_Key, _Value, _Compare>::insert(const _Key &key, const _Value &value)
@@ -437,35 +514,45 @@ void BinarySortTree<_Key, _Value, _Compare>::remove(const _Key &key)
 
 template<typename _Key, typename _Value, typename _Compare>
 void BinarySortTree<_Key, _Value, _Compare>::remove(_Key &&key)
-{ _remove_node(std::farward<_Key&&>(key)); }
+{ _remove_node(std::forward<_Key&&>(key)); }
 
 template<typename _Key, typename _Value, typename _Compare>
 bool BinarySortTree<_Key, _Value, _Compare>::contains(const _Key &key)
-{ _contains_node(key); }
+{ return _contains_node(key); }
 
 template<typename _Key, typename _Value, typename _Compare>
 bool BinarySortTree<_Key, _Value, _Compare>::contains(_Key &&key)
-{ _contains_node(std::farward<_Key&&>(key)); }
+{ return _contains_node(std::forward<_Key&&>(key)); }
 
 template<typename _Key, typename _Value, typename _Compare>
-const BinaryNode<_Key, _Value> *BinarySortTree<_Key, _Value, _Compare>::get_node(const _Key &key)
+BinaryNode<_Key, _Value>* BinarySortTree<_Key, _Value, _Compare>::_get_node(const _Key &key)
 {
     _Compare com;
-    for(fiterator it = fbegin(); it != fend(); it++)
-        if(!com(it->Second, key) && !com(key, it->Second))
-            return *it;
+    BinaryNode<_Key, _Value> *temp = _Root;
+    while(temp != nullptr)
+    {
+        if(com(temp->Data->First, key))
+            temp = temp->Right;
+        else if(com(key, temp->Data->First))
+            temp = temp->Left;
+        else return temp;
+    }
+    return nullptr;
 }
 
 template<typename _Key, typename _Value, typename _Compare>
-const BinaryNode<_Key, _Value> *BinarySortTree<_Key, _Value, _Compare>::get_node(_Key && key)
-{ return get_node(std::farward<_Key&&>(key)); }
+_Value& BinarySortTree<_Key, _Value, _Compare>::operator[](const _Key &key)
+{
+    BinaryNode<_Key, _Value> *temp = _get_node(key);
+    if(temp == nullptr) throw Exception("there is no this key!");
+    return temp->Data->Second;
+}
 
 template<typename _Key, typename _Value, typename _Compare>
-const BinaryNode<_Key, _Value> *BinarySortTree::operator[](const _Key &key)
-{ return get_node(key); }
-
-template<typename _Key, typename _Value, typename _Compare>
-const BinaryNode<_Key, _Value> *BinarySortTree::operator[](_Key &&key)
-{ return get_node(std::farward<_Key&&>(key)); }
-
+_Value& BinarySortTree<_Key, _Value, _Compare>::operator[](_Key &&key)
+{
+    BinaryNode<_Key, _Value> *temp = _get_node(std::forward<_Key&&>(key));
+    if(temp == nullptr) throw Exception("there is no this key!");
+    return temp->Data->Second;
+}
 #endif // BINARYTREE_H
