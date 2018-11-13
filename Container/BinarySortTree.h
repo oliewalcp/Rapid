@@ -393,7 +393,11 @@ void BinarySortTree<_Key, _Value, _Compare>::_insert_node(BinaryNode<_Key, _Valu
             }
             else temp = temp->Left;
         }
-        else memcpy(&temp->Data->Second, &node->Data->Second, sizeof(_Value));
+        else
+        {
+            memcpy(&temp->Data->Second, &node->Data->Second, sizeof(_Value));
+            break;
+        }
     }
 }
 
