@@ -58,6 +58,17 @@ public:
         BinaryNode<_Key, _Value> *__Current;
         BinaryNode<_Key, _Value> *__Next;
 
+        BinaryNode<_Key, _Value> * __get_closest_left_parent(BinaryNode<_Key, _Value> *node)
+        {
+            BinaryNode<_Key, _Value> *temp = node;
+            while(temp != nullptr)
+            {
+                if(temp->Parent == nullptr) return nullptr;
+                if(temp == temp->Parent->Left) return temp->Parent;
+                temp = temp->Parent;
+            }
+            return temp;
+        }
         BinaryNode<_Key, _Value> *__get_current_node()
         { return __Current; }
         void __get_next_node()
@@ -73,18 +84,11 @@ public:
                     else if(__Next->Right != nullptr) __Next = __Next->Right;
                     else
                     {
-                        if(__Current->Right != nullptr && __Next != __Current->Right) __Next = __Current->Right;
-                        else
-                        {
-                            BinaryNode<_Key, _Value> *t = __Next;
-                            while(true)
-                            {
-                                if(t->Parent->Parent == nullptr) break;
-                                t = t->Parent;
-                            }
-                            if(t == t->Parent->Left) __Next = t->Parent->Right;
-                            else __Next = nullptr;
-                        }
+                        BinaryNode<_Key, _Value> *p = __get_closest_left_parent(__Next);
+                        while(p != nullptr && p->Right == nullptr)
+                            p = __get_closest_left_parent(p);
+                        if(p == nullptr) __Next = nullptr;
+                        else __Next = p->Right;
                     }
                 }
                 //if [__Next] is a brother of [__Current]
