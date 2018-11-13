@@ -250,20 +250,7 @@ public:
             {
                 BinaryNode<_Key, _Value> *temp = __Next;
                 BinaryNode<_Key, _Value> *right = BinarySortTree<_Key, _Value, _Compare>::_get_leftchild(__Next->Right);
-                //if [__Next] is [__Current]'s parent
-                if(__Next == __Current->Parent)
-                    __Next = right == nullptr ? __Next->Parent : right;
-                //if [__Next] is a right child of [__Current]
-                else if(__Next == __Current->Right)
-                    __Next = right == nullptr ? __Current->Parent : right;
-                else if(__Next == __Next->Parent->Right)
-                {
-                    BinaryNode<_Key, _Value> *t = __get_closest_left_parent(__Next);
-                    if(t == nullptr) __Next = right;
-                    else __Next = t->Right;
-                }
-                else
-                    __Next = right == nullptr ? __Next->Parent : right;
+                __Next = right == nullptr ? __get_closest_left_parent(__Next) : right;
                 __Current = temp;
             }
         }
