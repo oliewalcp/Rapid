@@ -7,7 +7,7 @@ template<typename _First, typename _Second>
 struct Pair
 {
     Pair() {}
-    Pair(const _First *first, const _Second *second) : First(*first), Second(*second) {}
+    Pair(const _First &first, const _Second &second) : First(first), Second(second) {}
     _First First;
     _Second Second;
 };
@@ -342,7 +342,7 @@ protected:
         delete node;
     }
     virtual Pair<_Key, _Value>* _get_pair(const _Key &key, const _Value &value)
-    { return new Pair<_Key, _Value>(&key, &value); }
+    { return new Pair<_Key, _Value>(key, value); }
     virtual BinaryNode<_Key, _Value> * _get_under_node(BinaryNode<_Key, _Value> *node)
     {
         while(node != nullptr)
@@ -356,6 +356,7 @@ protected:
             else node = node->Left;
         }
     }
+    virtual void _adjust(BinaryNode<_Key, _Value> *node) = 0;
 };
 
 template<typename _Key, typename _Value, typename _Compare>
@@ -399,6 +400,7 @@ void BinarySortTree<_Key, _Value, _Compare>::_insert_node(BinaryNode<_Key, _Valu
             break;
         }
     }
+    _adjust(node);
 }
 
 template<typename _Key, typename _Value, typename _Compare>
@@ -418,7 +420,7 @@ void BinarySortTree<_Key, _Value, _Compare>::_add_size(const BinaryNode<_Key, _V
 template<typename _Key, typename _Value, typename _Compare>
 void BinarySortTree<_Key, _Value, _Compare>::_remove_node(const _Key &key)
 {
-    const BinaryNode<_Key, _Value> *temp = _get_node(key);
+    BinaryNode<_Key, _Value> *temp = _get_node(key);
     _remove_node(temp);
 }
 

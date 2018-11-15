@@ -128,9 +128,7 @@ public:
     public:
         reverse_iterator(DoubleNode<T> *p = nullptr) : __Current(p){}
         T operator*() const
-        {
-            return __Current->Value->Data;
-        }
+        { return __Current->Value->Data; }
         reverse_iterator& operator++() {
             __Current = __Current->Previous;
             return *this;
@@ -140,95 +138,62 @@ public:
             __Current = __Current->Previous;
             return reverse_iterator(temp);
         }
-        T* operator->() const {
-            return &__Current->Value->Data;
-        }
-        bool operator==(const reverse_iterator &arg) const {
-            return arg.__Current == this->__Current;
-        }
+        T* operator->() const
+        { return &__Current->Value->Data; }
+        bool operator==(const reverse_iterator &arg) const
+        { return arg.__Current == this->__Current; }
 
-        bool operator!=(const reverse_iterator &arg) const {
-            return arg.__Current != this->__Current;
-        }
+        bool operator!=(const reverse_iterator &arg) const
+        { return arg.__Current != this->__Current; }
     };
     reverse_iterator rbegin() const
-    {
-        return reverse_iterator(__Tail);
-    }
+    { return reverse_iterator(__Tail); }
     reverse_iterator rend() const
-    {
-        return reverse_iterator(nullptr);
-    }
+    { return reverse_iterator(nullptr); }
 
     inline void erase(iterator it)
-    {
-        __remove(it.__Current);
-    }
+    { __remove(it.__Current); }
     inline void erase(reverse_iterator it)
-    {
-        __remove(it.__Current);
-    }
+    { __remove(it.__Current); }
     inline T &front()//获取头结点的值
-    {
-        return *iterator(__Head);
-    }
+    { return *iterator(__Head); }
     inline T &back()//获取尾节点的值
-    {
-        return *iterator(__Tail);
-    }
+    { return *iterator(__Tail); }
 };
 
 template<typename T>
 DoubleLinkedList<T>::~DoubleLinkedList()
-{
-    clear();
-}
+{ clear(); }
 
 template<typename T>
 void DoubleLinkedList<T>::push_back(const T &arg)
 {
-    if(__Tail == nullptr)
-        __create_list(arg);
-    else
-    {
-        __add_tail(__get_node(arg));
-    }
+    if(__Tail == nullptr)  __create_list(arg);
+    else __add_tail(__get_node(arg));
     __ElementNumber++;
 }
 
 template<typename T>
 void DoubleLinkedList<T>::push_back(T &&arg)
 {
-    if(__Tail == nullptr)
-        __create_list(std::forward<T&&>(arg));
-    else
-    {
-        __add_tail(__get_node(std::forward<T&&>(arg)));
-    }
+    if(__Tail == nullptr) __create_list(std::forward<T&&>(arg));
+    else __add_tail(__get_node(std::forward<T&&>(arg)));
     __ElementNumber++;
 }
 
 template<typename T>
 void DoubleLinkedList<T>::push_front(const T &arg)
 {
-    if(__Head == nullptr)
-        __create_list(arg);
-    else
-    {
-        __add_head(__get_node(arg));
-    }
+    if(__Head == nullptr) __create_list(arg);
+    else __add_head(__get_node(arg));
     __ElementNumber++;
 }
 
 template<typename T>
 void DoubleLinkedList<T>::push_front(T &&arg)
 {
-    if(__Head == nullptr)
-        __create_list(std::forward<T&&>(arg));
-    else
-    {
-        __add_head(__get_node(std::forward<T&&>(arg)));
-    }
+    if(__Head == nullptr) __create_list(std::forward<T&&>(arg));
+    else __add_head(__get_node(std::forward<T&&>(arg)));
     __ElementNumber++;
 }
 
@@ -236,9 +201,7 @@ template<typename T>
 void DoubleLinkedList<T>::clear()
 {
     while(size() > 0)
-    {
         pop_front();
-    }
     __ElementNumber = 0;
 }
 
