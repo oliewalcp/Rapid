@@ -17,13 +17,13 @@ void BalanceBinaryTree<_Key, _Value, _Compare>::_adjust(BinaryNode<_Key, _Value>
 {
     BinaryNode<_Key, _Value> *temp = node->Parent;
     if(temp == nullptr) return;
-    if(temp->LeftChildSize > temp->RightChildSize + 1)
+    while(temp->Parent != nullptr)
     {
-        _right_rotate(temp);
-    }
-    else if(temp->RightChildSize > temp->LeftChildSize + 1)
-    {
-        _left_rotate(temp);
+        if(temp->LeftChildSize > temp->RightChildSize + 1)
+            _right_rotate(temp);
+        else if(temp->RightChildSize > temp->LeftChildSize + 1)
+            _left_rotate(temp);
+        temp = temp->Parent;
     }
 }
 
@@ -39,12 +39,11 @@ void BalanceBinaryTree<_Key, _Value, _Compare>::_left_rotate(BinaryNode<_Key, _V
             parent->Left = right_child;
         else parent->Right = right_child;
     }
-    right_child->LeftChildSize += pivot->LeftChildSize + 1;
     pivot->RightChildSize += right_child->LeftChildSize;
     pivot->RightChildSize -= right_child->RightChildSize + 1;
+    right_child->LeftChildSize += pivot->LeftChildSize + 1;
 
-    BinaryNode<_Key, _Value> *under_right = _get_rightchild(left_child);
-    under_right->Right = right_child->Left;
+    pivot->Right = right_child->Left;
     right_child->Left = pivot;
     pivot->Parent = right_child;
 }
@@ -61,14 +60,13 @@ void BalanceBinaryTree<_Key, _Value, _Compare>::_right_rotate(BinaryNode<_Key, _
             parent->Left = left_child;
         else parent->Right = left_child;
     }
-    right_child->LeftChildSize += pivot->LeftChildSize + 1;
-    pivot->RightChildSize += right_child->LeftChildSize;
-    pivot->RightChildSize -= right_child->RightChildSize + 1;
+    pivot->LeftChildSize += right_child->RightChildSize;
+    pivot->LeftChildSize -= right_child->LeftChildSize + 1;
+    right_child->RightChildSize += pivot->RightChildSize + 1;
 
-    BinaryNode<_Key, _Value> *under_right = _get_rightchild(left_child);
-    under_right->Right = right_child->Left;
-    right_child->Left = pivot;
-    pivot->Parent = right_child;
+    pivot->Left = left_child->Right;
+    left_child->Right = pivot;
+    pivot->Parent = left_child;
 }
 
 #endif // BALANCEBINARYTREE_H
