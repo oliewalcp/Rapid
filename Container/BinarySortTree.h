@@ -356,7 +356,7 @@ protected:
             else node = node->Left;
         }
     }
-    virtual void _adjust(BinaryNode<_Key, _Value> *node) = 0;
+    virtual void _adjust(BinaryNode<_Key, _Value> *node) {}
 };
 
 template<typename _Key, typename _Value, typename _Compare>
