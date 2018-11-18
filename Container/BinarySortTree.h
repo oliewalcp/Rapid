@@ -17,15 +17,17 @@ struct BinaryNode
 {
 private:
     typedef unsigned int __uint32;
+    typedef bool __color;
 public:
-    BinaryNode(Pair<Key, Value>* pair) :
-        Data(pair), Left(nullptr), Right(nullptr), Parent(nullptr) {}
+    BinaryNode(Pair<Key, Value>* pair, __color c) :
+        Data(pair), Left(nullptr), Right(nullptr), Parent(nullptr), Color(c) {}
     BinaryNode<Key, Value> *Left;
     BinaryNode<Key, Value> *Right;
     BinaryNode<Key, Value> *Parent;
     Pair<Key, Value> *Data;
-    __uint32 LeftChildSize = 0;
-    __uint32 RightChildSize = 0;
+    __uint32 LeftDepth = 0;
+    __uint32 RightDepth = 0;
+    __color Color;
 };
 
 template<typename _Key, typename _Value, typename _Compare = Compare>
@@ -91,9 +93,6 @@ public:
                         else __Next = p->Right;
                     }
                 }
-                //if [__Next] is a brother of [__Current]
-                else if(__Next == __Current->Parent->Right)
-                    __Next = __Current->Parent->Parent != nullptr ? __Current->Parent->Parent->Right : nullptr;
                 else __Next = __Next->Left != nullptr ? __Next->Left : __Next->Right;
                 __Current = temp;
             }
@@ -300,12 +299,14 @@ public:
     virtual iterator end()
     { return mend(); }
 protected:
+    static constexpr bool BLACK = true;
+    static constexpr bool RED = false;
     BinaryNode<_Key, _Value> *_Root;
     unsigned int _ElementNumber;
 
     virtual void _insert_node(const _Key &key, const _Value &value)
     {
-        BinaryNode<_Key, _Value> *node = new BinaryNode<_Key, _Value>(_get_pair(key, value));
+        BinaryNode<_Key, _Value> *node = new BinaryNode<_Key, _Value>(_get_pair(key, value), BinarySortTree::BLACK);
         _insert_node(node);
     }
     virtual void _insert_node(BinaryNode<_Key, _Value> *node);
@@ -408,11 +409,13 @@ void BinarySortTree<_Key, _Value, _Compare>::_add_size(const BinaryNode<_Key, _V
 {
     while(new_node != nullptr && new_node->Parent != nullptr)
     {
+        unsigned int last_depth = new_node->Parent->LeftDepth > new_node->Parent->RightDepth ? new_node->Parent->LeftDepth : new_node->Parent->RightDepth;
         if(new_node == new_node->Parent->Left)
-            new_node->Parent->LeftChildSize += size;
-        else
-            new_node->Parent->RightChildSize += size;
-        new_node = new_node->Parent;
+            new_node->Parent->LeftDepth += size;
+        else new_node->Parent->RightDepth += size;
+        if(new_node->Parent->LeftDepth > last_depth || new_node->Parent->RightDepth > last_depth)
+            new_node = new_node->Parent;
+        else break;
     }
     _ElementNumber += size;
 }
@@ -439,7 +442,7 @@ void BinarySortTree<_Key, _Value, _Compare>::_remove_node(const BinaryNode<_Key,
     {
         node->Left->Parent = right_min;
         right_min->Left = node->Left;
-        _add_size(node->Left, node->LeftChildSize + 1);
+        _add_size(node->Left, node->LeftDepth + 1);
     }
     //if [node] doesn't have right children
     else
