@@ -3,12 +3,9 @@
 
 #include "RB_Tree.h"
 
-template<typename T>
-class Set
+template<typename _Type, typename _Compare = Compare>
+class Set : public RB_Tree<_Type, _Type, _Compare>
 {
-    RB_Tree<T, T> tree;
-public:
-    void insert(T t){tree.insert_node(t, t);}
 };
 
 #endif // SET_H

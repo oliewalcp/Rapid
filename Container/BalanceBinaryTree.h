@@ -31,6 +31,7 @@ template<typename _Key, typename _Value, typename _Compare>
 void BalanceBinaryTree<_Key, _Value, _Compare>::_left_rotate(BinaryNode<_Key, _Value> *pivot)
 {
     BinaryNode<_Key, _Value> *right_child = pivot->Right;
+    if(pivot == nullptr || right_child == nullptr) return;
     BinaryNode<_Key, _Value> *parent = pivot->Parent;
     if(parent != nullptr)
     {
@@ -58,6 +59,7 @@ template<typename _Key, typename _Value, typename _Compare>
 void BalanceBinaryTree<_Key, _Value, _Compare>::_right_rotate(BinaryNode<_Key, _Value> *pivot)
 {
     BinaryNode<_Key, _Value> *left_child = pivot->Left;
+    if(pivot == nullptr || left_child == nullptr) return;
     BinaryNode<_Key, _Value> *parent = pivot->Parent;
     if(parent != nullptr)
     {
