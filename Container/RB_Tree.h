@@ -6,7 +6,7 @@
 /* 1. root is black
  * 2. node is black or red
  * 3. empty node is black
- * 4. red ndoe doesn't have red child
+ * 4. red node doesn't have red children
  * 5. all paths from any node to its leaves contain the same number of black nodes.
  */
 
