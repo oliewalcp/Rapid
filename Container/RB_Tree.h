@@ -1,6 +1,5 @@
 #ifndef RB_TREE_H
 #define RB_TREE_H
-#include "Stack.h"
 #include "BalanceBinaryTree.h"
 
 /* 1. root is black
@@ -24,7 +23,7 @@ protected:
     virtual void _adjust(BinaryNode<_Key, _Value> *node);// will be run after inserting operator
 };
 
-/* will be run after inserting operator
+/* will be called after inserting operator
  * param[node]: new inserting node
  *
  * while [node]'s parent is a red node:

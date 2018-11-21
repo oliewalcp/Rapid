@@ -1,0 +1,52 @@
+#include <QCoreApplication>
+#include <iostream>
+#include <vector>
+#include "Math/Image/GrayImage.h"
+#include "Container/BalanceBinaryTree.h"
+using namespace std;
+
+typedef BalanceBinaryTree<int, int> test_container;
+//typedef BinarySortTree<int, int> test_container;
+
+int main(int argc, char *argv[])
+{
+    QCoreApplication a(argc, argv);
+
+    std::vector<int>::iterator
+//    test_container temp;
+//    temp.insert(1, 1);
+//    temp.insert(2, 2);
+//    temp.insert(3, 3);
+//    temp.insert(4, 4);
+//    temp.insert(5, 5);
+//    //前序遍历
+//    cout << "********** former **********" << endl;
+//    for(test_container::fiterator it = temp.fbegin(); it != temp.fend(); it++)
+//    {
+//        cout << (*it).First << " ";
+//    }
+//    cout << endl;
+//    //中序遍历
+//    cout << "********** middle **********" << endl;
+//    for(test_container::miterator it = temp.mbegin(); it != temp.mend(); it++)
+//    {
+//        cout << (*it).First << " ";
+//    }
+//    cout << endl;
+//    //中序遍历
+//    cout << "********** after **********" << endl;
+//    for(test_container::aiterator it = temp.abegin(); it != temp.aend(); it++)
+//    {
+//        cout << (*it).First << " ";
+//    }
+//    cout << endl;
+
+//    GrayImage *image = GrayImage::parse("C:\\Users\\super\\Desktop\\test.bmp");
+//    GrayImage *image = GrayImage::parse("C:\\Users\\super\\Desktop\\fractal_iris.bmp");
+//    cout << "image line : " << image->line() << endl;
+//    cout << "image column : " << image->column() << endl;
+//    BMP::save("C:\\Users\\super\\Desktop\\test.bmp", image);
+//    delete image;
+
+    return a.exec();
+}
