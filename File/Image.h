@@ -53,7 +53,7 @@ private:
     {
         __uint32 InfoSize = 40;
         __uint32 ImageWidth = 0;
-        __uint32 ImageHeight = 0;
+        int ImageHeight = 0;
         __uint16 PlaneNumber = 1;
         __uint16 ColorBit = 8;
         __uint32 CompressWay = 0;
@@ -67,12 +67,24 @@ private:
 public:
     static _M_Base<__uint8>* parse(const char* filename)
     {
-        FILE_HEADER *header = new FILE_HEADER;
-        FILE_INFO *info = new FILE_INFO;
         std::string file = FileBaes::open(filename);
         const char *file_content = file.data();
-        __uint8 zero = 0;
+
+        FILE_HEADER *header = new FILE_HEADER;
+        FILE_INFO *info = new FILE_INFO;
         memcpy(info, file_content + INFO_SIZE, sizeof(FILE_INFO));
+        std::cout << "********** input ***********" << std::endl;
+        std::cout << "InfoSize = " << info->InfoSize << std::endl;
+        std::cout << "ImageWidth = " << info->ImageWidth << std::endl;
+        std::cout << "ImageHeight = " << info->ImageHeight << std::endl;
+        std::cout << "PlaneNumber = " << info->PlaneNumber << std::endl;
+        std::cout << "ColorBit = " << info->ColorBit << std::endl;
+        std::cout << "CompressWay = " << info->CompressWay << std::endl;
+        std::cout << "DataSize = " << info->DataSize << std::endl;
+        std::cout << "HorizontalPixel = " << info->HorizontalPixel << std::endl;
+        std::cout << "VerticalPixel = " << info->VerticalPixel << std::endl;
+        std::cout << "ColorUse = " << info->ColorUse << std::endl;
+        std::cout << "ColorImportant = " << info->ColorImportant << std::endl;
         if(info->ColorBit > 8)
         {
             delete header;
@@ -81,18 +93,21 @@ public:
         }
         memcpy(&header->BeginPos, file_content + DATA_BEGIN_POS, sizeof(header->BeginPos));
         memcpy(&header->FileSize, file_content + FILE_SIZE, sizeof(header->FileSize));
+        memcpy(&header->FileLogo, file_content + FILE_LOGO, sizeof(header->FileLogo));
+        memcpy(&header->Reserve, file_content + RESERVE, sizeof(header->Reserve));
         std::cout << "********** input ***********" << std::endl;
-        std::cout << "image width = " << info->ImageWidth << std::endl;
-        std::cout << "image height = " << info->ImageHeight << std::endl;
-        std::cout << "data size = " << info->DataSize << std::endl;
+        std::cout << "BeginPos = " << header->BeginPos << std::endl;
+        std::cout << "FileSize = " << header->FileSize << std::endl;
+        std::cout << "FileLogo = " << header->FileLogo << std::endl;
+        std::cout << "Reserve = " << header->Reserve << std::endl;
 
-        _M_Base<__uint8> *image = new _M_Base<__uint8>(info->ImageHeight, info->ImageWidth, zero);
-        __uint64 index = header->BeginPos + 2;
+        _M_Base<__uint8> *image = new _M_Base<__uint8>(info->ImageHeight, info->ImageWidth, 0);
+        __uint64 index = header->BeginPos;
         __uint8 offset = info->ImageWidth % 4;
         if(offset != 0) offset = 4 - offset;
-        for(__uint32 i = 0; i < image->line(); i++)
+        for(__uint32 i = image->line() - 1; i > 0; i--)
         {
-            for(__uint32 j = image->column() - 1; j > 0; j--)
+            for(__uint32 j = 0; j < image->column(); j++)
             {
                 image->set_value(i, j, file_content[index++]);
             }
@@ -108,33 +123,45 @@ public:
         struct FILE_INFO *info = new struct FILE_INFO;
         info->ImageWidth = content->column();
         info->ImageHeight = content->line();
-        info->DataSize = info->ImageHeight * info->ImageWidth;
-        std::cout << "********** output ***********" << std::endl;
-        std::cout << "image width = " << info->ImageWidth << std::endl;
-        std::cout << "image height = " << info->ImageHeight << std::endl;
-        std::cout << "data size = " << info->DataSize << std::endl;
+        info->DataSize = content->column() * content->line();
+
         header->FileSize = 1078 + info->DataSize;
-        struct RGB *rgb = new struct RGB[256];
-        for(__uint16 i = 0; i < 256; i++)
-        {
-            rgb[i].R = i;
-            rgb[i].B = i;
-            rgb[i].G = i;
-            rgb[i].A = 0;
-        }
         char *file_content = new char[header->FileSize]{0};
+        for(__uint16 i = 0; i < 1024; i++)
+        {
+            if(i % 4 != 3) file_content[54 + i] = i / 4;
+            else file_content[54 + i] = 0;
+        }
+        std::cout << "********** output ***********" << std::endl;
+        std::cout << "InfoSize = " << info->InfoSize << std::endl;
+        std::cout << "ImageWidth = " << info->ImageWidth << std::endl;
+        std::cout << "ImageHeight = " << info->ImageHeight << std::endl;
+        std::cout << "PlaneNumber = " << info->PlaneNumber << std::endl;
+        std::cout << "ColorBit = " << info->ColorBit << std::endl;
+        std::cout << "CompressWay = " << info->CompressWay << std::endl;
+        std::cout << "DataSize = " << info->DataSize << std::endl;
+        std::cout << "HorizontalPixel = " << info->HorizontalPixel << std::endl;
+        std::cout << "VerticalPixel = " << info->VerticalPixel << std::endl;
+        std::cout << "ColorUse = " << info->ColorUse << std::endl;
+        std::cout << "ColorImportant = " << info->ColorImportant << std::endl;
+
+        std::cout << "********** output ***********" << std::endl;
+        std::cout << "BeginPos = " << header->BeginPos << std::endl;
+        std::cout << "FileSize = " << header->FileSize << std::endl;
+        std::cout << "FileLogo = " << header->FileLogo << std::endl;
+        std::cout << "Reserve = " << header->Reserve << std::endl;
+
         memcpy(file_content, &header->FileLogo, 2);
         memcpy(file_content + FILE_SIZE, &header->FileSize, 4);
         memcpy(file_content + RESERVE, &header->Reserve, 4);
         memcpy(file_content + DATA_BEGIN_POS, &header->BeginPos, 4);
         memcpy(file_content + INFO_SIZE, info, 40);
-        memcpy(file_content + 54, rgb, 1024);
         __uint64 index = 1078;
         __uint8 offset = info->ImageWidth % 4;
         if(offset != 0) offset = 4 - offset;
-        for(__uint32 i = 0; i < content->line(); i++)
+        for(__uint32 i = content->line() - 1; i > 0; i--)
         {
-            for(__uint32 j = content->column() - 1; j > 0; j--)
+            for(__uint32 j = 0; j < content->column(); j++)
             {
                 file_content[index++] = content->get_value(i, j);
             }
@@ -143,7 +170,6 @@ public:
         FileBaes::save(filename, file_content, header->FileSize);
         delete header;
         delete info;
-        delete[] rgb;
     }
 };
 

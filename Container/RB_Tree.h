@@ -12,14 +12,13 @@
 template<typename _Key, typename _Value, typename _Compare = Compare>
 class RB_Tree : public BalanceBinaryTree<_Key, _Value, _Compare>
 {
-private:
+protected:
     inline void __uncle_red_adjust(BinaryNode<_Key, _Value> *node, BinaryNode<_Key, _Value> *uncle)
     {
         node->Parent->Color = BinarySortTree<_Key, _Value, _Compare>::BLACK;
         uncle->Color = BinarySortTree<_Key, _Value, _Compare>::BLACK;
         uncle->Parent->Color = BinarySortTree<_Key, _Value, _Compare>::RED;
     }
-protected:
     virtual void _adjust(BinaryNode<_Key, _Value> *node);// will be run after inserting operator
 };
 
