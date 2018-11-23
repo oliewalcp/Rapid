@@ -16,11 +16,11 @@ template<typename T>
 class DoubleLinkedList
 {
 private:
-    DoubleNode<T> *__Head = nullptr;//头结点
-    DoubleNode<T> *__Tail = nullptr;//尾结点
-    unsigned int __ElementNumber;//元素个数
+    DoubleNode<T> *__Head = nullptr;
+    DoubleNode<T> *__Tail = nullptr;
+    unsigned int __ElementNumber;
 
-    inline void __create_list(const T& arg)//创建链表
+    inline void __create_list(const T& arg)
     {
         __Head = __get_node(arg);
         __Tail = __Head;
@@ -58,24 +58,23 @@ private:
         __ElementNumber--;
     }
 public:
-    inline unsigned int size(){ return __ElementNumber; }//获取链表的长度
+    inline unsigned int size(){ return __ElementNumber; }
     inline bool empty(){ return __ElementNumber > 0 ? false : true; }
-    void push_back(const T& arg);//从后面插入元素
+    void push_back(const T& arg);
     void push_back(T && arg);
-    void push_front(const T& arg);//从前面插入元素
+    void push_front(const T& arg);
     void push_front(T && arg);
-    inline void pop_back();//删除最后一个元素
-    inline void pop_front();//删除最前一个元素
-    void insert(const unsigned int index, const T& arg);//在某一个位置插入元素
-    void insert(const unsigned int index, T && arg);//在某一个位置插入元素
-    void remove(const unsigned int index);//移除索引号为index的元素
+    inline void pop_back();
+    inline void pop_front();
+    void insert(const unsigned int index, const T& arg);
+    void insert(const unsigned int index, T && arg);
+    void remove(const unsigned int index);
 
-    void reverse();//反转
-    void clear();//清空链表
-    T& operator[](const unsigned int index);//获取某个位置的元素
+    void reverse();
+    void clear();
+    T& operator[](const unsigned int index);
     ~DoubleLinkedList();
 
-    //迭代器
     class iterator
     {
     private:
@@ -118,7 +117,6 @@ public:
         return iterator(nullptr);
     }
 
-    //反向迭代器
     class reverse_iterator
     {
     private:
@@ -155,9 +153,9 @@ public:
     { __remove(it.__Current); }
     inline void erase(reverse_iterator it)
     { __remove(it.__Current); }
-    inline T &front()//获取头结点的值
+    inline T &front()
     { return *iterator(__Head); }
-    inline T &back()//获取尾节点的值
+    inline T &back()
     { return *iterator(__Tail); }
 };
 
@@ -232,12 +230,12 @@ void DoubleLinkedList<T>::insert(const unsigned int index, const T &arg)
     else if(index >= __ElementNumber) push_back(arg);
     else
     {
-        //找到目标节点的前一个节点
+        //find the former node of target node
         DoubleNode<T> *temp = __Head;
         unsigned int i = 0;
         while(i++ < index - 1)
             temp = temp->Next;
-        //新建结点
+        //create node
         __add_middle(__get_node(arg), temp);
     }
 }
@@ -249,12 +247,12 @@ void DoubleLinkedList<T>::insert(const unsigned int index, T &&arg)
     else if(index >= __ElementNumber) push_back(std::move(arg));
     else
     {
-        //找到目标节点的前一个节点
+        //find the former node of target node
         DoubleNode<T> *temp = __Head;
         unsigned int i = 0;
         while(i++ < index - 1)
             temp = temp->Next;
-        //新建结点
+        //create node
         __add_middle(__get_node(std::move(arg)), temp);
     }
 }
@@ -279,7 +277,6 @@ void DoubleLinkedList<T>::remove(const unsigned int index)
     else if(index >= __ElementNumber) pop_back();
     else
     {
-        //查找目标位置结点
         DoubleNode<T> *temp = __Head;
         for(unsigned int i = 0; i < index; i++)
         {

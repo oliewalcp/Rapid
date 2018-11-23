@@ -10,16 +10,16 @@ struct SingleNode
     SingleNode *Next;
     _C_Base<T> *Value;
 };
-//单链表
+
 template<typename T>
 class SingleLinkedList
 {
 private:
-    SingleNode<T> *__Head = nullptr;//头结点
-    SingleNode<T> *__Tail = nullptr;//尾结点
-    unsigned int __ElementNumber = 0;//元素个数
+    SingleNode<T> *__Head = nullptr;//head node
+    SingleNode<T> *__Tail = nullptr;//tail node
+    unsigned int __ElementNumber = 0;//size
 
-    inline void __create_list(const T& arg)//创建链表
+    inline void __create_list(const T& arg)
     {
         __Head = __get_node(arg);
         __Tail = __Head;
@@ -45,23 +45,22 @@ private:
         __ElementNumber++;
     }
 public:
-    inline unsigned int size();//获取链表的长度
+    inline unsigned int size();//get the length of list
     inline bool empty(){return __ElementNumber > 0 ? false : true;}
-    void push_back(const T& arg);//从后面插入元素
+    void push_back(const T& arg);
     void push_back(T && arg);
-    void push_front(const T &arg);//从前面插入元素
+    void push_front(const T &arg);
     void push_front(T && arg);
-    void pop_back();//删除最后一个元素
-    void pop_front();//删除最前一个元素
-    void insert(unsigned int index, const T& arg);//在某一个位置插入元素
-    void insert(unsigned int index, T && arg);//在某一个位置插入元素
-    void remove(unsigned int index);//移除索引号为index的元素
-    void reverse();//反转
-    void clear();//清空链表
-    T& operator[](unsigned int index);//获取某个位置的元素
+    void pop_back();
+    void pop_front();
+    void insert(unsigned int index, const T& arg);
+    void insert(unsigned int index, T && arg);
+    void remove(unsigned int index);
+    void reverse();
+    void clear();
+    T& operator[](unsigned int index);
     ~SingleLinkedList();
 
-    //迭代器
     class iterator
     {
     private:
@@ -103,11 +102,11 @@ public:
     {
         return iterator(nullptr);
     }
-    inline T &front()//获取头结点的值
+    inline T &front()
     {
         return *iterator(__Head);
     }
-    inline T &back()//获取尾节点的值
+    inline T &back()
     {
         return *iterator(__Tail);
     }
