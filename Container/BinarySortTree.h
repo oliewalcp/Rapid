@@ -306,7 +306,7 @@ protected:
 
     virtual void _insert_node(const _Key &key, const _Value &value)
     {
-        BinaryNode<_Key, _Value> *node = new BinaryNode<_Key, _Value>(_get_pair(key, value), BinarySortTree::BLACK);
+        BinaryNode<_Key, _Value> *node = new BinaryNode<_Key, _Value>(_get_pair(key, value), BinarySortTree::RED);
         _insert_node(node);
     }
     virtual void _insert_node(BinaryNode<_Key, _Value> *node);
@@ -358,6 +358,7 @@ protected:
         }
     }
     virtual void _adjust(BinaryNode<_Key, _Value> *node) {}
+    virtual void _remove_adjust(){}
 };
 
 template<typename _Key, typename _Value, typename _Compare>

@@ -18,6 +18,12 @@ private:
     inline _C_Base<_Value>* __create_array()
     { return new _C_Base<_Value>[__Capacity]; }
 
+    _Value& operator[](__uint32 index)
+    {
+        if(index >= __Size) throw Exception("IndexOutOfArray");
+        return __Data[index].Data;
+    }
+
     void __push_back(const _Value& arg)
     {
         if(__Data == nullptr)

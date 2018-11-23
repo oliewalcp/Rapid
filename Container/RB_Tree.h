@@ -15,9 +15,9 @@ class RB_Tree : public BalanceBinaryTree<_Key, _Value, _Compare>
 private:
     inline void __uncle_red_adjust(BinaryNode<_Key, _Value> *node, BinaryNode<_Key, _Value> *uncle)
     {
-        node->Parent->Color = BLACK;
-        uncle->Color = BLACK;
-        uncle->Parent->Color = RED;
+        node->Parent->Color = BinarySortTree<_Key, _Value, _Compare>::BLACK;
+        uncle->Color = BinarySortTree<_Key, _Value, _Compare>::BLACK;
+        uncle->Parent->Color = BinarySortTree<_Key, _Value, _Compare>::RED;
     }
 protected:
     virtual void _adjust(BinaryNode<_Key, _Value> *node);// will be run after inserting operator
@@ -44,18 +44,18 @@ protected:
  *         same operator with when [node]'s parent is a left child
  * set [_Root] to black
  */
-template<typename _Key, typename _Value, typename _Compare = Compare>
+template<typename _Key, typename _Value, typename _Compare>
 void RB_Tree<_Key, _Value, _Compare>::_adjust(BinaryNode<_Key, _Value> *node)
 {
     //if [node]'s parent is a red node
-    while(node->Parent != nullptr && node->Parent->Parent != nullptr && node->Parent->Color == BinarySortTree::RED)
+    while(node->Parent != nullptr && node->Parent->Parent != nullptr && node->Parent->Color == BinarySortTree<_Key, _Value, _Compare>::RED)
     {
         //if [node]'s parent is a left child
         if(node->Parent == node->Parent->Parent->Left)
         {
             BinaryNode<_Key, _Value> *uncle = node->Parent->Parent->Right;//get uncle
             //if [node]'s uncle is a red node
-            if(uncle != nullptr && uncle->Color == BinarySortTree::RED)
+            if(uncle != nullptr && uncle->Color == BinarySortTree<_Key, _Value, _Compare>::RED)
             {
                 __uncle_red_adjust(node, uncle);
                 node = uncle->Parent;
@@ -64,38 +64,41 @@ void RB_Tree<_Key, _Value, _Compare>::_adjust(BinaryNode<_Key, _Value> *node)
             else if(node == node->Parent->Right)
             {
                 node = node->Parent;
-                _left_rotate(node);
+                this->_left_rotate(node);
             }
             //if [node] is a left child
             else
             {
-                node->Parent->Color = BinarySortTree::BLACK;
-                uncle->Parent->Color = BinarySortTree::RED;
-                _right_rotate(uncle->Parent);
+                node->Parent->Color = BinarySortTree<_Key, _Value, _Compare>::BLACK;
+                uncle->Parent->Color = BinarySortTree<_Key, _Value, _Compare>::RED;
+                this->_right_rotate(uncle->Parent);
             }
         }
         else
         {
             BinaryNode<_Key, _Value> *uncle = node->Parent->Parent->Left;//get uncle
             //if [node]'s uncle is a red node
-            if(uncle != nullptr && uncle->Color == BinarySortTree::RED)
+            if(uncle != nullptr && uncle->Color == BinarySortTree<_Key, _Value, _Compare>::RED)
             {
                 __uncle_red_adjust(node, uncle);
-                node = node->Parent->Parent;
+                node = uncle->Parent;
             }
             //if [node] is a right child
             else if(node == node->Parent->Left)
-                _right_rotate(node->Parent);
+            {
+                node = node->Parent;
+                this->_right_rotate(node);
+            }
             //if [node] is a left child
             else
             {
-                node->Parent->Color = BinarySortTree::BLACK;
-                uncle->Parent->Color = BinarySortTree::RED;
-                _left_rotate(node->Parent->Parent);
+                node->Parent->Color = BinarySortTree<_Key, _Value, _Compare>::BLACK;
+                uncle->Parent->Color = BinarySortTree<_Key, _Value, _Compare>::RED;
+                this->_left_rotate(node->Parent->Parent);
             }
         }
     }
-    _Root->Color = BinarySortTree::BLACK;
+    this->_Root->Color = BinarySortTree<_Key, _Value, _Compare>::BLACK;
 }
 
 #endif // RB_TREE_H
