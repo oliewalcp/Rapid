@@ -6,18 +6,39 @@
 class FileBaes
 {
 private:
-    typedef unsigned long long __uint64;
+    typedef unsigned int __uint32;
 public:
-    static std::string open(const char *filename)
+    /* get all content of file
+     * param[filename]: the name of file
+     * return: char array of content
+     */
+    static char* open(const char *filename)
     {
+        __uint32 length;
+
         std::ifstream file(filename);
-        std::istreambuf_iterator<char> begin(file);
-        std::istreambuf_iterator<char> end;
-        std::string content(begin, end);
+
+//        std::istreambuf_iterator<char> begin(file), end;
+//        std::string content(begin, end);
+
+//        std::stringstream ss;
+//        ss << file.rdbuf();
+//        std::string content(ss.str());
+
+        file.seekg(0, std::ios::end);    // go to the end
+        length = file.tellg();           // report location (this is the length)
+        file.seekg(0, std::ios::beg);    // go back to the beginning
+        char *buffer = new char[length];    // allocate memory for a buffer of appropriate dimension
+        file.read(buffer, length);       // read the whole file into the buffer
         file.close();
-        return content;
+        return buffer;
     }
-    static void save(const char *filename, const char* content, __uint64 length)
+    /* save content to a file
+     * param[filename]: the name of file
+     * param[content]: will be wrote to a file
+     * param[length]: the length of content
+     */
+    static void save(const char *filename, const char* content, __uint32 length)
     {
         std::ofstream file(filename);
         file.write(content, length);

@@ -24,22 +24,22 @@ private:
     typedef unsigned short __uint16;
     typedef unsigned char __uint8;
 
-    static constexpr __uint64 FILE_LOGO = 0;//文件头
-    static constexpr __uint64 FILE_SIZE = 0x02;//文件大小
-    static constexpr __uint64 RESERVE = 0x06;//保留
-    static constexpr __uint64 DATA_BEGIN_POS = 0x0A;//图像数据区起始位置
+    static constexpr __uint64 FILE_LOGO = 0;//file logo
+    static constexpr __uint64 FILE_SIZE = 0x02;//the size of file
+    static constexpr __uint64 RESERVE = 0x06;//reserve
+    static constexpr __uint64 DATA_BEGIN_POS = 0x0A;//begin posigion of image data
 
-    static constexpr __uint64 INFO_SIZE = 0x0E;//图像描述信息块大小
-    static constexpr __uint64 IMAGE_WIDTH = 0x12;//图像宽度
-    static constexpr __uint64 IMAGE_HEIGHT = 0x16;//图像高度
-    static constexpr __uint64 PLANE_NUMBER = 0x1A;//图像的面数
-    static constexpr __uint64 COLOR_BIT = 0x1C;//颜色位数  2色、16色、256色等等
-    static constexpr __uint64 COMPRESS_WAY = 0x1E;//数据压缩方式
-    static constexpr __uint64 DATA_SIZE = 0x22;//数据区大小
-    static constexpr __uint64 HORIZONTAL_PIXEL = 0x26;//水平每米像素数
-    static constexpr __uint64 VERTICAL_PIXEL = 0x2A;//垂直每米像素数
-    static constexpr __uint64 USER_COLOR_NUM = 0x2E;//所用的颜色数
-    static constexpr __uint64 COLOR_IMPORTANT = 0x31;//颜色的侧重性
+    static constexpr __uint64 INFO_SIZE = 0x0E;//the size of image information block
+    static constexpr __uint64 IMAGE_WIDTH = 0x12;//image width of pixel
+    static constexpr __uint64 IMAGE_HEIGHT = 0x16;//image height of pixel
+    static constexpr __uint64 PLANE_NUMBER = 0x1A;//the number of iamge plane
+    static constexpr __uint64 COLOR_BIT = 0x1C;//the number of bits of one pixel taking up
+    static constexpr __uint64 COMPRESS_WAY = 0x1E;//data compress way
+    static constexpr __uint64 DATA_SIZE = 0x22;//the size of data
+    static constexpr __uint64 HORIZONTAL_PIXEL = 0x26;//horizontal dpi
+    static constexpr __uint64 VERTICAL_PIXEL = 0x2A;//vertical dpi
+    static constexpr __uint64 USER_COLOR_NUM = 0x2E;//
+    static constexpr __uint64 COLOR_IMPORTANT = 0x31;//
 
     struct FILE_HEADER
     {
@@ -65,13 +65,16 @@ private:
     };
 
 public:
+    /* parse the bmp file
+     * param[filename]: name of the bmp image file
+     * return: a matrix of pixels, you must delete by yourself
+     */
     static _M_Base<__uint8>* parse(const char* filename)
     {
-        std::string file = FileBaes::open(filename);
-        const char *file_content = file.data();
-
+        const char *file_content = FileBaes::open(filename);
         FILE_HEADER *header = new FILE_HEADER;
         FILE_INFO *info = new FILE_INFO;
+
         memcpy(info, file_content + INFO_SIZE, sizeof(FILE_INFO));
         std::cout << "********** input ***********" << std::endl;
         std::cout << "InfoSize = " << info->InfoSize << std::endl;
@@ -96,10 +99,10 @@ public:
         memcpy(&header->FileLogo, file_content + FILE_LOGO, sizeof(header->FileLogo));
         memcpy(&header->Reserve, file_content + RESERVE, sizeof(header->Reserve));
         std::cout << "********** input ***********" << std::endl;
-        std::cout << "BeginPos = " << header->BeginPos << std::endl;
-        std::cout << "FileSize = " << header->FileSize << std::endl;
         std::cout << "FileLogo = " << header->FileLogo << std::endl;
+        std::cout << "FileSize = " << header->FileSize << std::endl;
         std::cout << "Reserve = " << header->Reserve << std::endl;
+        std::cout << "BeginPos = " << header->BeginPos << std::endl;
 
         _M_Base<__uint8> *image = new _M_Base<__uint8>(info->ImageHeight, info->ImageWidth, 0);
         __uint64 index = header->BeginPos;
@@ -113,10 +116,15 @@ public:
             }
             index += offset;
         }
+        delete[] file_content;
         delete header;
         delete info;
         return image;
     }
+    /* save to a bmp file
+     * param[filename]: name of the bmp image file
+     * param[content]: a matrix of pixels
+     */
     static void save(const char* filename, _M_Base<__uint8> *content)
     {
         struct FILE_HEADER *header = new struct FILE_HEADER;
