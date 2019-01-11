@@ -8,10 +8,17 @@ class BalanceBinaryTree : public BinarySortTree<_Key, _Value, _Compare>
 {
 protected:
     virtual void _adjust(BinaryNode<_Key, _Value> *node);
+    virtual void _remove_adjust(BinaryNode<_Key, _Value> *no_need_parent);
     virtual void _left_rotate(BinaryNode<_Key, _Value> *pivot);
     virtual void _right_rotate(BinaryNode<_Key, _Value> *pivot);
     virtual void _sub_depth(BinaryNode<_Key, _Value> *node);
 };
+
+template<typename _Key, typename _Value, typename _Compare>
+void BalanceBinaryTree<_Key, _Value, _Compare>::_remove_adjust(BinaryNode<_Key, _Value> *no_need_parent)
+{
+    _adjust(no_need_parent);
+}
 
 template<typename _Key, typename _Value, typename _Compare>
 void BalanceBinaryTree<_Key, _Value, _Compare>::_adjust(BinaryNode<_Key, _Value> *node)

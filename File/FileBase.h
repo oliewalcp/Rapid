@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-class FileBaes
+class FileBase
 {
 private:
     typedef unsigned int __uint32;
@@ -12,18 +12,25 @@ public:
      * param[filename]: the name of file
      * return: char array of content
      */
-    static char* open(const char *filename)
+    static std::string open(const char *filename)
     {
-        __uint32 length;
-
         std::ifstream file(filename);
-
-//        std::istreambuf_iterator<char> begin(file), end;
-//        std::string content(begin, end);
-
-//        std::stringstream ss;
-//        ss << file.rdbuf();
-//        std::string content(ss.str());
+        std::istreambuf_iterator<char> begin(file), end;
+        return std::string(begin, end);
+        /* read as std::string
+        std::stringstream ss;
+        ss << file.rdbuf();
+        std::string content(ss.str());
+        */
+    }
+    /* get all content of file
+     * param[filename]: the name of file
+     * param[length]: _out_ the byte size of file
+     * return: char array of content
+     */
+    static const char* open(const char *filename, __uint32 &length, const std::ios_base::openmode open_type = std::ios::binary)
+    {
+        std::ifstream file(filename, open_type);
 
         file.seekg(0, std::ios::end);    // go to the end
         length = file.tellg();           // report location (this is the length)
@@ -37,10 +44,11 @@ public:
      * param[filename]: the name of file
      * param[content]: will be wrote to a file
      * param[length]: the length of content
+     * param[open_type]: open mode
      */
-    static void save(const char *filename, const char* content, __uint32 length)
+    static void save(const char *filename, const char* content, __uint32 length, const std::ios_base::openmode open_type = std::ios::binary)
     {
-        std::ofstream file(filename);
+        std::ofstream file(filename, open_type);
         file.write(content, length);
         file.close();
     }

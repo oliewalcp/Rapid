@@ -358,7 +358,7 @@ protected:
         }
     }
     virtual void _adjust(BinaryNode<_Key, _Value> *node) {}
-    virtual void _remove_adjust(){}
+    virtual void _remove_adjust(BinaryNode<_Key, _Value> *no_need_parent) {}
 };
 
 template<typename _Key, typename _Value, typename _Compare>
@@ -437,7 +437,7 @@ void BinarySortTree<_Key, _Value, _Compare>::_remove_node(const BinaryNode<_Key,
 {
     if(node == nullptr) return;
     const BinaryNode<_Key, _Value> *no_need = node;
-    BinaryNode<_Key, _Value> *right_min = _get_leftchild(node->Right);
+    BinaryNode<_Key, _Value> *right_min = _get_leftchild(node->Right), *adjust_node = no_need->Parent;
     //if [node] has right children
     if(right_min != nullptr)
     {
@@ -452,6 +452,8 @@ void BinarySortTree<_Key, _Value, _Compare>::_remove_node(const BinaryNode<_Key,
         {
             _Root = node->Left;
             node->Left->Parent = nullptr;
+            adjust_node = _Root;
+            _ElementNumber--;
         }
         else
         {
@@ -464,6 +466,7 @@ void BinarySortTree<_Key, _Value, _Compare>::_remove_node(const BinaryNode<_Key,
         }
     }
     _release_node(no_need);
+    _remove_adjust(adjust_node);
 }
 
 template<typename _Key, typename _Value, typename _Compare>
