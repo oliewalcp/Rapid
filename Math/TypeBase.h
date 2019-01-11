@@ -6,6 +6,16 @@
 
 typedef unsigned int __uint32;
 
+// support .bmp file currently
+enum class Format : __uint8
+{
+    BMP,
+    JPG,
+    JPEG,
+    PNG,
+    CUSTOM  //custom format
+};
+
 template<typename value_type>
 class _M_Base
 {

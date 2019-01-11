@@ -1,8 +1,8 @@
 #ifndef IMAGE_H
 #define IMAGE_H
-#include "../Math/TypeBase.h"
+#include "Math/TypeBase.h"
 #include "FileBase.h"
-#include "../Exception.h"
+#include "Exception.h"
 #include <iostream>
 
 struct RGB
@@ -143,6 +143,75 @@ public:
         FileBase::save(filename, file_content, header->FileSize);
         delete header;
         delete info;
+    }
+};
+
+struct PNG
+{
+private:
+    typedef unsigned int __uint8;
+public:
+    /* parse the bmp file
+     * param[filename]: name of the bmp image file
+     * return: a matrix of pixels, you must delete by yourself
+     */
+    static _M_Base<__uint8>* parse(const char* filename)
+    {
+
+    }
+    /* save to a bmp file
+     * param[filename]: name of the bmp image file
+     * param[content]: a matrix of pixels
+     */
+    static void save(const char* filename, _M_Base<__uint8> *content)
+    {
+
+    }
+};
+
+struct JPG
+{
+private:
+    typedef unsigned int __uint8;
+public:
+    /* parse the bmp file
+     * param[filename]: name of the bmp image file
+     * return: a matrix of pixels, you must delete by yourself
+     */
+    static _M_Base<__uint8>* parse(const char* filename)
+    {
+
+    }
+    /* save to a bmp file
+     * param[filename]: name of the bmp image file
+     * param[content]: a matrix of pixels
+     */
+    static void save(const char* filename, _M_Base<__uint8> *content)
+    {
+
+    }
+};
+
+struct JPEG
+{
+private:
+    typedef unsigned int __uint8;
+public:
+    /* parse the bmp file
+     * param[filename]: name of the bmp image file
+     * return: a matrix of pixels, you must delete by yourself
+     */
+    static _M_Base<__uint8>* parse(const char* filename)
+    {
+
+    }
+    /* save to a bmp file
+     * param[filename]: name of the bmp image file
+     * param[content]: a matrix of pixels
+     */
+    static void save(const char* filename, _M_Base<__uint8> *content)
+    {
+
     }
 };
 

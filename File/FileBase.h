@@ -26,7 +26,7 @@ public:
     /* get all content of file
      * param[filename]: the name of file
      * param[length]: _out_ the byte size of file
-     * return: char array of content
+     * return: char array of content, need to delete by yourself
      */
     static const char* open(const char *filename, __uint32 &length, const std::ios_base::openmode open_type = std::ios::binary)
     {

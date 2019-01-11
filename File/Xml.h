@@ -139,6 +139,7 @@ private:
     typedef __Map::iterator __Attr_iter;
     typedef std::unordered_map<std::string, char> __Dictionary;
     typedef unsigned long long __uint64;
+    typedef unsigned int __uint32;
     typedef std::stack<XmlNode *> __Stack;
 
     static constexpr __uint64 START = 0;
@@ -265,12 +266,12 @@ void XmlDocument::parse(std::string filename)
 {
     __file_name = new std::string(filename);
     __Stack *node = new __Stack;
-    std::string file_content = FileBaes::open(filename.data());
+    __uint32 file_length;
+    const char* content = FileBase::open(filename.data(), file_length, std::ios_base::in);
     __uint64 current_signal = START;
     std::string key = "", value = "", special = "";
     std::string *temp = &key;
-    const char* content = file_content.data();
-    for(__uint64 index = 0; index < file_content.length(); index++)
+    for(__uint64 index = 0; index < file_length; index++)
     {
         char ch = content[index];
         if((current_signal & NODE_TEXT) > 0 && (current_signal & (NODE_NAME | HEADER | NODE_OPEN | COMMENT | NODE_CLOSE)) == 0)
