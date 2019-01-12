@@ -1,6 +1,6 @@
 #ifndef IMAGEPARSING_H
 #define IMAGEPARSING_H
-#include "../TypeBase.h"
+#include "Math/TypeBase.h"
 
 typedef unsigned char __uint8;
 

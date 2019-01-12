@@ -2,9 +2,10 @@
 #define TYPEBASE_H
 #include <cstring>
 #include <vector>
-#include "../Exception.h"
+#include "Exception.h"
 
 typedef unsigned int __uint32;
+typedef unsigned char __uint8;
 
 // support .bmp file currently
 enum class Format : __uint8
@@ -85,6 +86,8 @@ public:
      * param[dst]: the value of src line will not change
      */
     virtual void column_sub(const __uint32 src, const __uint32 dst);
+
+    virtual std::string to_std_string();
 };
 
 template<typename value_type>
@@ -159,5 +162,22 @@ void _M_Base<value_type>::column_sub(const __uint32 src, const __uint32 dst)
         temp[src] -= temp[dst];
     }
 }
+
+template<typename value_type>
+std::string _M_Base<value_type>::to_std_string()
+{
+    std::string result = "";
+    __uint32 line_num = line();
+    for(__uint32 i = 0; i < line_num; i++)
+    {
+        for(__uint32 j = 0; j < column(); j++)
+        {
+            result += std::to_string((int)(get_value(i, j))) + " ";
+        }
+        result += "\n";
+    }
+    return result;
+}
+
 
 #endif // TYPEBASE_H

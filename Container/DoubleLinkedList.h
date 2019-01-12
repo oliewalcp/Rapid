@@ -1,6 +1,6 @@
 #ifndef DOUBLELINKEDLIST_H
 #define DOUBLELINKEDLIST_H
-#include "../Exception.h"
+#include "Exception.h"
 #include "C_Base.h"
 
 template<typename T>

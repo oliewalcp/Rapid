@@ -7,7 +7,7 @@
 #include <list>
 #include "FileBase.h"
 #include <iostream>
-#include "../Exception.h"
+#include "Exception.h"
 
 class XmlNode
 {

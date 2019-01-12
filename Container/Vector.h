@@ -1,7 +1,7 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 #include "C_Base.h"
-#include "../Exception.h"
+#include "Exception.h"
 
 template<typename _Value>
 class Vector

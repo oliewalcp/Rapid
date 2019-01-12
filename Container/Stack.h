@@ -1,7 +1,7 @@
 #ifndef STACK_H
 #define STACK_H
 #include "C_Base.h"
-#include "../Exception.h"
+#include "Exception.h"
 
 template<typename T>
 struct StackNode

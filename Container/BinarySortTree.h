@@ -1,7 +1,7 @@
 #ifndef BINARYTREE_H
 #define BINARYTREE_H
 #include "C_Base.h"
-#include "../Exception.h"
+#include "Exception.h"
 
 template<typename _First, typename _Second>
 struct Pair

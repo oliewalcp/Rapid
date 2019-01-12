@@ -1,7 +1,7 @@
 #ifndef SINGLELINKEDLIST_H
 #define SINGLELINKEDLIST_H
 #include "C_Base.h"
-#include "../Exception.h"
+#include "Exception.h"
 
 template<typename T>
 struct SingleNode

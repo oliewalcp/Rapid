@@ -10,8 +10,9 @@ typedef unsigned char __uint8;
 class GrayImage : public _M_Base<__uint8>
 {
 public:
-    GrayImage(const __uint32 line, const __uint32 column,  const __uint8 default_value = 0);
+    GrayImage(const __uint32 & line, const __uint32 & column, __uint8 default_value = 0) : _M_Base<__uint8>(line, column, default_value) { }
 
+    GrayImage(__uint32 && line, __uint32 && column, __uint8 default_value = 0) : _M_Base<__uint8>(line, column, default_value) { }
     /* parse the image picture as gray image
      * param[func]: _template_ class or struct with implementing parse function and returning pointer of GrayImage's instance
      * param[filename]: the name of image
@@ -33,21 +34,31 @@ public:
             default: return nullptr;
             }
         }
-        catch(Exception e)
+        catch(std::exception e)
         {
             std::cout << e.what() << std::endl;
             return nullptr;
         }
     }
+    /* get [plane_num] plane of the matrix
+     * param[plane_num]: the value of plane num. begin at 0, 0 at low
+     */
+    GrayImage* get_plane(__uint8 plane_num);
 };
 
-GrayImage::GrayImage(const __uint32 line, const __uint32 column, const __uint8 default_value)
+GrayImage *GrayImage::get_plane(__uint8 plane_num)
 {
-    __column = column;
-    for(__uint32 i = 0; i < line; i++)
-        for(__uint32 j = 0; j < column; j++)
-            set_value(i, j, default_value);
+    __uint32 line_num = __data->size();
+    __uint8 temp = 1 << plane_num;
+    GrayImage *result = new GrayImage(line_num, __column);
+    for(__uint32 i = 0; i < line_num; i++)
+    {
+        for(__uint32 j = 0; j < __column; j++)
+        {
+            __uint8 t = ((__data->at(i))[j] & temp) >> plane_num;
+            result->set_value(i, j, t > 0 ? 255 : 0);
+        }
+    }
+    return result;
 }
-
-
 #endif // GRAYIMAGE_H
