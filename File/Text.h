@@ -1,7 +1,7 @@
 #ifndef TEXT_H
 #define TEXT_H
 #include "FileBase.h"
-#include "Math/TypeBase.h"
+#include "Math/MathBase.h"
 
 struct Text
 {

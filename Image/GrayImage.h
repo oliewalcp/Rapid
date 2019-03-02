@@ -1,10 +1,11 @@
 #ifndef GRAYIMAGE_H
 #define GRAYIMAGE_H
 #include <typeinfo>
-#include "Math/TypeBase.h"
+#include "Math/MathBase.h"
 #include "File/Image.h"
 
 typedef unsigned char __uint8;
+typedef _M_Base<__uint8>*(*func)(const char *);
 
 //only two colors, black and white
 class GrayImage : public _M_Base<__uint8>
@@ -19,18 +20,17 @@ public:
      * param[format]: the file format of image
      * return: pointer of GrayImage's instance. if can not parse, return nullptr
      */
-    template<typename func = BMP>
-    static GrayImage* parse(const char *filename, Format format = Format::BMP)
+    static GrayImage* parse(const char *filename, Format format = Format::BMP, func *f = nullptr)
     {
         try
         {
             switch (format)
             {
-            case Format::BMP: return reinterpret_cast<GrayImage*>(BMP::parse(filename));
-            case Format::JPEG: return reinterpret_cast<GrayImage*>(JPEG::parse(filename));
-            case Format::JPG: return reinterpret_cast<GrayImage*>(JPG::parse(filename));
-            case Format::PNG: return reinterpret_cast<GrayImage*>(PNG::parse(filename));
-            case Format::CUSTOM: return reinterpret_cast<GrayImage*>(func::parse(filename));
+            case Format::BMP: return reinterpret_cast<GrayImage*>(BMP::parse_gray(filename));
+            case Format::JPEG: return reinterpret_cast<GrayImage*>(JPEG::parse_gray(filename));
+            case Format::JPG: return reinterpret_cast<GrayImage*>(JPG::parse_gray(filename));
+            case Format::PNG: return reinterpret_cast<GrayImage*>(PNG::parse_gray(filename));
+            case Format::CUSTOM: return reinterpret_cast<GrayImage*>((*f)(filename));
             default: return nullptr;
             }
         }

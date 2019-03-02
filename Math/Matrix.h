@@ -1,6 +1,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
-#include "TypeBase.h"
+#include "MathBase.h"
 
 class Matrix : public _M_Base<double>
 {
