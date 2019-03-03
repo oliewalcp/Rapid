@@ -5,10 +5,8 @@
 #define compiler_output message
 #endif
 
-#if __cplusplus >= 201703L
 #if __cplusplus < 201103L
 #error please support C++11
-#endif
 #endif
 
 #if defined(__clang__)
@@ -20,8 +18,9 @@
 #elif defined(__GNUC__) || defined(__GNUG__)
 
 //c++17 begin at gcc 7.1.0
-#if __GNUC__ < 7 && __GNUC_MINOR__ < 1 && __GNUC_PATCHLEVEL__ < 0
-#error please support C++17
+//c++11 begin at gcc 4.7.0
+#if __GNUC__ < 4 && __GNUC_MINOR__ < 7 && __GNUC_PATCHLEVEL__ < 0
+#error please support C++11
 #endif
 
 #define sync_fetch_before_add __sync_fetch_and_add   //return value before add
@@ -58,15 +57,13 @@
 
 #endif
 
-#include <ext/new_allocator.h>
-#include <iostream>
-#define alloc __gnu_cxx::new_allocator
+#include <ostream>
+#include <string.h>
 
 template<typename T>
 class Atomic
 {
 private:
-    typedef alloc<T> __Alloc;
     T data;
     static constexpr void type_assert()
     {
@@ -87,12 +84,18 @@ public:
     Atomic()
     {
         type_assert();
+        memset(&data, 0, sizeof(T));
     }
     Atomic(T value)
     {
         type_assert();
         data = value;
     }
+
+    T add_and_fetch(T value)
+    { return sync_fetch_after_add(&data, value); }
+    T sub_and_fetch(T value)
+    { return sync_fetch_after_sub(&data, value); }
 
     bool operator==(T value)
     { return sync_bool_compare_and_swap(&data, value, data); }
