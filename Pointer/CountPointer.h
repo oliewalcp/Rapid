@@ -4,7 +4,13 @@
 #include "Atomic/Atomic.h"
 #include <ext/new_allocator.h>
 
-template<typename Type>
+#if defined(__GNUC__) || defined(__GNUG__)
+#if __GNUC__ < 7 && __GNUC_MINOR__ < 1 && __GNUC_PATCHLEVEL__ < 0
+#error please support C++17
+#endif
+#endif
+
+template<typename Type, size_t Count = 1>
 class CountPointer
 {
 private:
@@ -17,16 +23,22 @@ private:
     __Counter *__ReferenceCount;
     __Pointer __Data;
 
-
 public:
     explicit CountPointer() : __ReferenceCount(nullptr), __Data(nullptr) {}
     explicit CountPointer(Type p) : __ReferenceCount(new __Counter(1))
     {
         __Alloc a = __Alloc();
         __Data = a.allocate(__TypeSize);
-        a.construct(__Data, p);
+        if constexpr (std::is_pointer<Type>::value)
+        {
+            *__Data = p;
+        }
+        else
+        {
+            a.construct(__Data, p);
+        }
     }
-    explicit CountPointer(const CountPointer<Type> &arg) : __Data(arg.__Data)
+    explicit CountPointer(const CountPointer<Type, Count> &arg) : __Data(arg.__Data)
     {
         arg.__ReferenceCount->add_and_fetch(1);
         __ReferenceCount = arg.__ReferenceCount;
@@ -41,7 +53,10 @@ public:
     Type operator*()
     { return *__Data; }
 
-    __Pointer operator=(const CountPointer<Type> &arg)
+    __Pointer get()
+    { return __Data; }
+
+    __Pointer operator=(const CountPointer<Type, Count> &arg)
     {
         arg.__ReferenceCount->add_and_fetch(1);
         __ReferenceCount = arg.__ReferenceCount;
@@ -54,7 +69,13 @@ public:
         {
             delete __ReferenceCount;
             __ReferenceCount = nullptr;
-            __Alloc().deallocate(__Data, __TypeSize);
+            __Alloc a;
+            if constexpr (std::is_pointer<Type>::value)
+            {
+                if(Count == 1) delete *__Data;
+                else delete[] *__Data;
+            }
+            a.deallocate(__Data, __TypeSize);
             __Data = nullptr;
         }
     }
