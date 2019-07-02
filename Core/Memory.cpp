@@ -100,7 +100,7 @@ void rapid::mem_scopy(void *dst, void *src, const unsigned long size)
     else if(address_to_int(dst) < address_to_int(src))
     {
         if(address_to_int(dst) + size < address_to_int(src))
-        { mem_forward(s, size, address_to_int(dst) - address_to_int(src)); }
+        { mem_forward(s, size, address_to_int(src) - address_to_int(dst)); }
         else
         { mem_copy(d, s, size); }
     }
