@@ -9,6 +9,9 @@ namespace rapid
 template<typename T>
 class DoubleLinkedList
 {
+public:
+    class iterator;
+    class reverse_iterator;
 private:
     using Type = T;
     using Pointer = Type*;
@@ -35,6 +38,9 @@ private:
     void __create_list(Node *n);
     inline void __initialize(Node *n)
     { __Tail = __Head = n; }
+    void __insert(const iterator &it, ConstReference arg);
+    void __erase(const iterator &it);
+    iterator __find(ConstReference arg);
 
 public:
 
@@ -50,9 +56,12 @@ public:
 
         iterator(Node *n) : __Current(n) { }
     public:
+        iterator() : __Current(nullptr) { }
         iterator(const iterator &it) { __set(it); }
         iterator(iterator && it) { __set(std::forward<iterator>(it)); }
 
+        iterator operator=(const iterator &it)
+        { __set(it); }
         iterator operator++()
         {
             if(__Current != nullptr)
@@ -145,10 +154,6 @@ public:
         bool operator!=(const reverse_iterator& arg) const
         { return __Current != arg.__Current; }
     };
-
-    void __insert(const iterator &it, ConstReference arg);
-    void __erase(const iterator &it);
-    iterator __find(ConstReference arg);
 
     DoubleLinkedList() : __Head(nullptr), __Tail(nullptr), __Size(0) { }
     DoubleLinkedList(const DoubleLinkedList<Type> &dll);

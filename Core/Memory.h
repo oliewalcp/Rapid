@@ -3,6 +3,7 @@
 
 #include "Core/Version.h"
 
+
 namespace rapid {
 
 template<typename T>
@@ -37,6 +38,13 @@ public:
     { return *address(); }
 };
 
+template<typename Type>
+CONSTEXPR long address_of_virtual_func(Type *arg)
+{ return *reinterpret_cast<long *>(*reinterpret_cast<long *>(&arg)); };
+
+/* change address to integer
+ * param[a]: pointer
+ */
 inline unsigned long address_to_int(void *a)
 { return reinterpret_cast<unsigned long &>(a); }
 

@@ -7,22 +7,17 @@
 namespace rapid
 {
 
-template<typename Type>
-CONSTEXPR long address_of_virtual_func(Type *arg)
-{
-    return *reinterpret_cast<long *>(*reinterpret_cast<long *>(&arg));
-};
-
 class Reflect
 {
 private:
-    void *__Func;
+    long __Func;
 
     inline void __init(const Reflect &arg)
     { __Func = arg.__Func; }
 
 public:
-    Reflect(void *func = nullptr) : __Func(func) { }
+    Reflect(long address = 0) : __Func(address) { }
+
     Reflect(Reflect && arg)
     { __init(std::forward<Reflect>(arg)); }
     Reflect(const Reflect &arg)
@@ -31,13 +26,33 @@ public:
     template<typename ReturnType, typename ... ArgsType>
     ReturnType invoke(ArgsType ... arg)
     {
-        typedef ReturnType(*func)(ArgsType ...);
+        using func = ReturnType(*)(ArgsType...);
         return (*reinterpret_cast<func *>(__Func))(arg...);
     }
 
     Reflect operator=(const Reflect &arg)
-    { __init(arg); }
+    {
+        __init(arg);
+        return *this;
+    }
+
+    Reflect operator=(long address)
+    {
+        __Func = address;
+        return *this;
+    }
 };
+
+#ifndef NDEBUG
+//void foo()
+//{
+//    std::cout << __func__ << std::endl;
+//}
+void test_Reflect_main()
+{
+//    Reflect rf(&foo);
+}
+#endif
 
 };
 

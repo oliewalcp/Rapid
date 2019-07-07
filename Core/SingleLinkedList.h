@@ -9,6 +9,8 @@ namespace rapid
 template<typename T>
 class SingleLinkedList
 {
+public:
+    class iterator;
 private:
     using Type = T;
     using Pointer = Type*;
@@ -35,6 +37,9 @@ private:
     inline void __initialize(Node *n)
     { __Tail = __Head = n; }
 
+    void __insert(const iterator &it, ConstReference arg);
+    void __erase(iterator &it);
+    iterator __find(ConstReference arg);
 
 public:
 
@@ -57,9 +62,12 @@ public:
 
         iterator(Node *p, Node *c , Node *n) : __Pervious(p), __Next(n), __Current(c) { }
     public:
+        iterator() : __Pervious(nullptr), __Next(nullptr), __Current(nullptr) {}
         iterator(const iterator &it) { __set(it); }
         iterator(iterator && it) { __set(std::forward<iterator>(it)); }
 
+        iterator operator=(const iterator &arg)
+        { __set(arg.__Pervious, arg.__Current, arg.__Next); }
         iterator operator++()
         {
             __Pervious = __Current;
@@ -88,10 +96,6 @@ public:
         bool operator!=(const iterator& arg) const
         { return __Current != arg.__Current; }
     };
-
-    void __insert(const iterator &it, ConstReference arg);
-    void __erase(iterator &it);
-    iterator __find(ConstReference arg);
 
     SingleLinkedList() : __Head(nullptr), __Tail(nullptr), __Size(0) { }
     SingleLinkedList(const SingleLinkedList<T> &sll);
