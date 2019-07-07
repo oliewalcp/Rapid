@@ -1,5 +1,6 @@
 #include "Core/Vector.h"
 #include "Core/Exception.h"
+#include <exception>
 
 template<typename T>
 void rapid::Vector<T>::_initialize(SizeType s)
@@ -12,12 +13,20 @@ void rapid::Vector<T>::_initialize(SizeType s)
 }
 
 template<typename T>
-void rapid::Vector<T>::_copy_data(const Vector<T> &v)
+void rapid::Vector<T>::_copy_data(Vector<T> &v)
 {
-    _Data = new NodeBase<Type>[v.capacity()];
-    { mem_copy(_Data, v._Data, v.size() * sizeof(Type)); }
     _Size = v.size();
     _Capacity = v.capacity();
+    if(_Data != nullptr)
+    {
+        delete[] _Data;
+        _Data = nullptr;
+    }
+    if(_Capacity > 0)
+    {
+        _Data = new NodeBase<Type>[_Capacity];
+        mem_copy(_Data[0].address(), v._Data[0].address(), _Size * sizeof(Type));
+    }
 }
 
 template<typename T>
@@ -53,12 +62,12 @@ void rapid::Vector<T>::_growth()
 }
 
 template<typename T>
-typename rapid::Vector<T>::Reference rapid::Vector<T>::at(const SizeType index)
+typename rapid::Vector<T>::ConstReference rapid::Vector<T>::at(const SizeType index)
 {
     if(index < 0 || index >= size())
-    { throw Exception("index out of array"); }
+    { throw IndexOutOfArrayException("exception: index out of array"); }
     else
-    { return this->operator[](index); }
+    { return (*this)[index]; }
 }
 
 template<typename T>
@@ -73,9 +82,21 @@ void rapid::Vector<T>::resize(SizeType s)
     _Size = s;
 }
 
+template<typename T>
+typename rapid::Vector<T>::iterator rapid::Vector<T>::find(Type arg)
+{
+    for(SizeType i = 0; i < size(); i++)
+    {
+        if(_Data[i].content() == arg)
+            return iterator(i, size() - 1, _Data[0].address());
+    }
+    return end();
+}
+
 #ifndef NDEBUG
 void rapid::test_Vector_main()
 {
+    std::cout << "-----------test_Vector_main-----------" << std::endl;
     Vector<long> v;
     v.push_back(10);
     v.push_back(30);
@@ -83,9 +104,52 @@ void rapid::test_Vector_main()
     v.push_back(70);
     v.push_back(20);
     v.push_back(40);
+    std::cout << "size = " << v.size() << std::endl;
     for(long value : v)
     {
         std::cout << value << std::endl;
     }
+    std::cout << "------------------------------" << std::endl;
+    v.erase(v.find(10));
+    v.pop_back();
+    v.pop_front();
+    std::cout << "size = " << v.size() << std::endl;
+    for(long value : v)
+    {
+        std::cout << value << std::endl;
+    }
+    std::cout << "------------------------------" << std::endl;
+    v.erase(v.find(10));
+    v.push_back(100);
+    v.push_back(200);
+    v.push_front(0);
+    v.insert(v.find(100), 90);
+    std::cout << "size = " << v.size() << std::endl;
+    for(long value : v)
+    {
+        std::cout << value << std::endl;
+    }
+    std::cout << "------------------------------" << std::endl;
+    Vector<long> vec(v);
+    std::cout << "size1 = " << vec.size() << std::endl;
+    std::cout << "front: " << vec.front() << std::endl;
+    std::cout << "back: " << vec.back() << std::endl;
+    try
+    {
+        long temp = vec.at(3);
+        std::cout << "the element at index 3 is: " << temp << std::endl;
+        temp = vec.at(10);
+        std::cout << "the element at index 10 is: " << temp << std::endl;
+    }
+    catch (IndexOutOfArrayException e)
+    {
+        std::cout << e.what() << std::endl;
+    }
+    std::cout << "size = " << vec.size() << std::endl;
+    for(long value : vec)
+    {
+        std::cout << value << std::endl;
+    }
+    std::cout << "---------------test end---------------" << std::endl;
 }
 #endif

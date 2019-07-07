@@ -26,7 +26,7 @@ protected:
     NodeBase<Type> *_Data;
 
     void _initialize(SizeType s);
-    void _copy_data(const Vector<T> &arg);
+    void _copy_data(Vector<T> &arg);
     void _insert(const iterator &it, ConstReference arg);
     void _erase(const iterator &it);
     void _growth();
@@ -78,8 +78,16 @@ public:
         iterator operator-(const SizeType s)
         {
             __CurrentIndex -= s;
-            if(__CurrentIndex < 0)
+            if(__CurrentIndex < 0 || __CurrentIndex > __MaxIndex)
             { __CurrentIndex = __MaxIndex + 1; }
+            return *this;
+        }
+        iterator operator+(const SizeType s)
+        {
+            __CurrentIndex += s;
+            if(__CurrentIndex < 0 || __CurrentIndex > __MaxIndex)
+            { __CurrentIndex = __MaxIndex + 1; }
+            return *this;
         }
         iterator operator++()
         {
@@ -193,7 +201,7 @@ public:
 
     Vector(SizeType size = 1) : _Size(0), _Growth(-1)
     { _initialize(size); }
-    Vector(const Vector<T> &v) : _Growth(v._Growth)
+    Vector(Vector<T> &v) : _Growth(v._Growth), _Data(nullptr)
     { _copy_data(v); }
 
     void push_back(ConstReference arg)
@@ -229,9 +237,9 @@ public:
     { return reverse_iterator(-1, _Size - 1, _Data[0].address()); }
 
     Reference back()
-    { return _Data[size() - 1].content(); }
+    { return _Data[size() - 1].ref_content(); }
     Reference front()
-    { return _Data[0].content(); }
+    { return _Data[0].ref_content(); }
 
     void insert(const iterator &it, ConstReference arg)
     { _insert(it, arg); }
@@ -247,7 +255,7 @@ public:
     void erase(iterator && it)
     { _erase(std::forward<iterator>(it)); }
 
-    Reference at(const SizeType index);
+    ConstReference at(const SizeType index);
 
     void resize(SizeType s);
     inline SizeType size()
@@ -258,6 +266,8 @@ public:
     { return size() == 0; }
     inline void set_growth(SizeType s)
     { _Growth = s; }
+
+    iterator find(Type arg);
 };
 
 

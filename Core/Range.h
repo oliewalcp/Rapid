@@ -31,6 +31,11 @@ public:
         iterator(const iterator &it) : __Current(*it) { }
         iterator(iterator && it) : iterator(std::forward<iterator&&>(it)) { }
 
+        ValueType operator+(const ValueType arg)
+        { return __Current += arg; }
+        ValueType operator-(const ValueType arg)
+        { return __Current -= arg; }
+
         ValueType operator++()
         { return ++__Current; }
         ValueType operator++(int)

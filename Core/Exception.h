@@ -5,14 +5,21 @@
 
 class Exception
 {
-private:
+protected:
     char *__reason;
 public:
-    Exception() : __reason(nullptr) { }
-    Exception(const char *r) : __reason(const_cast<char *>(r)) { }
+    Exception(const char *r = nullptr) : __reason(const_cast<char *>(r)) { }
+    virtual ~Exception() { }
 
     virtual const char* what()
     { return __reason; }
+};
+
+class IndexOutOfArrayException : public Exception
+{
+public:
+    IndexOutOfArrayException(const char *r = nullptr) : Exception(const_cast<char *>(r))
+    { }
 };
 
 #endif // EXCEPTION_H
