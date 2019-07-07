@@ -260,6 +260,11 @@ public:
     { _Growth = s; }
 };
 
+
+#ifndef NDEBUG
+void test_Vector_main();
+#endif
+
 };
 
 #endif // VECTOR_H

@@ -72,3 +72,20 @@ void rapid::Vector<T>::resize(SizeType s)
     { mem_clear(_Data[0].address() + s, (size() - s) * sizeof(Type)); }
     _Size = s;
 }
+
+#ifndef NDEBUG
+void rapid::test_Vector_main()
+{
+    Vector<long> v;
+    v.push_back(10);
+    v.push_back(30);
+    v.push_back(50);
+    v.push_back(70);
+    v.push_back(20);
+    v.push_back(40);
+    for(long value : v)
+    {
+        std::cout << value << std::endl;
+    }
+}
+#endif

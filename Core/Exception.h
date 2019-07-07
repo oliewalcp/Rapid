@@ -9,7 +9,7 @@ private:
     char *__reason;
 public:
     Exception() : __reason(nullptr) { }
-    Exception(const char *r) : __reason(r) { }
+    Exception(const char *r) : __reason(const_cast<char *>(r)) { }
 
     virtual const char* what()
     { return __reason; }
