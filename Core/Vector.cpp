@@ -1,6 +1,12 @@
 #include "Core/Vector.h"
 #include "Core/Exception.h"
-#include <exception>
+
+template<typename T>
+rapid::Vector<T>::~Vector()
+{
+    if(_Data != nullptr)
+    { delete[] _Data; }
+}
 
 template<typename T>
 void rapid::Vector<T>::_initialize(SizeType s)
@@ -15,8 +21,6 @@ void rapid::Vector<T>::_initialize(SizeType s)
 template<typename T>
 void rapid::Vector<T>::_copy_data(Vector<T> &v)
 {
-    _Size = v.size();
-    _Capacity = v.capacity();
     if(_Data != nullptr)
     {
         delete[] _Data;

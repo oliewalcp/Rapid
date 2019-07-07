@@ -201,8 +201,9 @@ public:
 
     Vector(SizeType size = 1) : _Size(0), _Growth(-1)
     { _initialize(size); }
-    Vector(Vector<T> &v) : _Growth(v._Growth), _Data(nullptr)
+    Vector(Vector<T> &v) : _Size(v.size()), _Capacity(v.capacity()), _Growth(v._Growth), _Data(nullptr)
     { _copy_data(v); }
+    virtual ~Vector();
 
     void push_back(ConstReference arg)
     { _insert(end(), arg); }
@@ -258,6 +259,7 @@ public:
     ConstReference at(const SizeType index);
 
     void resize(SizeType s);
+
     inline SizeType size()
     { return _Size; }
     inline SizeType capacity()
