@@ -199,7 +199,7 @@ public:
         { return __CurrentIndex != arg.__CurrentIndex; }
     };
 
-    Vector(SizeType size = 1) : _Size(0), _Growth(-1)
+    Vector(SizeType size = 1) : _Size(0), _Growth(-1), _Data(nullptr)
     { _initialize(size); }
     Vector(Vector<T> &v) : _Size(v.size()), _Capacity(v.capacity()), _Growth(v._Growth), _Data(nullptr)
     { _copy_data(v); }

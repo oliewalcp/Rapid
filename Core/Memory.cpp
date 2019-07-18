@@ -116,12 +116,38 @@ void rapid::mem_forward(void *begin, const unsigned long size, const unsigned lo
     mem_copy(reinterpret_cast<char *>(begin) - move_distance, reinterpret_cast<char *>(begin), size);
 }
 
+int rapid::mem_compare(void *arg1, void *arg2, const unsigned long size)
+{
+    char *a1 = reinterpret_cast<char *>(arg1), *a2 = reinterpret_cast<char *>(arg2);
+    unsigned long count = size / 8;
+    for(unsigned long i = 0; i < count; i++)
+    {
+        if(*reinterpret_cast<unsigned long long *>(a1) > *reinterpret_cast<unsigned long long *>(a2))
+            return 1;
+        if(*reinterpret_cast<unsigned long long *>(a1) < *reinterpret_cast<unsigned long long *>(a2))
+            return -1;
+        a1 += 8;
+        a2 += 8;
+    }
+    count = size % 8;
+    for(unsigned long i = 0; i < count; i++)
+    {
+        if(*a1 > *a2)
+            return 1;
+        if(*a1 < *a2)
+            return -1;
+        a1++;
+        a2++;
+    }
+    return 0;
+}
+
 #ifndef NDEBUG
 #include "Core/Range.h"
 template<typename T>
 static void print(const T *arg, const int size)
 {
-    for(int i : rapid::Range(0, size))
+    for(int i : rapid::Range<T>(0, size))
     {
         std::cout << arg[i] << std::endl;
     }
@@ -159,3 +185,4 @@ void rapid::test_Memory_main()
     delete[] c;
 }
 #endif
+

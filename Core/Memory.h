@@ -14,7 +14,7 @@ private:
 public:
     alignas(__alignof__(Type)) unsigned char __Data[sizeof(Type)];
 
-    NodeBase() {}
+    NodeBase() { }
 
     NodeBase(const Type &arg)
     { construct(arg); }
@@ -82,6 +82,14 @@ void mem_backward(void *begin, const unsigned long size, const unsigned long mov
  * param[move_distance]: the byte's distance required to move
  */
 void mem_forward(void *begin, const unsigned long size, const unsigned long move_distance);
+
+/* compare two memory spaces
+ * param[arg1]: memory pointer to be compared
+ * param[arg2]: memory pointer to be compared
+ * param[size]: size of comparison
+ * return: if arg1 > arg2, return 1; if arg1 == arg2, return 0; if arg1 < arg2, return -1
+ */
+int mem_compare(void *arg1, void *arg2, const unsigned long size);
 
 // set memory to 0
 void mem_clear(void *dst, const unsigned long size);

@@ -26,10 +26,14 @@ public:
         iterator(ConstReference c)
         { __Current = c; }
 
+        void __init(const iterator &it)
+        { __Current = it.__Current; }
+
         friend class Range;
     public:
         iterator(const iterator &it) : __Current(*it) { }
-        iterator(iterator && it) : iterator(std::forward<iterator&&>(it)) { }
+        iterator(iterator && it)
+        { __init(std::forward<iterator>(it)); }
 
         ValueType operator+(const ValueType arg)
         { return __Current += arg; }
@@ -67,7 +71,7 @@ public:
 #ifndef NDEBUG
 void test_Range_main()
 {
-    for(int i : Range(1, 10))
+    for(int i : Range<int>(1, 10))
     {
         std::cout << i << std::endl;
     }

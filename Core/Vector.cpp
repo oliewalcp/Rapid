@@ -14,7 +14,10 @@ void rapid::Vector<T>::_initialize(SizeType s)
     NodeBase<Type> *temp = _Data;
     _Data = new NodeBase<Type>[s];
     if(temp != nullptr)
-    { mem_copy(_Data, temp, size() * sizeof(Type)); }
+    {
+        mem_copy(_Data, temp, size() * sizeof(Type));
+        delete[] temp;
+    }
     _Capacity = s;
 }
 
@@ -26,9 +29,9 @@ void rapid::Vector<T>::_copy_data(Vector<T> &v)
         delete[] _Data;
         _Data = nullptr;
     }
-    if(_Capacity > 0)
+    if(capacity() > 0)
     {
-        _Data = new NodeBase<Type>[_Capacity];
+        _Data = new NodeBase<Type>[capacity()];
         mem_copy(_Data[0].address(), v._Data[0].address(), _Size * sizeof(Type));
     }
 }
@@ -60,16 +63,16 @@ template<typename T>
 void rapid::Vector<T>::_growth()
 {
     if(_Growth < 1)
-    { _Capacity *= 2; }
+    { _initialize(capacity() * 2); }
     else
-    { _Capacity += _Growth; }
+    { _initialize(capacity() + _Growth); }
 }
 
 template<typename T>
 typename rapid::Vector<T>::ConstReference rapid::Vector<T>::at(const SizeType index)
 {
     if(index < 0 || index >= size())
-    { throw IndexOutOfArrayException("exception: index out of array"); }
+    { throw IndexOutOfArrayException("exception: index out of array !"); }
     else
     { return (*this)[index]; }
 }
@@ -135,15 +138,13 @@ void rapid::test_Vector_main()
     }
     std::cout << "------------------------------" << std::endl;
     Vector<long> vec(v);
-    std::cout << "size1 = " << vec.size() << std::endl;
+    std::cout << "size = " << vec.size() << std::endl;
     std::cout << "front: " << vec.front() << std::endl;
     std::cout << "back: " << vec.back() << std::endl;
     try
     {
-        long temp = vec.at(3);
-        std::cout << "the element at index 3 is: " << temp << std::endl;
-        temp = vec.at(10);
-        std::cout << "the element at index 10 is: " << temp << std::endl;
+        std::cout << "the element at index 3 is: " << vec.at(3) << std::endl;
+        std::cout << "the element at index 10 is: " << vec.at(10) << std::endl;
     }
     catch (IndexOutOfArrayException e)
     {
