@@ -1,7 +1,7 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
-#include "Core/Version.h"
+#include "Version.h"
 
 
 namespace rapid {
@@ -90,6 +90,13 @@ void mem_forward(void *begin, const unsigned long size, const unsigned long move
  * return: if arg1 > arg2, return 1; if arg1 == arg2, return 0; if arg1 < arg2, return -1
  */
 int mem_compare(void *arg1, void *arg2, const unsigned long size);
+
+/* swap the values of two memory spaces
+ * param[arg1]: memory pointer of one sapce
+ * param[arg2]: memory pointer of another space
+ * param[size]: byte size of swaping
+ */
+void mem_swap(void *arg1, void *arg2, const unsigned long size);
 
 // set memory to 0
 void mem_clear(void *dst, const unsigned long size);

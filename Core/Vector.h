@@ -1,8 +1,8 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include "Core/Version.h"
-#include "Core/Memory.h"
+#include "Version.h"
+#include "Memory.h"
 
 namespace rapid
 {
@@ -219,8 +219,7 @@ public:
     void pop_front()
     { _erase(begin()); }
 
-    void clear()
-    { delete[] _Data; }
+    void clear();
 
     Vector<T>& operator=(const Vector<T> &v)
     { _copy_data(v); }
@@ -260,13 +259,13 @@ public:
 
     void resize(SizeType s);
 
-    inline SizeType size()
+    SizeType size()
     { return _Size; }
-    inline SizeType capacity()
+    SizeType capacity()
     { return _Capacity; }
-    inline bool empty()
+    bool empty()
     { return size() == 0; }
-    inline void set_growth(SizeType s)
+    void set_growth(SizeType s)
     { _Growth = s; }
 
     iterator find(Type arg);

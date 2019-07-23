@@ -1,17 +1,17 @@
 #ifndef RAPIDCONFIG_H
 #define RAPIDCONFIG_H
 
-#include "Core/Version.h"
-#include "Core/Array.h"
-#include "Core/Conver.h"
-#include "Core/DoubleLinkedList.h"
-#include "Core/Memory.h"
-#include "Core/Preoperation.h"
-#include "Core/Reflect.h"
-#include "Core/SingleLinkedList.h"
-#include "Core/Stack.h"
-#include "Core/TypeTraits.h"
-#include "Core/Vector.h"
-#include "Core/Range.h"
+#include "Version.h"
+#include "Array.h"
+#include "Conver.h"
+#include "DoubleLinkedList.h"
+#include "Memory.h"
+#include "Preoperation.h"
+#include "Reflect.h"
+#include "SingleLinkedList.h"
+#include "Stack.h"
+#include "TypeTraits.h"
+#include "Vector.h"
+#include "Range.h"
 
 #endif // RAPIDCONFIG_H

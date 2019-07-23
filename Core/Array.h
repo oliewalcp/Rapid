@@ -1,8 +1,8 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
-#include "Core/Version.h"
-#include "Core/Preoperation.h"
+#include "Version.h"
+#include "Preoperation.h"
 
 namespace rapid
 {

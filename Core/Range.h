@@ -1,9 +1,9 @@
 #ifndef RANGE_H
 #define RANGE_H
 
-#include "Core/Version.h"
-#include "Core/TypeTraits.h"
-#include "Core/Memory.h"
+#include "Version.h"
+#include "TypeTraits.h"
+#include "Memory.h"
 
 namespace rapid
 {

@@ -1,7 +1,7 @@
 #ifndef DOUBLELINKEDLIST_H
 #define DOUBLELINKEDLIST_H
 
-#include "Core/Memory.h"
+#include "Memory.h"
 
 namespace rapid
 {

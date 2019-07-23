@@ -1,8 +1,8 @@
 #ifndef EXCEPTION_H
 #define EXCEPTION_H
 
-#include "Core/Version.h"
-#include "Core/TypeTraits.h"
+#include "Version.h"
+#include "TypeTraits.h"
 
 namespace rapid
 {
@@ -17,19 +17,22 @@ public:
     virtual const char* what();
 };
 
-class IndexOutOfArrayException : public Exception
-{
-public:
-    IndexOutOfArrayException(const char *r = nullptr) : Exception(r) { }
-    virtual ~IndexOutOfArrayException() { }
-    virtual const char* what();
-};
+using IndexOutOfArrayException = Exception;
+using SizeDoesNotMatchException = Exception;
 
-const char *Exception::what()
-{ return _reason; }
+//class IndexOutOfArrayException : public Exception
+//{
+//public:
+//    IndexOutOfArrayException(const char *r = nullptr) : Exception(r) { }
+//    virtual ~IndexOutOfArrayException() { }
+//    virtual const char* what();
+//};
 
-const char *IndexOutOfArrayException::what()
-{ return _reason; }
+//const char *Exception::what()
+//{ return _reason; }
+
+//const char *IndexOutOfArrayException::what()
+//{ return _reason; }
 
 };
 

@@ -16,14 +16,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     Core/DoubleLinkedList.cpp \
+    Core/Matrix.cpp \
     Core/SingleLinkedList.cpp \
     Core/Stack.cpp \
     Core/Vector.cpp \
+    Gui/Application.cpp \
+    Gui/Frame.cpp \
+    Gui/Widget.cpp \
         main.cpp \
     Core/Memory.cpp
 
 HEADERS += \
     Core/Exception.h \
+    Core/Matrix.h \
     Core/Memory.h \
     Core/RapidConfig.h \
     Core/Vector.h \
@@ -36,4 +41,8 @@ HEADERS += \
     Core/Range.h \
     Core/DoubleLinkedList.h \
     Core/Array.h \
-    Core/Preoperation.h
+    Core/Preoperation.h \
+    Gui/Application.h \
+    Gui/Frame.h \
+    Gui/GuiConfig.h \
+    Gui/Widget.h

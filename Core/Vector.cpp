@@ -9,6 +9,13 @@ rapid::Vector<T>::~Vector()
 }
 
 template<typename T>
+void rapid::Vector<T>::clear()
+{
+    if(_Data != nullptr)
+        delete[] _Data;
+}
+
+template<typename T>
 void rapid::Vector<T>::_initialize(SizeType s)
 {
     NodeBase<Type> *temp = _Data;

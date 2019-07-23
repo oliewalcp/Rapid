@@ -1,7 +1,7 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include "Core/Memory.h"
+#include "Memory.h"
 
 namespace rapid
 {

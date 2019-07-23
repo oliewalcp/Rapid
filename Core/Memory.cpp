@@ -142,6 +142,30 @@ int rapid::mem_compare(void *arg1, void *arg2, const unsigned long size)
     return 0;
 }
 
+void rapid::mem_swap(void *arg1, void *arg2, const unsigned long size)
+{
+    char *a1 = reinterpret_cast<char *>(arg1), *a2 = reinterpret_cast<char *>(arg2);
+    unsigned long count = size / 8;
+    for(unsigned long i = 0; i < count; i++)
+    {
+        unsigned long long temp = *reinterpret_cast<unsigned long long *>(a1);
+        *reinterpret_cast<unsigned long long *>(a1) = *reinterpret_cast<unsigned long long *>(a2);
+        *reinterpret_cast<unsigned long long *>(a2) = temp;
+        a1 += 8;
+        a2 += 8;
+    }
+    count = size % 8;
+    for(unsigned long i = 0; i < count; i++)
+    {
+        char ch = *a1;
+        *a1 = *a2;
+        *a2 = ch;
+        a1++;
+        a2++;
+    }
+}
+
+
 #ifndef NDEBUG
 #include "Core/Range.h"
 template<typename T>

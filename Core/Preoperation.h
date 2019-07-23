@@ -1,7 +1,7 @@
 #ifndef PREOPERATION_H
 #define PREOPERATION_H
 
-#include "Core/Version.h"
+#include "Version.h"
 
 namespace rapid
 {

@@ -1,8 +1,8 @@
 #ifndef REFLECT_H
 #define REFLECT_H
 
-#include "Core/Version.h"
-#include "Core/Memory.h"
+#include "Version.h"
+#include "Memory.h"
 
 namespace rapid
 {
