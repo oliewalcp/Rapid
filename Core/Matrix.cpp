@@ -2,6 +2,28 @@
 #include "Exception.h"
 
 template<typename _Tp>
+rapid::Matrix<_Tp>::Matrix(std::initializer_list<std::initializer_list<Type>> m)
+{
+    _Row = static_cast<SizeType>(m.size());
+    SizeType i = 0, j = 0;
+    for(auto it = m.begin(); it != m.end(); it++, i++)
+    {
+        if(column() == 0)
+        {
+            _Column = static_cast<SizeType>(it->size());
+            _resize(row(), column());
+        }
+        else if(it->size() != column())
+        { throw SizeDoesNotMatchException("exception: target size does not match from source size!"); }
+        j = 0;
+        for(Type t : *it)
+        {
+            set_value(i, j++, t);
+        }
+    }
+}
+
+template<typename _Tp>
 void rapid::Matrix<_Tp>::_copy(MatrixRef m)
 {
     _resize(m.row(), m.column());
@@ -111,7 +133,27 @@ void rapid::Matrix<_Tp>::_add(MatrixRef m)
 template<typename _Tp>
 void rapid::Matrix<_Tp>::_filter(MatrixRef m)
 {
-
+    Matrix<_Tp> result(row(), column());
+    SizeType center_row = m.row() / 2, center_column = m.column() / 2;
+    for(SizeType i = 0; i < row(); i++)
+    {
+        for(SizeType j = 0; j < column(); j++)
+        {
+            DataType dt;
+            dt.clear();
+            for(SizeType x = 0; x < m.row(); x++)
+            {
+                for(SizeType y = 0; y < m.column(); y++)
+                {
+                    SizeType tempx = i - center_row + x, tempy = j - center_column + y;
+                    if(tempx < 0 || tempy < 0) continue;
+                    dt.construct(dt.content() + m.get_value(x, y) * get_value(tempx, tempy));
+                }
+            }
+            result.set_value(i, j, dt.content());
+        }
+    }
+    clear_and_copy(result);
 }
 
 template<typename _Tp>
@@ -144,7 +186,7 @@ void rapid::Matrix<_Tp>::power(SizeType p)
 #ifndef NDEBUG
 
 #include <iomanip>
-using SizeType = unsigned long;
+using SizeType = long;
 template<typename T>
 void print_matrix(rapid::Matrix<T> &m)
 {
@@ -174,10 +216,10 @@ void rapid::test_Matrix_main()
     std::cout << "---------------------" << std::endl;
     Matrix<int> m2(3, 4, 3);
     Matrix<int> m3(m1);
-    Matrix<int> *m4;
     try
     {
-        m4 = Matrix<int>::multiply(m2, m3);
+        Matrix<int> *m4 = Matrix<int>::multiply(m2, m3);
+        un_use(m4);
     }
     catch(Exception e)
     {
@@ -196,8 +238,29 @@ void rapid::test_Matrix_main()
     m2.T();
     m5 *= m2;
     print_matrix(m5);
+    std::cout << "---------------------" << std::endl;
+    Matrix<int> m6({
+                       {2, 3, 7, 10},
+                       {1, 2, 10, 1},
+                       {5, 5, 5, 5},
+                       {6, 6, 6, 6},
+                       {1, 1, 3, 3},
+                       {22, -2, -10, -5},
+                       {1, 5, 5, 5},
+                   });
+    Matrix<int> m7({
+                    {1, -1},
+                    {-1, 1}
+                });
+    m6.filter(m7);
+    print_matrix(m6);
     std::cout << "-----------test Matrix end----------" << std::endl;
-
+    m1.clear();
+    m2.clear();
+    m3.clear();
+    m5.clear();
+    m6.clear();
+    m7.clear();
 }
 
 #endif

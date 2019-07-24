@@ -6,38 +6,6 @@
 
 namespace rapid {
 
-template<typename T>
-struct NodeBase
-{
-private:
-    using Type = T;
-public:
-    alignas(__alignof__(Type)) unsigned char __Data[sizeof(Type)];
-
-    NodeBase() { }
-
-    NodeBase(const Type &arg)
-    { construct(arg); }
-
-    inline void construct(const Type &arg)
-    { ::new(address()) Type(arg); }
-
-    inline Type* address()
-    { return reinterpret_cast<Type *>(&__Data[0]); }
-
-    inline Type content()
-    { return *address(); }
-
-    inline Type& ref_content()
-    { return *address(); }
-
-    inline const Type const_content()
-    { return *address(); }
-
-    inline const Type& const_ref_content()
-    { return *address(); }
-};
-
 template<typename Type>
 CONSTEXPR long address_of_virtual_func(Type *arg)
 { return *reinterpret_cast<long *>(*reinterpret_cast<long *>(&arg)); };
@@ -100,6 +68,41 @@ void mem_swap(void *arg1, void *arg2, const unsigned long size);
 
 // set memory to 0
 void mem_clear(void *dst, const unsigned long size);
+
+template<typename T>
+struct NodeBase
+{
+private:
+    using Type = T;
+public:
+    alignas(__alignof__(Type)) unsigned char __Data[sizeof(Type)];
+
+    NodeBase() { }
+
+    NodeBase(const Type &arg)
+    { construct(arg); }
+
+    void construct(const Type &arg)
+    { ::new(address()) Type(arg); }
+
+    Type* address()
+    { return reinterpret_cast<Type *>(&__Data[0]); }
+
+    Type content()
+    { return *address(); }
+
+    Type& ref_content()
+    { return *address(); }
+
+    const Type const_content()
+    { return *address(); }
+
+    const Type& const_ref_content()
+    { return *address(); }
+
+    void clear()
+    { mem_clear(address(), sizeof(NodeBase<T>)); }
+};
 
 #ifndef NDEBUG
 void test_Memory_main();

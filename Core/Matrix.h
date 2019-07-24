@@ -3,6 +3,7 @@
 
 #include "Version.h"
 #include "Memory.h"
+#include <initializer_list>
 namespace rapid
 {
 /* type _Tp need implements:
@@ -18,7 +19,7 @@ private:
     using Reference = Type&;
     using ConstReference = const Type &;
     using RvalueReference = Type &&;
-    using SizeType = unsigned long;
+    using SizeType = long;
     using DataType = NodeBase<Type>;
 
     using MatrixRef = Matrix<_Tp>&;
@@ -51,6 +52,7 @@ public:
     { _copy(m); }
     Matrix(RvalueMatrixRef m)
     { _copy(std::forward<Matrix<_Tp>>(m)); }
+    Matrix(std::initializer_list<std::initializer_list<Type>> m);
     virtual ~Matrix() { }
 
     void set_value(SizeType r, SizeType c, ConstReference v)
