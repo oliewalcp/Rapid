@@ -28,10 +28,12 @@ SOURCES += \
     Core/Memory.cpp
 
 HEADERS += \
+    Core/Atomic.h \
     Core/Exception.h \
     Core/Matrix.h \
     Core/Memory.h \
     Core/RapidConfig.h \
+    Core/SharedPointer.h \
     Core/Vector.h \
     Core/Stack.h \
     Core/TypeTraits.h \
