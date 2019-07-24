@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     Core/DoubleLinkedList.cpp \
+    Core/Exception.cpp \
     Core/Matrix.cpp \
     Core/SingleLinkedList.cpp \
     Core/Stack.cpp \
