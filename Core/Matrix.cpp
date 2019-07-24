@@ -134,7 +134,7 @@ template<typename _Tp>
 void rapid::Matrix<_Tp>::_filter(MatrixRef m)
 {
     Matrix<_Tp> result(row(), column());
-    SizeType center_row = m.row() / 2, center_column = m.column() / 2;
+    SizeType center_row = (m.row() - 1) / 2, center_column = (m.column() - 1) / 2;
     for(SizeType i = 0; i < row(); i++)
     {
         for(SizeType j = 0; j < column(); j++)
@@ -146,7 +146,7 @@ void rapid::Matrix<_Tp>::_filter(MatrixRef m)
                 for(SizeType y = 0; y < m.column(); y++)
                 {
                     SizeType tempx = i - center_row + x, tempy = j - center_column + y;
-                    if(tempx < 0 || tempy < 0) continue;
+                    if(tempx < 0 || tempy < 0 || tempx >= row() || tempy >= column()) continue;
                     dt.construct(dt.content() + m.get_value(x, y) * get_value(tempx, tempy));
                 }
             }
