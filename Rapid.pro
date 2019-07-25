@@ -24,6 +24,7 @@ SOURCES += \
     Gui/Application.cpp \
     Gui/Frame.cpp \
     Gui/Widget.cpp \
+    Image/ImageBase.cpp \
         main.cpp \
     Core/Memory.cpp
 
@@ -48,4 +49,5 @@ HEADERS += \
     Gui/Application.h \
     Gui/Frame.h \
     Gui/GuiConfig.h \
-    Gui/Widget.h
+    Gui/Widget.h \
+    Image/ImageBase.h

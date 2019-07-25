@@ -1,8 +1,11 @@
-#include "Core/Matrix.h"
+#include "Image/ImageBase.h"
 using namespace rapid;
 
 int main()
 {
-    test_Matrix_main();
+    RGB a;
+    a.Red() = 255;
+
+    std::cout << static_cast<int>(a.Red()) << std::endl;
     return 0;
 }

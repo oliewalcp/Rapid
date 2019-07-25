@@ -13,7 +13,7 @@ rapid::Matrix<_Tp>::Matrix(std::initializer_list<std::initializer_list<Type>> m)
             _Column = static_cast<SizeType>(it->size());
             _resize(row(), column());
         }
-        else if(it->size() != column())
+        else if(static_cast<SizeType>(it->size()) != column())
         { throw SizeDoesNotMatchException("exception: target size does not match from source size!"); }
         j = 0;
         for(Type t : *it)
@@ -42,10 +42,10 @@ void rapid::Matrix<_Tp>::_resize(SizeType r, SizeType c)
     _clear(_Data, row());
     _Row = r;
     _Column = c;
-    _Data = new DataType*[row()];
+    _Data = new DataType*[static_cast<unsigned long long>(row())];
     for(SizeType i = 0; i < row(); i++)
     {
-        _Data[i] = new DataType[column()];
+        _Data[i] = new DataType[static_cast<unsigned long long>(column())];
     }
 }
 
