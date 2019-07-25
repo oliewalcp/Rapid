@@ -122,10 +122,6 @@ public:
     { return os << sync_value_compare_and_swap(&a.data, 0, a.data); }
 };
 
-#ifndef NDEBUG
-
-#endif
-
 }
 
 #endif // ATOMIC_H

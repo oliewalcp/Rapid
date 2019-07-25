@@ -10,3 +10,6 @@ const char *IndexOutOfArrayException::what()
 
 const char *SizeDoesNotMatchException::what()
 { return _reason; }
+
+const char *CannotParseFileException::what()
+{ return _reason; }

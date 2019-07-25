@@ -16,9 +16,6 @@ public:
     virtual const char* what();
 };
 
-//using IndexOutOfArrayException = Exception;
-//using SizeDoesNotMatchException = Exception;
-
 class IndexOutOfArrayException : public Exception
 {
 public:
@@ -35,6 +32,13 @@ public:
     virtual const char* what();
 };
 
+class CannotParseFileException : public Exception
+{
+public:
+    CannotParseFileException(const char *r = nullptr) : Exception(r) { }
+    virtual ~CannotParseFileException() { }
+    virtual const char* what();
+};
 
 };
 
