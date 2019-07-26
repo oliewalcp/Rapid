@@ -1,10 +1,12 @@
 #include "Widget.h"
+#include "Application.h"
 
-
+rapid::EventInterface::~EventInterface() { }
+rapid::MouseEvent::~MouseEvent() { }
 rapid::ButtonEvent::~ButtonEvent() { }
 rapid::WinWidget::~WinWidget() { }
-
 rapid::InputEvent::~InputEvent() { }
+rapid::KeyBoardEvent::~KeyBoardEvent() { }
 
 WinSizeType rapid::WinWidget::width()
 {
@@ -32,6 +34,11 @@ WinSizeType rapid::WinWidget::absolute_y()
     RECT r;
     GetWindowRect(_Hwnd, &r);
     return r.top;
+}
+
+rapid::WinWidget *rapid::WinWidget::get_parent()
+{
+    return Application::application()->__get_widget(GetParent(_Hwnd));
 }
 
 void rapid::WinWidget::set_string(const char *str)
@@ -90,9 +97,17 @@ void rapid::WinWidget::set_size(WinSizeType w, WinSizeType h)
 
 void rapid::WinWidget::set_position(WinSizeType x, WinSizeType y)
 {
+    WinWidget *parent = get_parent();
     RECT r;
     GetWindowRect(_Hwnd, &r);
-    MoveWindow(_Hwnd, x, y, r.right - r.left, r.bottom - r.top, true);
+    if(parent != nullptr)
+    {
+        MoveWindow(_Hwnd, x + parent->absolute_x(), y + parent->absolute_y(), r.right - r.left, r.bottom - r.top, true);
+    }
+    else
+    {
+        MoveWindow(_Hwnd, x, y, r.right - r.left, r.bottom - r.top, true);
+    }
 }
 
 void rapid::WinWidget::show()

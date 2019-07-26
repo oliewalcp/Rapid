@@ -1,12 +1,11 @@
-#include "Image/ImageBase.h"
+#include "Gui/Frame.h"
 using namespace rapid;
 
 int main()
 {
-    char *ch = new char[8]{0, 0, 0, 1, 0, 0, 0, 1};
-    int *a = reinterpret_cast<int *>(&ch[0]), *b = reinterpret_cast<int *>(&ch[4]);
-    std::cout << *b << std::endl;
-    delete a;
-    std::cout << *b << std::endl;
-    return 0;
+    Frame *f = new Frame;
+    f->set_string("测试窗口");
+    f->set_size(300, 300);
+    f->set_position(100, 100);
+    return Application::loop();
 }

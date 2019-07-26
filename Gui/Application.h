@@ -9,17 +9,23 @@ namespace rapid
 {
 
 class WinWidget;
+class EventInterface;
 
 class Application
 {
 private:
-    using ControlContainerType = std::map<HWND, WinWidget*>;
+    using ControlContainerType = std::map<HWND, EventInterface*>;
 
     static Application *__App;
     static SizeType __Count;
 
     char *__AppName = nullptr;
     ControlContainerType __ControlMap;
+
+    friend class WinWidget;
+
+    WinWidget *__get_widget(HWND hwnd);
+    EventInterface *__get_root(HWND hwnd);
 public:
     static Application* application()
     { return __App; }
@@ -29,6 +35,8 @@ public:
         delete __App;
     }
     int exec();
+    static int loop()
+    { return application()->exec(); }
     void set_app_name(const char *name);
 #ifdef WIN32_PLATFORM
 

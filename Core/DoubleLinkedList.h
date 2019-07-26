@@ -194,16 +194,22 @@ public:
 
     void clear();
 
-    iterator begin() { return iterator(__Head); }
-    iterator end() { return iterator(__Tail == nullptr ? nullptr : __Tail->Next); }
-    reverse_iterator rbegin() { return reverse_iterator(__Tail); }
-    reverse_iterator rend() { return reverse_iterator(__Head == nullptr ? nullptr : __Head->Previous); }
+    iterator begin()
+    { return iterator(__Head); }
+    iterator end()
+    { return iterator(__Tail == nullptr ? nullptr : __Tail->Next); }
+    reverse_iterator rbegin()
+    { return reverse_iterator(__Tail); }
+    reverse_iterator rend()
+    { return reverse_iterator(__Head == nullptr ? nullptr : __Head->Previous); }
 
     Type front();
     Type back();
 
-    inline iterator find(ConstReference arg) { return __find(arg); }
-    inline iterator find(RvalueReference arg) { return __find(std::forward<Type>(arg)); }
+    inline iterator find(ConstReference arg)
+    { return __find(arg); }
+    inline iterator find(RvalueReference arg)
+    { return __find(std::forward<Type>(arg)); }
 
 };
 

@@ -9,8 +9,3 @@ void rapid::Frame::_init(WinWidget *parent)
 }
 
 rapid::Frame::~Frame() { }
-
-void rapid::Frame::set_title(const char *title)
-{
-    set_string(title);
-}

@@ -16,7 +16,8 @@ public:
     { _init(parent); }
     ~Frame();
 
-    virtual void set_title(const char *title);
+    virtual void set_title(const char *title)
+    { set_string(title); }
 };
 
 };

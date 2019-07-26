@@ -120,6 +120,11 @@ void rapid::BMP::parse(const char *filename)
     _DataContent = &result[__data_begin_position()];
 }
 
+void rapid::BMP::parse(Matrix<rapid::RGB> *m)
+{
+
+}
+
 void rapid::BMP::to_matrix(Matrix<RGB> *m)
 {
     if(m == nullptr || _DataContent == nullptr) return;

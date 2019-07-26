@@ -4,7 +4,7 @@
 namespace rapid
 {
 
-unsigned char hexToInt(const char arg)
+unsigned char hex_to_int(const char arg)
 {
     if(arg >= 'a' && arg <= 'f')
     {
@@ -25,17 +25,17 @@ unsigned char hexToInt(const char arg)
  * param[result]: __out__ 2 byte
  * param[code]: __in__ hex string
  */
-void CharToZoneBitCode(unsigned char *result, const char *code)
+void char_to_zone_bit_code(unsigned char *result, const char *code)
 {
-    result[0] = static_cast<unsigned char>(hexToInt(code[0]) << 4);
-    result[0] += hexToInt(code[1]);
+    result[0] = static_cast<unsigned char>(hex_to_int(code[0]) << 4);
+    result[0] += hex_to_int(code[1]);
 
-    result[1] = static_cast<unsigned char>(hexToInt(code[2]) << 4);
-    result[1] += hexToInt(code[3]);
+    result[1] = static_cast<unsigned char>(hex_to_int(code[2]) << 4);
+    result[1] += hex_to_int(code[3]);
 }
 
 
-void ZoneBitCodeToChar(unsigned char *result, const char *code)
+void zone_bit_code_to_char(unsigned char *result, const char *code)
 {
     result[0] = static_cast<unsigned char>((code[0] - '0') * 10 + code[1] - '0');
     result[0] += 0xA0;

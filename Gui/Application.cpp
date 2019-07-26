@@ -1,10 +1,24 @@
 #include "Application.h"
 #include "Core/Memory.h"
+#include "Widget.h"
 
 #ifdef WIN32_PLATFORM
 
 rapid::Application* rapid::Application::__App = new rapid::Application();
 SizeType rapid::Application::__Count = 0;
+
+rapid::WinWidget *rapid::Application::__get_widget(HWND hwnd)
+{
+    return static_cast<WinWidget *>(__get_root(hwnd));
+}
+
+rapid::EventInterface *rapid::Application::__get_root(HWND hwnd)
+{
+    auto it = __ControlMap.find(hwnd);
+    if(it == __ControlMap.end())
+    { return nullptr; }
+    return it->second;
+}
 
 int rapid::Application::exec()
 {
@@ -21,6 +35,90 @@ LRESULT rapid::Application::win_application_proc(HWND hwnd, UINT uMsg, WPARAM wP
 {
     switch(uMsg)
     {
+    case WM_PAINT:
+    {
+        WinWidget *widget = application()->__get_widget(hwnd);
+        widget->repaint_event();
+    }
+        break;
+    case WM_MOUSEWHEEL:
+    {
+        MouseEvent *event = static_cast<MouseEvent *>(application()->__get_root(hwnd));
+        event->mouse_wheel_event();
+    }
+        break;
+    case WM_LBUTTONDOWN:
+    {
+        ButtonEvent *event = static_cast<ButtonEvent *>(application()->__get_root(hwnd));
+        event->left_down_event();
+    }
+        break;
+    case WM_LBUTTONUP:
+    {
+        ButtonEvent *event = static_cast<ButtonEvent *>(application()->__get_root(hwnd));
+        event->left_up_event();
+    }
+        break;
+    case WM_LBUTTONDBLCLK:
+    {
+        ButtonEvent *event = static_cast<ButtonEvent *>(application()->__get_root(hwnd));
+        event->left_click_event();
+    }
+        break;
+    case WM_RBUTTONDOWN:
+    {
+        ButtonEvent *event = static_cast<ButtonEvent *>(application()->__get_root(hwnd));
+        event->right_down_event();
+    }
+        break;
+    case WM_RBUTTONUP:
+    {
+        ButtonEvent *event = static_cast<ButtonEvent *>(application()->__get_root(hwnd));
+        event->right_up_event();
+    }
+        break;
+    case WM_RBUTTONDBLCLK:
+    {
+        ButtonEvent *event = static_cast<ButtonEvent *>(application()->__get_root(hwnd));
+        event->right_click_event();
+    }
+        break;
+    case WM_MBUTTONDOWN:
+    {
+        ButtonEvent *event = static_cast<ButtonEvent *>(application()->__get_root(hwnd));
+        event->middle_down_event();
+    }
+        break;
+    case WM_MBUTTONUP:
+    {
+        ButtonEvent *event = static_cast<ButtonEvent *>(application()->__get_root(hwnd));
+        event->middle_up_event();
+    }
+        break;
+    case WM_MBUTTONDBLCLK:
+    {
+        ButtonEvent *event = static_cast<ButtonEvent *>(application()->__get_root(hwnd));
+        event->middle_click_event();
+    }
+        break;
+    case WM_MOUSEMOVE:
+    {
+        WinWidget *widget = application()->__get_widget(hwnd);
+        widget->mouse_move_event();
+    }
+        break;
+    case WM_KEYUP:
+    {
+        KeyBoardEvent *event = static_cast<KeyBoardEvent *>(application()->__get_root(hwnd));
+        event->key_up();
+    }
+        break;
+    case WM_KEYDOWN:
+    {
+        KeyBoardEvent *event = static_cast<KeyBoardEvent *>(application()->__get_root(hwnd));
+        event->key_down();
+    }
+        break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
