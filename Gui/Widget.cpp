@@ -36,7 +36,7 @@ WinSizeType rapid::WinWidget::absolute_y()
 
 void rapid::WinWidget::set_string(const char *str)
 {
-    SizeType len = strlen(str);
+    SizeType len = strlen(str) + 1;
     WinStringType *txt = new WinStringType[len];
     to_win_code(txt, str, len);
     SetWindowText(_Hwnd, txt);

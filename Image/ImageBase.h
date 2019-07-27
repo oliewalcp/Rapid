@@ -52,20 +52,8 @@ public:
         Data.Total = arg;
         return *this;
     }
-    RGB operator*=(double arg)
-    {
-        Red() *= arg;
-        Green() *= arg;
-        Blue() *= arg;
-        return *this;
-    }
-    RGB operator+=(double arg)
-    {
-        Red() += arg;
-        Green() += arg;
-        Blue() += arg;
-        return *this;
-    }
+    RGB operator*=(double arg);
+    RGB operator+=(double arg);
     bool operator==(const RGB &rgb)
     { return Data.Total == rgb.Data.Total; }
     bool operator==(RGB &&rgb)
