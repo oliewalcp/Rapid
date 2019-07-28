@@ -1,16 +1,16 @@
 #include "Frame.h"
+#include "Application.h"
 
-void rapid::Frame::_init(WinWidget *parent)
+void rapid::Frame::__init(WinWidget *parent)
 {
-    WinStringType *t = new WinStringType[2]{0};
-    to_win_code(t, "", 1);
     if(parent == nullptr)
-        _Hwnd = Application::create_control(this);
+    {
+        Application::create_control(this);
+    }
+    else
+    {
+        Application::create_control(this, "", parent);
+    }
 }
 
 rapid::Frame::~Frame() { }
-
-void rapid::Frame::set_title(const char *title)
-{
-    set_string(title);
-}

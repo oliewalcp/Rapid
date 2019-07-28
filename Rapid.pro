@@ -15,6 +15,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Core/Conver.cpp \
     Core/DoubleLinkedList.cpp \
     Core/Exception.cpp \
     Core/Matrix.cpp \
@@ -23,6 +24,7 @@ SOURCES += \
     Core/Vector.cpp \
     Gui/Application.cpp \
     Gui/Frame.cpp \
+    Gui/Label.cpp \
     Gui/Widget.cpp \
     Image/ImageBase.cpp \
         main.cpp \
@@ -49,5 +51,6 @@ HEADERS += \
     Gui/Application.h \
     Gui/Frame.h \
     Gui/GuiConfig.h \
+    Gui/Label.h \
     Gui/Widget.h \
     Image/ImageBase.h

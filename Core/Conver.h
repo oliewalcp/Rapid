@@ -4,46 +4,24 @@
 namespace rapid
 {
 
-unsigned char hexToInt(const char arg)
-{
-    if(arg >= 'a' && arg <= 'f')
-    {
-        return static_cast<unsigned char>(arg - 'a' + 10);//aH = 10D
-    }
-    else if(arg >= 'A' && arg <= 'F')
-    {
-        return static_cast<unsigned char>(arg - 'a' + 10);//AH = 10D
-    }
-    else if(arg >= '0' && arg <= '9')
-    {
-        return static_cast<unsigned char>(arg - '0');
-    }
-    return 0;
-}
+unsigned char hex_to_int(const char arg);
+char int_to_hex(unsigned char arg);
 
 /*
  * param[result]: __out__ 2 byte
- * param[code]: __in__ hex string
+ * param[code]: __in__ hex string, 4 byte
  */
-void CharToZoneBitCode(unsigned char *result, const char *code)
-{
-    result[0] = static_cast<unsigned char>(hexToInt(code[0]) << 4);
-    result[0] += hexToInt(code[1]);
+void zone_bit_code_to_gb2312(char *result, const char *code);
+/*
+ * param[result]: __out__ hex string, 4 byte
+ * param[code]: __in__ 2 byte
+ */
+void gb2312_to_zone_bit_code(unsigned char *result, const char *code);
 
-    result[1] = static_cast<unsigned char>(hexToInt(code[2]) << 4);
-    result[1] += hexToInt(code[3]);
-}
-
-
-void ZoneBitCodeToChar(unsigned char *result, const char *code)
-{
-    result[0] = static_cast<unsigned char>((code[0] - '0') * 10 + code[1] - '0');
-    result[0] += 0xA0;
-
-    result[1] = static_cast<unsigned char>((code[2] - '0') * 10 + code[3] - '0');
-    result[1] += 0xA0;
-}
-
+#ifdef _WIN32
+wchar_t *to_wchar(const char* str);
+char* utf8_to_gb2312(const char* utf8);
+#endif
 };
 
 #endif // CONVER_H
