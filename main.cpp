@@ -1,11 +1,23 @@
-#include "Gui/Frame.h"
-using namespace rapid;
+#include <locale>
+#include <string>
+#include <codecvt>
+#include <iostream>
 
 int main()
 {
-    Frame *f = new Frame;
-    f->set_string("测试窗口");
-    f->set_size(300, 300);
-    f->set_position(100, 100);
-    return Application::loop();
+//    setlocale(LC_ALL, "gb2312");
+
+//    SizeType i;
+
+//    UnicodeType* result = get_utf8_str(i, "测试");
+//    std::wcout << result << std::endl;
+//    std::string str("呵呵呵");
+//    std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
+//    std::wstring result = convert.from_bytes(str);
+//    std::wcout << result << std::endl;
+    std::cout << setlocale(LC_ALL, "chs") << std::endl;
+    std::cout << "dfasgfhfaaaaaaaaaa" << std::endl;
+    std::cout << "呵呵呵" << std::endl;
+    std::cout << "dfasdfdgafga" << std::endl;
+    return 0;
 }
