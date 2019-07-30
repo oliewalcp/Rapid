@@ -1,5 +1,6 @@
 #include "Widget.h"
 #include "Application.h"
+#include "Core/Conver.h"
 
 rapid::EventInterface::~EventInterface() { }
 rapid::MouseEvent::~MouseEvent() { }
@@ -26,6 +27,7 @@ WinSizeType rapid::WinWidget::absolute_x()
 {
     RECT r;
     GetWindowRect(_Hwnd, &r);
+//    ClientToScreen(_Hwnd, reinterpret_cast<LPPOINT>(&r));
     return r.left;
 }
 
@@ -33,20 +35,22 @@ WinSizeType rapid::WinWidget::absolute_y()
 {
     RECT r;
     GetWindowRect(_Hwnd, &r);
+//    ClientToScreen(_Hwnd, reinterpret_cast<LPPOINT>(&r));
     return r.top;
 }
 
 rapid::WinWidget *rapid::WinWidget::get_parent()
 {
-    return Application::application()->__get_widget(GetParent(_Hwnd));
+    return Application::__get_widget(GetParent(_Hwnd));
 }
 
 void rapid::WinWidget::set_string(const char *str)
 {
-    SizeType len = strlen(str);
-    WinStringType *txt = new WinStringType[len];
-    to_win_code(txt, str, len);
-    SetWindowText(_Hwnd, txt);
+//    SizeType len = strlen(str) + 1;
+//    WinStringType *txt = new WinStringType[len];
+//    to_win_code(txt, str, len);
+//    SetWindowText(_Hwnd, txt);
+    SetWindowText(_Hwnd, to_wchar(str));
 }
 
 void rapid::WinWidget::set_enable(bool ena)
@@ -59,12 +63,12 @@ WinSizeType rapid::WinWidget::relative_x()
     RECT r, parent_r;
     HWND parent = GetParent(_Hwnd);
     GetWindowRect(_Hwnd, &r);
-    // failure
-    if(GetWindowRect(parent, &parent_r) == 0)
+    // success
+    if(GetWindowRect(parent, &parent_r) != 0)
     {
         return r.left - parent_r.left;
     }
-    // success
+    // failure
     else
     {
         return r.left;
@@ -76,12 +80,12 @@ WinSizeType rapid::WinWidget::relative_y()
     RECT r, parent_r;
     HWND parent = GetParent(_Hwnd);
     GetWindowRect(_Hwnd, &r);
-    // failure
-    if(GetWindowRect(parent, &parent_r) == 0)
-    {
-        return r.top - parent_r.top;
-    }
     // success
+    if(GetWindowRect(parent, &parent_r) != 0)
+    {
+        return r.top - parent_r.top - 25;
+    }
+    // failure
     else
     {
         return r.top;
@@ -102,7 +106,7 @@ void rapid::WinWidget::set_position(WinSizeType x, WinSizeType y)
     GetWindowRect(_Hwnd, &r);
     if(parent != nullptr)
     {
-        MoveWindow(_Hwnd, x + parent->absolute_x(), y + parent->absolute_y(), r.right - r.left, r.bottom - r.top, true);
+        MoveWindow(_Hwnd, x + parent->absolute_x()/* - 206*/, y + parent->absolute_y()/* - 225*/, r.right - r.left, r.bottom - r.top, true);
     }
     else
     {

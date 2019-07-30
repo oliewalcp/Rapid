@@ -5,6 +5,7 @@
 
 namespace rapid
 {
+class Application;
 
 class EventInterface
 {
@@ -58,8 +59,10 @@ public:
 class WinWidget : public MouseEvent
 {
 protected:
-    HWND _Hwnd;
+    HWND _Hwnd = nullptr;
     WinWidget() { }
+
+    friend class Application;
 public:
     virtual ~WinWidget();
     virtual void repaint_event() { }

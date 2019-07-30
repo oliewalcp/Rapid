@@ -13,4 +13,6 @@ using WinStringType = wchar_t;
 
 #endif
 
+#define INCLUDE(x) include "OpenGL/include/"##x
+
 #endif // GUICONFIG_H

@@ -3,7 +3,7 @@
 
 #include "GuiConfig.h"
 #include <map>
-
+#include <atomic>
 
 namespace rapid
 {
@@ -14,38 +14,49 @@ class EventInterface;
 class Application
 {
 private:
+    using CountType = std::atomic<SizeType>;
+    using ApplicationContainerType = std::map<HWND, Application*>;
     using ControlContainerType = std::map<HWND, EventInterface*>;
+    using CreateWindowType = std::tuple<WinWidget*, LPCTSTR, LPCTSTR, DWORD, int, int, int, int, HWND, HMENU>;
+    using ControlIDType = std::map<SizeType, CreateWindowType*>;
+    using RootType = WinWidget*;
 
+    RootType __Root = nullptr;
+
+    static CountType __Count;
+    static ControlContainerType __ControlMap;
+    static ApplicationContainerType __AppMap;
+    static ControlIDType __ControlCreateIDMap;
+    static CountType __CreateId;
     static Application *__App;
-    static SizeType __Count;
-
-    char *__AppName = nullptr;
-    ControlContainerType __ControlMap;
 
     friend class WinWidget;
 
-    WinWidget *__get_widget(HWND hwnd);
-    EventInterface *__get_root(HWND hwnd);
+    static Application* __get_app(HWND hwnd);
+    static WinWidget *__get_widget(HWND hwnd);
+    static EventInterface *__get_eventer(HWND hwnd);
+
+//    Application() { }
+//    Application(HWND hwnd)
+//    { __AppMap[hwnd] = this; }
 public:
-    static Application* application()
+    ~Application();
+    static Application* app()
     { return __App; }
-    void exit(int status = 0)
-    {
-        PostQuitMessage(status);
-        delete __App;
-    }
-    int exec();
+    static int exec();
     static int loop()
-    { return application()->exec(); }
-    void set_app_name(const char *name);
+    { return exec(); }
+
 #ifdef WIN32_PLATFORM
 
-    HINSTANCE instance()
+    static HINSTANCE instance()
     { return GetModuleHandle(nullptr); }
 
     static LRESULT CALLBACK win_application_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    static HWND create_control(WinWidget *wid, const char *class_name = nullptr, HWND parent = nullptr);
+    static void create_control(WinWidget *wid, DWORD type, const wchar_t *class_name, WinWidget *parent);
+    static void create_control(WinWidget *wid, const wchar_t *class_name, WinWidget *parent);
+    static void create_control(WinWidget *wid, const char *class_name = nullptr, WinWidget *parent = nullptr);
     static void init_wnd_class(const char *app_name);
 
 #endif
