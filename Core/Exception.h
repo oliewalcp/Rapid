@@ -12,7 +12,7 @@ protected:
     char *_M_reason;
 public:
     Exception(const char *r = nullptr) : _M_reason(remove_const(r)) { }
-    virtual ~Exception() { }
+    virtual ~Exception();
     virtual const char* what();
 };
 
@@ -21,7 +21,7 @@ public:
     { \
     public: \
         e(const char *r = nullptr) : Exception(r) { } \
-        virtual ~e() { } \
+        virtual ~e(); \
         virtual const char* what(); \
     }
 

@@ -1,27 +1,27 @@
 #include "Core/DoubleLinkedList.h"
 
 template<typename T>
-void rapid::DoubleLinkedList<T>::_M_create_list(const_reference arg)
+void rapid::DoubleLinkedList<T>::_F_create_list(ConstReference arg)
 {
     if(_M_head == nullptr)
-    { _M_initialize(_M_construct_node(arg)); }
+    { _F_initialize(_F_construct_node(arg)); }
 }
 
 template<typename T>
-void rapid::DoubleLinkedList<T>::_M_create_list(Node *n)
+void rapid::DoubleLinkedList<T>::_F_create_list(Node *n)
 {
     if(_M_head == nullptr)
-    { _M_initialize(n); }
+    { _F_initialize(n); }
 }
 
 template<typename T>
-void rapid::DoubleLinkedList<T>::_M_insert(const iterator &it, const_reference arg)
+void rapid::DoubleLinkedList<T>::_F_insert(const iterator &it, ConstReference arg)
 {
-    Node *n = _M_construct_node(arg);
+    Node *n = _F_construct_node(arg);
     if(it._M_current == nullptr)
     {
         if(_M_tail == nullptr)
-        { _M_initialize(n); }
+        { _F_initialize(n); }
         else
         {
             _M_tail->Next = n;
@@ -39,11 +39,11 @@ void rapid::DoubleLinkedList<T>::_M_insert(const iterator &it, const_reference a
         if(_M_head->Previous != nullptr)
         { _M_head = _M_head->Previous; }
     }
-    _M_add_size(1);
+    _F_add_size(1);
 }
 
 template<typename T>
-void rapid::DoubleLinkedList<T>::_M_erase(const iterator &it)
+void rapid::DoubleLinkedList<T>::_F_erase(const iterator &it)
 {
     if(it == end()) return;
     if(it._M_current->Previous != nullptr)
@@ -54,16 +54,16 @@ void rapid::DoubleLinkedList<T>::_M_erase(const iterator &it)
     { it._M_current->Next->Previous = it._M_current->Previous; }
     if(it._M_current != nullptr)
     { delete it._M_current; }
-    _M_add_size(-1);
+    _F_add_size(-1);
 }
 
 template<typename T>
-typename rapid::DoubleLinkedList<T>::iterator rapid::DoubleLinkedList<T>::_M_find(const_reference arg)
+typename rapid::DoubleLinkedList<T>::iterator rapid::DoubleLinkedList<T>::_F_find(ConstReference arg)
 {
     Node *temp = _M_head;
     while(temp != nullptr)
     {
-        const value_type &data = temp->Data->const_ref_content();
+        const ValueType &data = temp->Data->const_ref_content();
         if(data == arg)
         { return iterator(temp); }
         temp = temp->Next;
@@ -92,21 +92,21 @@ void rapid::DoubleLinkedList<T>::clear()
 }
 
 template<typename T>
-typename rapid::DoubleLinkedList<T>::value_type rapid::DoubleLinkedList<T>::front()
+typename rapid::DoubleLinkedList<T>::ValueType rapid::DoubleLinkedList<T>::front()
 {
     if(_M_head == nullptr)
     {
-        return NodeBase<value_type>().content();
+        return NodeBase<ValueType>().content();
     }
     return _M_head->Data->content();
 }
 
 template<typename T>
-typename rapid::DoubleLinkedList<T>::value_type rapid::DoubleLinkedList<T>::back()
+typename rapid::DoubleLinkedList<T>::ValueType rapid::DoubleLinkedList<T>::back()
 {
     if(_M_tail == nullptr)
     {
-        return NodeBase<value_type>().content();
+        return NodeBase<ValueType>().content();
     }
     return _M_tail->Data->content();
 }
