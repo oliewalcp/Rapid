@@ -50,7 +50,7 @@ void rapid::WinWidget::set_string(const char *str)
 //    WinStringType *txt = new WinStringType[len];
 //    to_win_code(txt, str, len);
 //    SetWindowText(_Hwnd, txt);
-    SetWindowText(_Hwnd, to_wchar(str));
+    SetWindowText(_Hwnd, to_utf8(str));
 }
 
 void rapid::WinWidget::set_enable(bool ena)

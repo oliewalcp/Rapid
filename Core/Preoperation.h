@@ -54,17 +54,6 @@ public:
     static constexpr T value = __Index<0, arg...>::value;
 };
 
-#ifndef NDEBUG
-void test_Sum_main()
-{
-    std::cout << "the sum of 3, 5, 10, -10, 100 is: " << Sum<int, 3, 5, 10, -10, 100>::value << std::endl;
-}
-
-void test_Index_main()
-{
-    std::cout << "the index of 1 in 3, 5, 10, -10, 200 is: " << Index<int, 1, 3, 5, 10, -10, 200>::value << std::endl;
-}
-#endif
 #endif
 };
 

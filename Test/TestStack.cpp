@@ -1,6 +1,8 @@
 #include "Core/Stack.h"
 #include "TestCase.h"
 
+using namespace rapid;
+
 void rapid::test_Stack_main()
 {
     std::cout << "************debug Stack begin************" << std::endl;

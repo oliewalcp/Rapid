@@ -109,7 +109,7 @@ constexpr T&& forward(typename RemoveReference<T>::type&& arg)
 }
 
 template<typename T>
-constexpr typename std::remove_reference<T>::type&& move(T &&arg)
+constexpr typename RemoveReference<T>::type&& move(T &&arg)
 { return static_cast<typename RemoveReference<T>::type&&>(arg); }
 
 };

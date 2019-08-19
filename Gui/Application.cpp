@@ -197,7 +197,7 @@ void rapid::Application::create_control(rapid::WinWidget *wid, DWORD type, const
             widget_count[7] = static_cast<char>(0xff);
             widget_count[6] = static_cast<char>(__Count - 0xffffff);
         }
-        const wchar_t *name = to_wchar(widget_count);
+        const wchar_t *name = to_utf8(widget_count);
 //        SizeType len = strlen(widget_count);
 //        WinStringType *name = new WinStringType[len + 1];
 //        to_win_code(name, widget_count, len);
@@ -226,7 +226,7 @@ void rapid::Application::create_control(rapid::WinWidget *wid, const wchar_t *cl
 
 void rapid::Application::create_control(WinWidget *wid, const char *class_name, WinWidget *parent)
 {
-    create_control(wid, to_wchar(class_name), parent);
+    create_control(wid, to_utf8(class_name), parent);
 }
 
 void rapid::Application::init_wnd_class(const char *app_name)

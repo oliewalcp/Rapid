@@ -37,7 +37,7 @@ void rapid::test_DoubleLinkedList_main()
         std::cout << *it << std::endl;
     }
     std::cout << "---------------------" << std::endl;
-    rapid::Dlist<int> ss(s);
+    Dlist<int> ss(s);
     for(auto it = ss.rbegin(); it != ss.rend(); it++)
     {
         std::cout << *it << std::endl;

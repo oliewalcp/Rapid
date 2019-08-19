@@ -19,7 +19,7 @@ public:
     using Reference = ValueType&;
     using ConstReference = const ValueType &;
     using RvalueReference = ValueType&&;
-    using SizeType = size_t;
+    using SizeType = size_type;
 
     using const_iterator = iterator;
     using const_reverse_iterator = const reverse_iterator;

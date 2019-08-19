@@ -15,15 +15,11 @@
 #define CONSTEXPR
 #endif
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
 #define un_use(x) (void)x
 
 namespace rapid
 {
-    using size_t = decltype(sizeof(int));
+    using size_type = long;
 }
 
 #endif // VERSION_H

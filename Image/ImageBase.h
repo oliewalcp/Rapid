@@ -2,6 +2,7 @@
 #define IMAGEBASE_H
 #include "Core/Version.h"
 #include "Core/Memory.h"
+#include "Core/TypeTraits.h"
 #include "Core/Matrix.h"
 
 namespace rapid
@@ -36,7 +37,7 @@ public:
     RGB(const RGB &rgb)
     { Data.Total = rgb.Data.Total; }
     RGB(RGB &&rgb)
-    { Data.Total = std::forward<RGB>(rgb).Data.Total; }
+    { Data.Total = forward<RGB>(rgb).Data.Total; }
 
     RGB operator*(double arg)
     { return RGB(*this) *= arg; }
@@ -57,7 +58,7 @@ public:
     bool operator==(const RGB &rgb)
     { return Data.Total == rgb.Data.Total; }
     bool operator==(RGB &&rgb)
-    { return Data.Total == std::forward<RGB>(rgb).Data.Total; }
+    { return Data.Total == forward<RGB>(rgb).Data.Total; }
 
 };
 

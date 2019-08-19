@@ -2,6 +2,8 @@
 #include "Core/Exception.h"
 #include "Core/Vector.h"
 
+using namespace rapid;
+
 template<typename T>
 static void print_vector(rapid::Vector<T> &v)
 {

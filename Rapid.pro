@@ -28,8 +28,10 @@ SOURCES += \
     Gui/Widget.cpp \
     Image/ImageBase.cpp \
     Test/TestDoubleLinkedList.cpp \
+    Test/TestMatrix.cpp \
     Test/TestMemory.cpp \
     Test/TestRange.cpp \
+    Test/TestSingleLinkedList.cpp \
     Test/TestStack.cpp \
     Test/TestVector.cpp \
         main.cpp \

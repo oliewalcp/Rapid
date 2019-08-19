@@ -3,6 +3,7 @@
 
 #include "Version.h"
 #include "Memory.h"
+#include "TypeTraits.h"
 #include <initializer_list>
 namespace rapid
 {
@@ -47,18 +48,18 @@ public:
     Matrix(SizeType r, SizeType c, ConstReference default_value)
     { _F_construct_default(r, c, default_value); }
     Matrix(SizeType r, SizeType c, RvalueReference default_value)
-    { _F_construct_default(r, c, std::forward<Type>(default_value)); }
+    { _F_construct_default(r, c, forward<Type>(default_value)); }
     Matrix(MatrixRef m)
     { _F_copy(m); }
     Matrix(RvalueMatrixRef m)
-    { _F_copy(std::forward<Matrix<_Tp>>(m)); }
+    { _F_copy(forward<Matrix<_Tp>>(m)); }
     Matrix(std::initializer_list<std::initializer_list<Type>> m);
     virtual ~Matrix() { }
 
     void set_value(SizeType r, SizeType c, ConstReference v)
     { _F_set_value(r, c, v); }
     void set_value(SizeType r, SizeType c, RvalueReference v)
-    { _F_set_value(r, c, std::forward<Type>(v)); }
+    { _F_set_value(r, c, forward<Type>(v)); }
 
     Type get_value(SizeType r, SizeType c)
     { return _M_data[r][c].content(); }
@@ -77,21 +78,21 @@ public:
     void multiply(SizeType r, ConstReference n)
     { _F_multiply(r, n); }
     void multiply(SizeType r, RvalueReference n)
-    { _F_multiply(r, std::forward<Type>(n)); }
+    { _F_multiply(r, forward<Type>(n)); }
     void multiply(MatrixRef m)
     { _F_multiply(m); }
     void multiply(RvalueMatrixRef m)
-    { _F_multiply(std::forward<Matrix<_Tp>>(m)); }
+    { _F_multiply(forward<Matrix<_Tp>>(m)); }
 
     void add(const Matrix &m)
     { _F_add(m); }
     void add(Matrix &&m)
-    { _F_add(std::forward<Matrix<_Tp>>(m)); }
+    { _F_add(forward<Matrix<_Tp>>(m)); }
 
     void filter(MatrixRef m)
     { _F_filter(m); }
     void filter(RvalueMatrixRef m)
-    { _F_filter(std::forward<Matrix<_Tp>>(m)); }
+    { _F_filter(forward<Matrix<_Tp>>(m)); }
 
     void power(SizeType p);
 
@@ -102,11 +103,11 @@ public:
     static Matrix<_Tp>* multiply(MatrixRef m1, MatrixRef m2)
     { return _F_multiply(m1, m2); }
     static Matrix<_Tp>* multiply(MatrixRef m1, RvalueMatrixRef m2)
-    { return _F_multiply(m1, std::forward<Matrix<_Tp>>(m2)); }
+    { return _F_multiply(m1, forward<Matrix<_Tp>>(m2)); }
     static Matrix<_Tp>* multiply(RvalueMatrixRef m1, MatrixRef m2)
-    { return _F_multiply(std::forward<Matrix<_Tp>>(m1), m2); }
+    { return _F_multiply(forward<Matrix<_Tp>>(m1), m2); }
     static Matrix<_Tp>* multiply(RvalueMatrixRef m1, RvalueMatrixRef m2)
-    { return _F_multiply(std::forward<Matrix<_Tp>>(m1), std::forward<Matrix<_Tp>>(m2)); }
+    { return _F_multiply(forward<Matrix<_Tp>>(m1), forward<Matrix<_Tp>>(m2)); }
 
     // copy [m]'s data reference to [this]
     void copy_from(MatrixRef m)
@@ -131,7 +132,7 @@ public:
     Matrix<_Tp>* operator*(MatrixRef m)
     { return _F_multiply(*this, m); }
     Matrix<_Tp>* operator*(RvalueMatrixRef m)
-    { return _F_multiply(*this, std::forward<Matrix<_Tp>>(m)); }
+    { return _F_multiply(*this, forward<Matrix<_Tp>>(m)); }
 
     Matrix<_Tp>* operator*=(MatrixRef m)
     {
@@ -140,7 +141,7 @@ public:
     }
     Matrix<_Tp>* operator*=(RvalueMatrixRef m)
     {
-        multiply(std::forward<Matrix<_Tp>>(m));
+        multiply(forward<Matrix<_Tp>>(m));
         return this;
     }
     MatrixRef operator=(MatrixRef m)
@@ -150,7 +151,7 @@ public:
     }
     MatrixRef operator=(RvalueMatrixRef m)
     {
-        _F_copy(std::forward<Matrix<_Tp>>(m));
+        _F_copy(forward<Matrix<_Tp>>(m));
         return *this;
     }
     Matrix<_Tp>* operator+(MatrixRef m)
@@ -162,7 +163,7 @@ public:
     Matrix<_Tp>* operator+(RvalueMatrixRef m)
     {
         Matrix<_Tp> *temp = new Matrix<_Tp>(*this);
-        temp->_F_add(std::forward<Matrix<_Tp>>(m));
+        temp->_F_add(forward<Matrix<_Tp>>(m));
         return temp;
     }
     MatrixRef operator+=(MatrixRef m)
@@ -172,15 +173,12 @@ public:
     }
     MatrixRef operator+=(RvalueMatrixRef m)
     {
-        _F_add(std::forward<Matrix<_Tp>>(m));
+        _F_add(forward<Matrix<_Tp>>(m));
         return *this;
     }
 
 };
 
-#ifndef NDEBUG
-void test_Matrix_main();
-#endif
 
 };
 

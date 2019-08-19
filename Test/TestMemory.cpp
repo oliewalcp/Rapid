@@ -2,6 +2,7 @@
 #include "Core/Memory.h"
 #include "Core/Range.h"
 
+using namespace rapid;
 template<typename T>
 static void print(const T *arg, const int size)
 {

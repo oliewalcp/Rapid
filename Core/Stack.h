@@ -15,7 +15,7 @@ private:
     using Reference = Type&;
     using ConstReference = const Type &;
     using RvalueReference = Type&&;
-    using SizeType = long;
+    using SizeType = size_type;
 
     struct Node
     {

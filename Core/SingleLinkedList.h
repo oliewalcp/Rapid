@@ -18,7 +18,7 @@ private:
     using Reference = Type&;
     using ConstReference = const Type &;
     using RvalueReference = Type&&;
-    using SizeType = size_t;
+    using SizeType = size_type;
 
     struct Node
     {
@@ -149,9 +149,6 @@ public:
 template<typename T>
 using Slist = SingleLinkedList<T>;
 
-#ifndef NDEBUG
-void test_SingleLinkedList_main();
-#endif
 
 };
 #endif // SINGLELINKEDLIST_H

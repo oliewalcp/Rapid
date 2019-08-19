@@ -21,7 +21,7 @@ protected:
     using Reference = Type&;
     using ConstReference = const Type &;
     using RvalueReference = Type&&;
-    using SizeType = size_t;
+    using SizeType = size_type;
 
     SizeType _M_size;
     SizeType _M_capacity;
@@ -67,10 +67,8 @@ public:
         }
 
         iterator(const SizeType n, const SizeType max, Type *start)
-            : _M_current_index(n), _M_max_index(max), _M_data(start) {
-            std::cout << __func__ << std::endl;
-            std::cout << n << "::" << max << std::endl;
-        }
+            : _M_current_index(n), _M_max_index(max), _M_data(start)
+        { }
     public:
         iterator() : _M_current_index(SizeType(-1)), _M_max_index(SizeType(-1)), _M_data(nullptr) { }
         iterator(const iterator &it) { _F_init(it); }
