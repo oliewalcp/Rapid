@@ -2,7 +2,7 @@
 #define ATOMIC_H
 
 #include "Version.h"
-#include "Memory.h"
+#include "TypeTraits.h"
 
 namespace rapid
 {
@@ -57,69 +57,69 @@ template<typename T>
 class Atomic
 {
 private:
-    T data;
+    T _M_data;
     static constexpr void type_assert()
     {
         static_assert(
-            std::is_same<T, bool>::value ||
-            std::is_same<T, char>::value ||
-            std::is_same<T, unsigned char>::value ||
-            std::is_same<T, short>::value ||
-            std::is_same<T, unsigned short>::value ||
-            std::is_same<T, int>::value ||
-            std::is_same<T, unsigned int>::value ||
-            std::is_same<T, long>::value ||
-            std::is_same<T, unsigned long>::value ||
-            std::is_same<T, long long>::value ||
-            std::is_same<T, unsigned long long>::value ||
-            std::is_same<T, wchar_t>::value,
+            IsSame<T, bool>::value ||
+            IsSame<T, char>::value ||
+            IsSame<T, unsigned char>::value ||
+            IsSame<T, short>::value ||
+            IsSame<T, unsigned short>::value ||
+            IsSame<T, int>::value ||
+            IsSame<T, unsigned int>::value ||
+            IsSame<T, long>::value ||
+            IsSame<T, unsigned long>::value ||
+            IsSame<T, long long>::value ||
+            IsSame<T, unsigned long long>::value ||
+            IsSame<T, wchar_t>::value,
             "only support base data type");
     }
 public:
     Atomic()
     {
         type_assert();
-        memset(&data, 0, sizeof(T));
+        memset(&_M_data, 0, sizeof(T));
     }
     Atomic(T value)
     {
         type_assert();
-        data = value;
+        _M_data = value;
     }
 
     T add_and_fetch(T value)
-    { return sync_fetch_after_add(&data, value); }
+    { return sync_fetch_after_add(&_M_data, value); }
     T sub_and_fetch(T value)
-    { return sync_fetch_after_sub(&data, value); }
+    { return sync_fetch_after_sub(&_M_data, value); }
 
     bool operator==(T value)
-    { return sync_bool_compare_and_swap(&data, value, data); }
+    { return sync_bool_compare_and_swap(&_M_data, value, _M_data); }
 
     T operator++(int)
-    { return sync_fetch_before_add(&data, 1); }
+    { return sync_fetch_before_add(&_M_data, 1); }
     T operator++()
-    { return sync_fetch_after_add(&data, 1); }
+    { return sync_fetch_after_add(&_M_data, 1); }
     T operator--(int)
-    { return sync_fetch_before_sub(&data, 1); }
+    { return sync_fetch_before_sub(&_M_data, 1); }
     T operator--()
-    { return sync_fetch_after_sub(&data, 1); }
+    { return sync_fetch_after_sub(&_M_data, 1); }
 
     T operator+=(T value)
-    { return sync_fetch_after_add(&data, value); }
+    { return sync_fetch_after_add(&_M_data, value); }
     T operator-=(T value)
-    { return sync_fetch_after_sub(&data, value); }
+    { return sync_fetch_after_sub(&_M_data, value); }
     T operator|=(T value)
-    { return sync_fetch_after_or(&data, value); }
+    { return sync_fetch_after_or(&_M_data, value); }
     T operator&=(T value)
-    { return sync_fetch_after_and(&data, value); }
+    { return sync_fetch_after_and(&_M_data, value); }
     T operator^=(T value)
-    { return sync_fetch_after_xor(&data, value); }
+    { return sync_fetch_after_xor(&_M_data, value); }
 
     T operator=(T value)
-    { sync_value_compare_and_swap(&data, data, value); }
+    { sync_value_compare_and_swap(&_M_data, _M_data, value); }
 
     friend std::ostream& operator<<(std::ostream &os, Atomic<T> &a)
-    { return os << sync_value_compare_and_swap(&a.data, 0, a.data); }
+    { return os << sync_value_compare_and_swap(&a._M_data, 0, a._M_data); }
 };
 
 }

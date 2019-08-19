@@ -2,82 +2,82 @@
 
 template<typename T>
 rapid::SingleLinkedList<T>::SingleLinkedList(const SingleLinkedList<T> &sll)
-    : __Head(nullptr), __Tail(nullptr), __Size(0)
+    : _M_head(nullptr), _M_tail(nullptr), _M_size(0)
 {
-    for(Node *n = sll.__Head; n != nullptr; n = n->Next)
+    for(Node *n = sll._M_head; n != nullptr; n = n->Next)
     { push_back(n->Data->const_ref_content()); }
 }
 
 template<typename T>
-void rapid::SingleLinkedList<T>::__create_list(ConstReference arg)
+void rapid::SingleLinkedList<T>::_F_create_list(ConstReference arg)
 {
-    if(__Head == nullptr)
-    { __initialize(__construct_node(arg)); }
+    if(_M_head == nullptr)
+    { _F_initialize(_F_construct_node(arg)); }
 }
 
 template<typename T>
-void rapid::SingleLinkedList<T>::__create_list(Node *n)
+void rapid::SingleLinkedList<T>::_F_create_list(Node *n)
 {
-    if(__Head == nullptr)
-    { __initialize(n); }
+    if(_M_head == nullptr)
+    { _F_initialize(n); }
 }
 
 template<typename T>
-void rapid::SingleLinkedList<T>::__insert(const iterator &it, ConstReference arg)
+void rapid::SingleLinkedList<T>::_F_insert(const iterator &it, ConstReference arg)
 {
-    Node *n = __construct_node(arg);
-    if(it.__Current == nullptr && it.__Pervious == nullptr)
-    { __initialize(n); }
+    Node *n = _F_construct_node(arg);
+    if(it._M_current == nullptr && it._M_pervious == nullptr)
+    { _F_initialize(n); }
     else
     {
-        if(it.__Pervious == nullptr && it.__Current != nullptr)
+        if(it._M_pervious == nullptr && it._M_current != nullptr)
         {
-            n->Next = __Head;
-            __Head = n;
+            n->Next = _M_head;
+            _M_head = n;
         }
-        else if(it.__Pervious != nullptr && it.__Current == nullptr)
+        else if(it._M_pervious != nullptr && it._M_current == nullptr)
         {
-            __Tail->Next = n;
-            __Tail = n;
+            _M_tail->Next = n;
+            _M_tail = n;
         }
         else
         {
-            it.__Pervious->Next = n;
-            n->Next = it.__Current;
+            it._M_pervious->Next = n;
+            n->Next = it._M_current;
         }
     }
-    __add_size(1);
+    _F_add_size(1);
 }
 
 template<typename T>
-void rapid::SingleLinkedList<T>::__erase(iterator &it)
+void rapid::SingleLinkedList<T>::_F_erase(iterator &it)
 {
     if(it == end()) return;
-    if(it.__Pervious != nullptr)
-    { it.__Pervious->Next = it.__Next; }
-    if(it.__Current != nullptr)
+    if(it._M_pervious != nullptr)
+    { it._M_pervious->Next = it._M_next; }
+    if(it._M_current != nullptr)
     {
-        delete it.__Current;
-        it.__Current = it.__Next;
+        delete it._M_current;
+        it._M_current = it._M_next;
     }
-    __add_size(-1);
+    _F_add_size(-1);
 }
 
 template<typename T>
 void rapid::SingleLinkedList<T>::pop_back()
 {
-    if(__Head == nullptr)
+    if(_M_head == nullptr)
     {
         return;
     }
-    if(__Head->Next == nullptr)
+    if(_M_head->Next == nullptr)
     {
-        delete __Head->Next;
-        __Head = __Tail = nullptr;
+        delete _M_head->Next;
+        _M_head = _M_tail = nullptr;
     }
     else
     {
-        Node *n_before = __Head, *n_after = __Head->Next;
+        Node *n_before = _M_head, *n_after = _M_head->Next;
         while(n_after->Next != nullptr)
         {
             n_before = n_before->Next;
@@ -86,56 +86,56 @@ void rapid::SingleLinkedList<T>::pop_back()
         n_before->Next = nullptr;
         delete n_after;
     }
-    __add_size(-1);
+    _F_add_size(-1);
 }
 
 template<typename T>
 void rapid::SingleLinkedList<T>::pop_front()
 {
-    if(__Head == nullptr) return;
-    Node *n = __Head;
-    __Head = __Head->Next;
+    if(_M_head == nullptr) return;
+    Node *n = _M_head;
+    _M_head = _M_head->Next;
     delete n;
-    __add_size(-1);
+    _F_add_size(-1);
 }
 
 template<typename T>
 void rapid::SingleLinkedList<T>::clear()
 {
-    Node *n = __Head;
+    Node *n = _M_head;
     while(n != nullptr)
     {
         Node *temp = n;
         n = n->Next;
         delete temp;
     }
-    __Size = 0;
+    _M_size = 0;
 }
 
 template<typename T>
 typename rapid::SingleLinkedList<T>::Type rapid::SingleLinkedList<T>::front()
 {
-    if(__Head == nullptr)
+    if(_M_head == nullptr)
     {
         return NodeBase<Type>().content();
     }
-    return __Head->Data->content();
+    return _M_head->Data->content();
 }
 
 template<typename T>
 typename rapid::SingleLinkedList<T>::Type rapid::SingleLinkedList<T>::back()
 {
-    if(__Tail == nullptr)
+    if(_M_tail == nullptr)
     {
         return NodeBase<Type>().content();
     }
-    return __Tail->Data->content();
+    return _M_tail->Data->content();
 }
 
 template<typename T>
-typename rapid::SingleLinkedList<T>::iterator rapid::SingleLinkedList<T>::__find(ConstReference arg)
+typename rapid::SingleLinkedList<T>::iterator rapid::SingleLinkedList<T>::_F_find(ConstReference arg)
 {
-    Node *temp = __Head, *p = nullptr;
+    Node *temp = _M_head, *p = nullptr;
     while(temp != nullptr)
     {
         const Type &data = temp->Data->const_ref_content();

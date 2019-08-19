@@ -1,6 +1,6 @@
 QT -= gui
 
-CONFIG += c++14 console
+CONFIG += c++17 console
 CONFIG -= app_bundle
 
 # The following define makes your compiler emit warnings if you use
@@ -27,6 +27,11 @@ SOURCES += \
     Gui/Label.cpp \
     Gui/Widget.cpp \
     Image/ImageBase.cpp \
+    Test/TestDoubleLinkedList.cpp \
+    Test/TestMemory.cpp \
+    Test/TestRange.cpp \
+    Test/TestStack.cpp \
+    Test/TestVector.cpp \
         main.cpp \
     Core/Memory.cpp
 
@@ -46,11 +51,11 @@ HEADERS += \
     Core/Reflect.h \
     Core/Range.h \
     Core/DoubleLinkedList.h \
-    Core/Array.h \
     Core/Preoperation.h \
     Gui/Application.h \
     Gui/Frame.h \
     Gui/GuiConfig.h \
     Gui/Label.h \
     Gui/Widget.h \
-    Image/ImageBase.h
+    Image/ImageBase.h \
+    Test/TestCase.h

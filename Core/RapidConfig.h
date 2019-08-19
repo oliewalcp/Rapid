@@ -2,7 +2,6 @@
 #define RAPIDCONFIG_H
 
 #include "Version.h"
-#include "Array.h"
 #include "Conver.h"
 #include "DoubleLinkedList.h"
 #include "Memory.h"

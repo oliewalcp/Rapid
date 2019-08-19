@@ -3,6 +3,7 @@
 
 #include "Version.h"
 #include "Memory.h"
+#include "TypeTraits.h"
 
 namespace rapid
 {
@@ -19,7 +20,7 @@ public:
     Reflect(long address = 0) : __Func(address) { }
 
     Reflect(Reflect && arg)
-    { __init(std::forward<Reflect>(arg)); }
+    { __init(forward<Reflect>(arg)); }
     Reflect(const Reflect &arg)
     { __init(arg); }
 

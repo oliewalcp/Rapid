@@ -1,9 +1,9 @@
 #include "Core/Stack.h"
 
 template<typename T>
-rapid::Stack<T>::Stack(const Stack &arg) : __Size(0), __Top(nullptr)
+rapid::Stack<T>::Stack(const Stack &arg) : _M_size(0), _M_top(nullptr)
 {
-    Node *n = arg.__Top;
+    Node *n = arg._M_top;
     while(n != nullptr)
     {
         push(n->Data->const_ref_content());
@@ -15,32 +15,32 @@ template<typename T>
 void rapid::Stack<T>::pop()
 {
     if(empty()) return;
-    Node *n = __Top;
-    __Top = __Top->Next;
+    Node *n = _M_top;
+    _M_top = _M_top->Next;
     delete n;
-    __add_size(-1);
+    _F_add_size(-1);
 }
 
 template<typename T>
 void rapid::Stack<T>::clear()
 {
-    Node *n = __Top;
+    Node *n = _M_top;
     while(n != nullptr)
     {
         Node *temp = n;
         n = n->Next;
         delete temp;
     }
-    __Size = 0;
+    _M_size = 0;
 }
 
 template<typename T>
-void rapid::Stack<T>::__push(ConstReference arg)
+void rapid::Stack<T>::_F_push(ConstReference arg)
 {
-    Node *n = __construct_node(arg);
-    n->Next = __Top;
-    __Top = n;
-    __add_size(1);
+    Node *n = _F_construct_node(arg);
+    n->Next = _M_top;
+    _M_top = n;
+    _F_add_size(1);
 }
 
 #ifndef NDEBUG

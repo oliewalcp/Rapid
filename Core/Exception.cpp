@@ -3,7 +3,7 @@
 using namespace rapid;
 
 const char *Exception::what()
-{ return _reason; }
+{ return _M_reason; }
 
 const char *IndexOutOfArrayException::what()
 { return _reason; }

@@ -47,19 +47,26 @@ void rapid::gb2312_to_zone_bit_code(unsigned char *result, const char *code)
 #ifdef _WIN32
 #include <windows.h>
 
-wchar_t* rapid::to_wchar(const char *str)
+size_t rapid::utf8_len(const char *ansi)
 {
-    if(str == nullptr) return nullptr;
-    unsigned long long len = static_cast<unsigned long long>(MultiByteToWideChar(CP_UTF8, 0, str, -1, nullptr, 0));
+    if(ansi == nullptr)
+        return 0;
+    size_t len = static_cast<size_t>(MultiByteToWideChar(CP_UTF8, 0, ansi, -1, nullptr, 0));
+    return len;
+}
+wchar_t* rapid::to_utf8(const char *ansi)
+{
+    if(ansi == nullptr) return nullptr;
+    size_t len = static_cast<size_t>(MultiByteToWideChar(CP_UTF8, 0, ansi, -1, nullptr, 0));
     wchar_t *wstr = new wchar_t[len + 1];
     mem_clear(wstr, static_cast<unsigned long>((len + 1) * sizeof(wchar_t)));
-    MultiByteToWideChar(CP_UTF8, 0, str, -1, wstr, static_cast<int>(len));
+    MultiByteToWideChar(CP_UTF8, 0, ansi, -1, wstr, static_cast<int>(len));
     return wstr;
 }
 
-char* rapid::utf8_to_gb2312(const char *utf8)
+char* rapid::to_ansi(const char *utf8)
 {
-    wchar_t *wstr = to_wchar(utf8);
+    wchar_t *wstr = to_utf8(utf8);
     unsigned long long len = static_cast<unsigned long long>(WideCharToMultiByte(CP_ACP, 0, wstr, -1, nullptr, 0, nullptr, nullptr));
     char *str = new char[len + 1];
     mem_clear(str, static_cast<unsigned long>(len + 1));
@@ -68,3 +75,4 @@ char* rapid::utf8_to_gb2312(const char *utf8)
     return str;
 }
 #endif
+

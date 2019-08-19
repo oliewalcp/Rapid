@@ -8,15 +8,18 @@ class SharedPointer
 {
 private:
     using Type = T;
-    using ConstReference = const Type&;
+    using ConstReference = const Type &;
     using RvalueReference = Type &&;
+    using Pointer = Type *;
 
-public:
+
     SharedPointer();
-    SharedPointer(SharedPointer<T> &sp);
-    SharedPointer(SharedPointer<T> &&sp);
+public:
+    SharedPointer(SharedPointer &sp);
+    SharedPointer(SharedPointer &&sp);
 
-    static SharedPointer make_shared();
+    template<typename ... Args>
+    static SharedPointer make_shared(Args ...);
 };
 
 }

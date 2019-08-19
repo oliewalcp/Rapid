@@ -21,4 +21,9 @@
 
 #define un_use(x) (void)x
 
+namespace rapid
+{
+    using size_t = decltype(sizeof(int));
+}
+
 #endif // VERSION_H

@@ -2,6 +2,7 @@
 #define DOUBLELINKEDLIST_H
 
 #include "Memory.h"
+#include "TypeTraits.h"
 
 namespace rapid
 {
@@ -12,204 +13,208 @@ class DoubleLinkedList
 public:
     class iterator;
     class reverse_iterator;
+
+    using ValueType = T;
+    using Pointer = ValueType*;
+    using Reference = ValueType&;
+    using ConstReference = const ValueType &;
+    using RvalueReference = ValueType&&;
+    using SizeType = size_t;
+
+    using const_iterator = iterator;
+    using const_reverse_iterator = const reverse_iterator;
 private:
-    using Type = T;
-    using Pointer = Type*;
-    using Reference = Type&;
-    using ConstReference = const Type &;
-    using RvalueReference = Type&&;
-    using SizeType = long;
 
     struct Node
     {
-        NodeBase<Type> *Data;
+        NodeBase<ValueType> *Data;
         Node *Next;
         Node *Previous;
-        Node(ConstReference arg, Node *n = nullptr, Node *p = nullptr) : Data(new NodeBase<Type>(arg)), Next(n), Previous(p) { }
+        Node(ConstReference arg, Node *n = nullptr, Node *p = nullptr) : Data(new NodeBase<ValueType>(arg)), Next(n), Previous(p) { }
         ~Node() { delete Data; }
     };
-    Node *__Head;
-    Node *__Tail;
-    SizeType __Size;
+    Node *_M_head;
+    Node *_M_tail;
+    SizeType _M_size;
 
-    inline Node* __construct_node(ConstReference arg, Node *n = nullptr, Node *p = nullptr) { return new Node(arg, n, p); }
-    inline void __add_size(SizeType i) { __Size += i; }
-    void __create_list(ConstReference arg);
-    void __create_list(Node *n);
-    inline void __initialize(Node *n)
-    { __Tail = __Head = n; }
-    void __insert(const iterator &it, ConstReference arg);
-    void __erase(const iterator &it);
-    iterator __find(ConstReference arg);
+    inline Node* _F_construct_node(ConstReference arg, Node *n = nullptr, Node *p = nullptr) { return new Node(arg, n, p); }
+    inline void _F_add_size(SizeType i) { _M_size += i; }
+    void _F_create_list(ConstReference arg);
+    void _F_create_list(Node *n);
+    inline void _F_initialize(Node *n)
+    { _M_tail = _M_head = n; }
+    void _F_insert(const iterator &it, ConstReference arg);
+    void _F_erase(const iterator &it);
+    iterator _F_find(ConstReference arg);
 
 public:
 
     class iterator
     {
     private:
-        Node *__Current;
+        Node *_M_current;
 
         friend class DoubleLinkedList;
 
-        inline void __set(const iterator &it)
-        { __Current = it.__Current; }
+        inline void _M_set(const iterator &it)
+        { _M_current = it._M_current; }
 
-        iterator(Node *n) : __Current(n) { }
+        iterator(Node *n) : _M_current(n) { }
     public:
-        iterator() : __Current(nullptr) { }
-        iterator(const iterator &it) { __set(it); }
-        iterator(iterator && it) { __set(std::forward<iterator>(it)); }
+        iterator() : _M_current(nullptr) { }
+        iterator(const iterator &it) { _M_set(it); }
+        iterator(iterator && it) { _M_set(forward<iterator>(it)); }
 
         iterator operator=(const iterator &it)
-        { __set(it); }
+        { _M_set(it); }
         iterator operator++()
         {
-            if(__Current != nullptr)
-            { __Current = __Current->Next; }
+            if(_M_current != nullptr)
+            { _M_current = _M_current->Next; }
             return *this;
         }
         iterator operator++(int)
         {
             iterator it = *this;
-            if(__Current != nullptr)
-            { __Current = __Current->Next; }
+            if(_M_current != nullptr)
+            { _M_current = _M_current->Next; }
             return it;
         }
         iterator operator--()
         {
-            if(__Current != nullptr && __Current->Previous != nullptr)
-            { __Current = __Current->Previous; }
+            if(_M_current != nullptr && _M_current->Previous != nullptr)
+            { _M_current = _M_current->Previous; }
             return *this;
         }
         iterator operator--(int)
         {
             iterator it = *this;
-            if(__Current != nullptr && __Current->Previous != nullptr)
-            { __Current = __Current->Previous; }
+            if(_M_current != nullptr && _M_current->Previous != nullptr)
+            { _M_current = _M_current->Previous; }
             return it;
         }
-        Type operator*() const
-        { return __Current->Data->content(); }
+        ValueType operator*() const
+        { return _M_current->Data->content(); }
 
-        Type* operator->() const
-        { return &__Current->Data->address(); }
+        ValueType* operator->() const
+        { return &_M_current->Data->address(); }
 
         bool operator==(const iterator& arg) const
-        { return __Current == arg.__Current; }
+        { return _M_current == arg._M_current; }
         bool operator!=(const iterator& arg) const
-        { return __Current != arg.__Current; }
+        { return _M_current != arg._M_current; }
     };
 
     class reverse_iterator
     {
     private:
-        Node *__Current;
+        Node *_M_current;
 
         friend class DoubleLinkedList;
 
         inline void __set(Node *n)
-        { __Current = n; }
+        { _M_current = n; }
         inline void __set(const reverse_iterator &it)
-        { __set(it.__Current); }
+        { __set(it._M_current); }
 
-        reverse_iterator(Node *n) : __Current(n) { }
+        reverse_iterator(Node *n) : _M_current(n) { }
     public:
         reverse_iterator(const reverse_iterator &it) { __set(it); }
-        reverse_iterator(reverse_iterator && it) { __set(std::forward<reverse_iterator>(it)); }
+        reverse_iterator(reverse_iterator && it) { __set(forward<reverse_iterator>(it)); }
 
         reverse_iterator operator++()
         {
-            if(__Current != nullptr)
-            { __Current = __Current->Previous; }
+            if(_M_current != nullptr)
+            { _M_current = _M_current->Previous; }
             return *this;
         }
         reverse_iterator operator++(int)
         {
             reverse_iterator it = *this;
-            if(__Current != nullptr)
-            { __Current = __Current->Previous; }
+            if(_M_current != nullptr)
+            { _M_current = _M_current->Previous; }
             return it;
         }
         reverse_iterator operator--()
         {
-            if(__Current != nullptr && __Current->Next != nullptr)
-            { __Current = __Current->Next; }
+            if(_M_current != nullptr && _M_current->Next != nullptr)
+            { _M_current = _M_current->Next; }
             return *this;
         }
         reverse_iterator operator--(int)
         {
             reverse_iterator it = *this;
-            if(__Current != nullptr && __Current->Next != nullptr)
-            { __Current = __Current->Next; }
+            if(_M_current != nullptr && _M_current->Next != nullptr)
+            { _M_current = _M_current->Next; }
             return it;
         }
-        Type operator*() const
-        { return __Current->Data->content(); }
+        ValueType operator*() const
+        { return _M_current->Data->content(); }
 
-        Type* operator->() const
-        { return &__Current->Data->address(); }
+        ValueType* operator->() const
+        { return &_M_current->Data->address(); }
 
         bool operator==(const reverse_iterator& arg) const
-        { return __Current == arg.__Current; }
+        { return _M_current == arg._M_current; }
         bool operator!=(const reverse_iterator& arg) const
-        { return __Current != arg.__Current; }
+        { return _M_current != arg._M_current; }
     };
 
-    DoubleLinkedList() : __Head(nullptr), __Tail(nullptr), __Size(0) { }
-    DoubleLinkedList(const DoubleLinkedList<Type> &dll);
+    DoubleLinkedList() : _M_head(nullptr), _M_tail(nullptr), _M_size(0) { }
+    DoubleLinkedList(const DoubleLinkedList<ValueType> &dll);
     virtual ~DoubleLinkedList() { clear(); }
 
     inline SizeType size()
-    { return __Size; }
+    { return _M_size; }
     inline bool empty()
-    { return __Size == 0; }
+    { return _M_size == 0; }
 
     inline void push_back(ConstReference arg)
     { insert(end(), arg); }
     inline void push_back(RvalueReference arg)
-    { insert(end(), std::forward<Type>(arg)); }
+    { insert(end(), forward<ValueType>(arg)); }
 
     inline void push_front(ConstReference arg)
     { insert(begin(), arg); }
     inline void push_front(RvalueReference arg)
-    { insert(begin(), std::forward<Type>(arg)); }
+    { insert(begin(), forward<ValueType>(arg)); }
 
     inline void pop_back()
-    { erase(iterator(__Tail)); }
+    { erase(iterator(_M_tail)); }
     inline void pop_front()
-    { erase(iterator(__Head)); }
+    { erase(iterator(_M_head)); }
 
     inline void erase(iterator &it)
-    { __erase(it); }
+    { _F_erase(it); }
     inline void erase(iterator && it)
-    { __erase(std::forward<iterator>(it)); }
+    { _F_erase(forward<iterator>(it)); }
     inline void insert(iterator &it, ConstReference arg)
-    { __insert(it, arg); }
+    { _F_insert(it, arg); }
     inline void insert(iterator && it, ConstReference arg)
-    { __insert(std::forward<iterator>(it), arg); }
+    { _F_insert(forward<iterator>(it), arg); }
     inline void insert(iterator &it, RvalueReference arg)
-    { __insert(it, std::forward<Type>(arg)); }
+    { _F_insert(it, forward<ValueType>(arg)); }
     inline void insert(iterator && it, RvalueReference arg)
-    { __insert(std::forward<iterator>(it), std::forward<Type>(arg)); }
+    { _F_insert(forward<iterator>(it), forward<ValueType>(arg)); }
 
     void clear();
 
     iterator begin()
-    { return iterator(__Head); }
+    { return iterator(_M_head); }
     iterator end()
-    { return iterator(__Tail == nullptr ? nullptr : __Tail->Next); }
+    { return iterator(_M_tail == nullptr ? nullptr : _M_tail->Next); }
     reverse_iterator rbegin()
-    { return reverse_iterator(__Tail); }
+    { return reverse_iterator(_M_tail); }
     reverse_iterator rend()
-    { return reverse_iterator(__Head == nullptr ? nullptr : __Head->Previous); }
+    { return reverse_iterator(_M_head == nullptr ? nullptr : _M_head->Previous); }
 
-    Type front();
-    Type back();
+    ValueType front();
+    ValueType back();
 
     inline iterator find(ConstReference arg)
-    { return __find(arg); }
+    { return _F_find(arg); }
     inline iterator find(RvalueReference arg)
-    { return __find(std::forward<Type>(arg)); }
+    { return _F_find(forward<ValueType>(arg)); }
 
 };
 
@@ -218,10 +223,6 @@ using Dlist = DoubleLinkedList<T>;
 
 template<typename T>
 using List = DoubleLinkedList<T>;
-
-#ifndef NDEBUG
-void test_DoubleLinkedList_main();
-#endif
 
 };
 #endif // DOUBLELINKEDLIST_H

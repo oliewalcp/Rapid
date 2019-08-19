@@ -25,48 +25,48 @@ private:
     using MatrixRef = Matrix<_Tp>&;
     using RvalueMatrixRef = Matrix<_Tp> &&;
 protected:
-    DataType **_Data = nullptr;
-    SizeType _Row = 0;
-    SizeType _Column = 0;
+    DataType **_M_data = nullptr;
+    SizeType _M_row = 0;
+    SizeType _M_column = 0;
 
-    void _copy(MatrixRef m);
-    void _resize(SizeType r, SizeType c);
-    void _construct_default(SizeType r, SizeType c, ConstReference v);
-    void _set_value(SizeType r, SizeType c, ConstReference v)
-    { _Data[r][c].ref_content() = v; }
-    void _multiply(MatrixRef m);
-    void _multiply(SizeType r, ConstReference n);
-    void _add(MatrixRef m);
-    void _filter(MatrixRef m);
+    void _F_copy(MatrixRef m);
+    void _F_resize(SizeType r, SizeType c);
+    void _F_construct_default(SizeType r, SizeType c, ConstReference v);
+    void _F_set_value(SizeType r, SizeType c, ConstReference v)
+    { _M_data[r][c].ref_content() = v; }
+    void _F_multiply(MatrixRef m);
+    void _F_multiply(SizeType r, ConstReference n);
+    void _F_add(MatrixRef m);
+    void _F_filter(MatrixRef m);
 
     static void _clear(DataType **mem, SizeType r);
-    static Matrix<_Tp>* _multiply(MatrixRef m1, MatrixRef m2);
+    static Matrix<_Tp>* _F_multiply(MatrixRef m1, MatrixRef m2);
 public:
     Matrix(SizeType r = 1, SizeType c = 1)
-    { _resize(r, c); }
+    { _F_resize(r, c); }
     Matrix(SizeType r, SizeType c, ConstReference default_value)
-    { _construct_default(r, c, default_value); }
+    { _F_construct_default(r, c, default_value); }
     Matrix(SizeType r, SizeType c, RvalueReference default_value)
-    { _construct_default(r, c, std::forward<Type>(default_value)); }
+    { _F_construct_default(r, c, std::forward<Type>(default_value)); }
     Matrix(MatrixRef m)
-    { _copy(m); }
+    { _F_copy(m); }
     Matrix(RvalueMatrixRef m)
-    { _copy(std::forward<Matrix<_Tp>>(m)); }
+    { _F_copy(std::forward<Matrix<_Tp>>(m)); }
     Matrix(std::initializer_list<std::initializer_list<Type>> m);
     virtual ~Matrix() { }
 
     void set_value(SizeType r, SizeType c, ConstReference v)
-    { _set_value(r, c, v); }
+    { _F_set_value(r, c, v); }
     void set_value(SizeType r, SizeType c, RvalueReference v)
-    { _set_value(r, c, std::forward<Type>(v)); }
+    { _F_set_value(r, c, std::forward<Type>(v)); }
 
     Type get_value(SizeType r, SizeType c)
-    { return _Data[r][c].content(); }
+    { return _M_data[r][c].content(); }
 
     SizeType row()
-    { return _Row; }
+    { return _M_row; }
     SizeType column()
-    { return _Column; }
+    { return _M_column; }
 
     void T();
 
@@ -75,45 +75,45 @@ public:
      * param[n]: given value
      */
     void multiply(SizeType r, ConstReference n)
-    { _multiply(r, n); }
+    { _F_multiply(r, n); }
     void multiply(SizeType r, RvalueReference n)
-    { _multiply(r, std::forward<Type>(n)); }
+    { _F_multiply(r, std::forward<Type>(n)); }
     void multiply(MatrixRef m)
-    { _multiply(m); }
+    { _F_multiply(m); }
     void multiply(RvalueMatrixRef m)
-    { _multiply(std::forward<Matrix<_Tp>>(m)); }
+    { _F_multiply(std::forward<Matrix<_Tp>>(m)); }
 
     void add(const Matrix &m)
-    { _add(m); }
+    { _F_add(m); }
     void add(Matrix &&m)
-    { _add(std::forward<Matrix<_Tp>>(m)); }
+    { _F_add(std::forward<Matrix<_Tp>>(m)); }
 
     void filter(MatrixRef m)
-    { _filter(m); }
+    { _F_filter(m); }
     void filter(RvalueMatrixRef m)
-    { _filter(std::forward<Matrix<_Tp>>(m)); }
+    { _F_filter(std::forward<Matrix<_Tp>>(m)); }
 
     void power(SizeType p);
 
     // need call by manual
     void clear()
-    { _clear(_Data, row()); }
+    { _clear(_M_data, row()); }
 
     static Matrix<_Tp>* multiply(MatrixRef m1, MatrixRef m2)
-    { return _multiply(m1, m2); }
+    { return _F_multiply(m1, m2); }
     static Matrix<_Tp>* multiply(MatrixRef m1, RvalueMatrixRef m2)
-    { return _multiply(m1, std::forward<Matrix<_Tp>>(m2)); }
+    { return _F_multiply(m1, std::forward<Matrix<_Tp>>(m2)); }
     static Matrix<_Tp>* multiply(RvalueMatrixRef m1, MatrixRef m2)
-    { return _multiply(std::forward<Matrix<_Tp>>(m1), m2); }
+    { return _F_multiply(std::forward<Matrix<_Tp>>(m1), m2); }
     static Matrix<_Tp>* multiply(RvalueMatrixRef m1, RvalueMatrixRef m2)
-    { return _multiply(std::forward<Matrix<_Tp>>(m1), std::forward<Matrix<_Tp>>(m2)); }
+    { return _F_multiply(std::forward<Matrix<_Tp>>(m1), std::forward<Matrix<_Tp>>(m2)); }
 
     // copy [m]'s data reference to [this]
     void copy_from(MatrixRef m)
     { 
-        _Data = m._Data;
-        _Row = m._Row;
-        _Column = m._Column;
+        _M_data = m._M_data;
+        _M_row = m._M_row;
+        _M_column = m._M_column;
     }
     void swap(MatrixRef m)
     { 
@@ -129,9 +129,9 @@ public:
     }
 
     Matrix<_Tp>* operator*(MatrixRef m)
-    { return _multiply(*this, m); }
+    { return _F_multiply(*this, m); }
     Matrix<_Tp>* operator*(RvalueMatrixRef m)
-    { return _multiply(*this, std::forward<Matrix<_Tp>>(m)); }
+    { return _F_multiply(*this, std::forward<Matrix<_Tp>>(m)); }
 
     Matrix<_Tp>* operator*=(MatrixRef m)
     {
@@ -145,34 +145,34 @@ public:
     }
     MatrixRef operator=(MatrixRef m)
     {
-        _copy(m);
+        _F_copy(m);
         return *this;
     }
     MatrixRef operator=(RvalueMatrixRef m)
     {
-        _copy(std::forward<Matrix<_Tp>>(m));
+        _F_copy(std::forward<Matrix<_Tp>>(m));
         return *this;
     }
     Matrix<_Tp>* operator+(MatrixRef m)
     {
         Matrix<_Tp> *temp = new Matrix<_Tp>(*this);
-        temp->_add(m);
+        temp->_F_add(m);
         return temp;
     }
     Matrix<_Tp>* operator+(RvalueMatrixRef m)
     {
         Matrix<_Tp> *temp = new Matrix<_Tp>(*this);
-        temp->_add(std::forward<Matrix<_Tp>>(m));
+        temp->_F_add(std::forward<Matrix<_Tp>>(m));
         return temp;
     }
     MatrixRef operator+=(MatrixRef m)
     {
-        _add(m);
+        _F_add(m);
         return *this;
     }
     MatrixRef operator+=(RvalueMatrixRef m)
     {
-        _add(std::forward<Matrix<_Tp>>(m));
+        _F_add(std::forward<Matrix<_Tp>>(m));
         return *this;
     }
 

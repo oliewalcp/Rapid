@@ -11,12 +11,15 @@ namespace rapid
 template<typename T = int>
 class Range
 {
+public:
+    class iterator;
 private:
     using ValueType = T;
-    using Type = typename RemoveReference<T>::type;
     using ConstReference = const ValueType &;
 
-    ValueType __Start, __End;// not contain [__End]
+    using const_iterator = const iterator;
+
+    ValueType _M_start, _M_end;// not contain [__End]
 
 public:
     class iterator
@@ -33,7 +36,7 @@ public:
     public:
         iterator(const iterator &it) : __Current(*it) { }
         iterator(iterator && it)
-        { __init(std::forward<iterator>(it)); }
+        { __init(forward<iterator>(it)); }
 
         ValueType operator+(const ValueType arg)
         { return __Current += arg; }
@@ -62,21 +65,11 @@ public:
         { return __Current != arg.__Current; }
     };
 
-    Range(ValueType s, ValueType e) : __Start(s), __End(e) { }
+    Range(ValueType s, ValueType e) : _M_start(s), _M_end(e) { }
 
-    iterator begin() { return iterator(__Start); }
-    iterator end() { return iterator(__End); }
+    iterator begin() { return iterator(_M_start); }
+    iterator end() { return iterator(_M_end); }
 };
-
-#ifndef NDEBUG
-void test_Range_main()
-{
-    for(int i : Range<int>(1, 10))
-    {
-        std::cout << i << std::endl;
-    }
-}
-#endif
 
 };
 

@@ -2,6 +2,7 @@
 #define STACK_H
 
 #include "Memory.h"
+#include "TypeTraits.h"
 
 namespace rapid
 {
@@ -24,45 +25,41 @@ private:
         ~Node() { delete Data; }
     };
 
-    SizeType __Size;
-    Node *__Top;
+    SizeType _M_size;
+    Node *_M_top;
 
-    void __push(ConstReference arg);
+    void _F_push(ConstReference arg);
 
-    inline Node* __construct_node(ConstReference arg)
+    inline Node* _F_construct_node(ConstReference arg)
     { return new Node(arg); }
 
-    inline void __add_size(SizeType arg)
-    { __Size += arg; }
+    inline void _F_add_size(SizeType arg)
+    { _M_size += arg; }
 public:
-    Stack() : __Size(0), __Top(nullptr) { }
+    Stack() : _M_size(0), _M_top(nullptr) { }
     Stack(const Stack &arg);
 
     ~Stack()
     { clear(); }
 
     inline SizeType size()
-    { return __Size; }
+    { return _M_size; }
 
     inline bool empty()
     { return size() == 0; }
 
     inline void push(ConstReference arg)
-    { __push(arg); }
+    { _F_push(arg); }
 
     inline void push(RvalueReference arg)
-    { __push(std::forward<Type>(arg)); }
+    { _F_push(forward<Type>(arg)); }
 
     inline Type top()
-    { return __Top->Data->content(); }
+    { return _M_top->Data->content(); }
 
     void pop();
     void clear();
 };
-
-#ifndef NDEBUG
-void test_Stack_main();
-#endif
 
 };
 
