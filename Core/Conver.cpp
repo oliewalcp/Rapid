@@ -1,5 +1,4 @@
 #include "Conver.h"
-
 #include "Memory.h"
 
 unsigned char rapid::hex_to_int(const char arg)

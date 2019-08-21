@@ -179,6 +179,7 @@ public:
 
 };
 
+void test_Matrix_main();
 
 };
 

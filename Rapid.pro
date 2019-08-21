@@ -27,13 +27,6 @@ SOURCES += \
     Gui/Label.cpp \
     Gui/Widget.cpp \
     Image/ImageBase.cpp \
-    Test/TestDoubleLinkedList.cpp \
-    Test/TestMatrix.cpp \
-    Test/TestMemory.cpp \
-    Test/TestRange.cpp \
-    Test/TestSingleLinkedList.cpp \
-    Test/TestStack.cpp \
-    Test/TestVector.cpp \
         main.cpp \
     Core/Memory.cpp
 
@@ -59,5 +52,4 @@ HEADERS += \
     Gui/GuiConfig.h \
     Gui/Label.h \
     Gui/Widget.h \
-    Image/ImageBase.h \
-    Test/TestCase.h
+    Image/ImageBase.h

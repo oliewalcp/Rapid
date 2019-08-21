@@ -87,18 +87,19 @@ void rapid::mem_clear(void *dst, const size_type size)
 void rapid::mem_scopy(void *dst, void *src, const size_type size)
 {
     null_return2(dst, src);
+    unsigned long copy_size = static_cast<unsigned long>(size);
     char *d = reinterpret_cast<char *>(dst), *s = reinterpret_cast<char *>(src);
     if(address_to_integer(dst) > address_to_integer(src))
     {
-        if(address_to_integer(src) + size < address_to_integer(dst))
-        { mem_backward(s, size, address_to_integer(dst) - address_to_integer(src)); }
+        if(address_to_integer(src) + copy_size < address_to_integer(dst))
+        { mem_backward(s, size, static_cast<size_type>(address_to_integer(dst) - address_to_integer(src))); }
         else
         { mem_copy(d, s, size); }
     }
     else if(address_to_integer(dst) < address_to_integer(src))
     {
-        if(address_to_integer(dst) + size < address_to_integer(src))
-        { mem_forward(s, size, address_to_integer(src) - address_to_integer(dst)); }
+        if(address_to_integer(dst) + copy_size < address_to_integer(src))
+        { mem_forward(s, size, static_cast<size_type>(address_to_integer(src) - address_to_integer(dst))); }
         else
         { mem_copy(d, s, size); }
     }
@@ -112,6 +113,11 @@ void rapid::mem_backward(void *begin, const size_type size, const size_type move
 void rapid::mem_forward(void *begin, const size_type size, const size_type move_distance)
 {
     mem_copy(reinterpret_cast<char *>(begin) - move_distance, reinterpret_cast<char *>(begin), size);
+}
+
+void rapid::mem_move(void *dst, void *src, const rapid::size_type size)
+{
+    mem_scopy(dst, src, size);
 }
 
 int rapid::mem_compare(void *arg1, void *arg2, const size_type size)
@@ -165,5 +171,50 @@ void rapid::mem_swap(void *arg1, void *arg2, const size_type size)
 
 unsigned long rapid::address_to_integer(const void *a)
 {
-    return reinterpret_cast<const unsigned long &>(a);
+    return const_cast<unsigned long&>(reinterpret_cast<const unsigned long &>(a));
 }
+
+#include <iostream>
+#include "Core/Range.h"
+template<typename T>
+static void print(const T *arg, const int size)
+{
+    for(int i : rapid::Range<T>(0, size))
+    {
+        std::cout << arg[i] << " ";
+    }
+    std::cout << std::endl;
+}
+
+void rapid::test_Memory_main()
+{
+    using TestType = int;
+    constexpr TestType alen = 6, blen = 8, clen = 10;
+    TestType *a = new TestType[alen]{1, 2, 3, 4, 5, 6};
+    TestType *b = new TestType[blen];
+    TestType *c = new TestType[clen]{0};
+    std::cout << "---------------start-------------" << std::endl;
+    print(b, blen);
+    std::cout << "---------------mem_clear-------------" << std::endl;
+    mem_clear(b, blen * sizeof(TestType));
+    print(b, blen);
+    std::cout << "-------------mem_copy---------------" << std::endl;
+    mem_copy(b, a, alen * sizeof(TestType));
+    print(b, blen);
+    std::cout << "--------------mem_backward--------------" << std::endl;
+    mem_backward(b, (blen - 2) * sizeof(TestType), 2 * sizeof(TestType));
+    print(b, blen);
+    std::cout << "------------mem_forward----------------" << std::endl;
+    mem_forward(reinterpret_cast<char *>(b) + 4, (blen - 1) * sizeof(TestType), 1 * sizeof(TestType));
+    print(b, blen);
+    std::cout << "------------mem_scopy----------------" << std::endl;
+    mem_scopy(c, a, alen * sizeof(TestType));
+    print(c, clen);
+    std::cout << "***************************" << std::endl;
+    mem_scopy(c, reinterpret_cast<char *>(c) + 12, 20);
+    print(c, clen);
+    delete[] a;
+    delete[] b;
+    delete[] c;
+}
+

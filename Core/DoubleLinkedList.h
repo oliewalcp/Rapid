@@ -162,7 +162,7 @@ public:
 
     DoubleLinkedList() : _M_head(nullptr), _M_tail(nullptr), _M_size(0) { }
     DoubleLinkedList(const DoubleLinkedList<ValueType> &dll);
-    virtual ~DoubleLinkedList() { clear(); }
+    virtual ~DoubleLinkedList();
 
     inline SizeType size()
     { return _M_size; }
@@ -224,5 +224,6 @@ using Dlist = DoubleLinkedList<T>;
 template<typename T>
 using List = DoubleLinkedList<T>;
 
+void test_DoubleLinkedList_main();
 };
 #endif // DOUBLELINKEDLIST_H

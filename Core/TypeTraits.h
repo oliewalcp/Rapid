@@ -95,6 +95,7 @@ const T& add_const(T &arg)
 template<typename T>
 const T&& add_const(T &&arg)
 { return const_cast<const T&&>(arg); }
+
 // copy from standard library
 template<typename T>
 constexpr T&& forward(typename RemoveReference<T>::type &arg)

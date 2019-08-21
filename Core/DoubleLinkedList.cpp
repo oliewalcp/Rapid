@@ -72,6 +72,12 @@ typename rapid::DoubleLinkedList<T>::iterator rapid::DoubleLinkedList<T>::_F_fin
 }
 
 template<typename T>
+rapid::DoubleLinkedList<T>::~DoubleLinkedList()
+{
+    clear();
+}
+
+template<typename T>
 rapid::DoubleLinkedList<T>::DoubleLinkedList(const DoubleLinkedList<T> &dll) : _M_head(nullptr), _M_tail(nullptr), _M_size(0)
 {
     for(Node *n = dll._M_head; n != nullptr; n = n->Next)

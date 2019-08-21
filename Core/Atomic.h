@@ -3,6 +3,7 @@
 
 #include "Version.h"
 #include "TypeTraits.h"
+#include <iostream>
 
 namespace rapid
 {

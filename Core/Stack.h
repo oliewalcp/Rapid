@@ -61,6 +61,7 @@ public:
     void clear();
 };
 
+void test_Stack_main();
 };
 
 #endif // STACK_H

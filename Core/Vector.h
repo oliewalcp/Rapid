@@ -40,7 +40,7 @@ public:
     {
     private:
         SizeType _M_current_index;
-        SizeType _M_max_index;// contained
+        SizeType _M_max_index;// not contained
         Type *_M_data;
 
         friend class Vector;
@@ -53,17 +53,17 @@ public:
         }
         void _F_next()
         {
-            if(_M_current_index >= _M_max_index)
-            { _M_current_index = _M_max_index + 1; }
-            else
+            if(_M_current_index >= 0 && _M_current_index < _M_max_index)
             { _M_current_index++; }
+            else
+            { _M_current_index = _M_max_index; }
         }
         void _F_previous()
         {
-            if(_M_current_index <= 0)
-            { _M_current_index = _M_max_index + 1; }
-            else
+            if(_M_current_index >= 0 && _M_current_index < _M_max_index)
             { _M_current_index--; }
+            else
+            { _M_current_index = _M_max_index; }
         }
 
         iterator(const SizeType n, const SizeType max, Type *start)
@@ -144,17 +144,17 @@ public:
         }
         void _F_next()
         {
-            if(_M_current_index <= 0)
-            { _M_current_index = _M_max_index + 1; }
-            else
+            if(_M_current_index >= 0 && _M_current_index < _M_max_index)
             { _M_current_index--; }
+            else
+            { _M_current_index = _M_max_index; }
         }
         void _F_previous()
         {
-            if(_M_current_index >= _M_max_index)
-            { _M_current_index = _M_max_index + 1; }
-            else
+            if(_M_current_index >= 0 && _M_current_index < _M_max_index)
             { _M_current_index++; }
+            else
+            { _M_current_index = _M_max_index; }
         }
 
         reverse_iterator(const SizeType n, const SizeType max = 0, Type *start = nullptr)
@@ -231,16 +231,16 @@ public:
     { return _M_data[index].const_ref_content(); }
 
     iterator begin()
-    { return iterator(0, _M_size - 1, _M_data[0].address()); }
+    { return iterator(0, _M_size, _M_data[0].address()); }
     iterator end()
-    { return iterator(_M_size, _M_size - 1, _M_data[0].address()); }
+    { return iterator(_M_size, _M_size, _M_data[0].address()); }
 //    const iterator begin()
 //    { return iterator(0, _Size - 1, _Data[0].address()); }
 
     reverse_iterator rbegin()
-    { return reverse_iterator(_M_size - 1, _M_size - 1, _M_data[0].address()); }
+    { return reverse_iterator(_M_size - 1, _M_size, _M_data[0].address()); }
     reverse_iterator rend()
-    { return reverse_iterator(-1, _M_size - 1, _M_data[0].address()); }
+    { return reverse_iterator(-1, _M_size, _M_data[0].address()); }
 
     Reference back()
     { return _M_data[size() - 1].ref_content(); }
@@ -277,6 +277,7 @@ public:
     iterator find(Type arg);
 };
 
+void test_Vector_main();
 };
 
 #endif // VECTOR_H

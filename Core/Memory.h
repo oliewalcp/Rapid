@@ -49,6 +49,12 @@ void mem_backward(void *begin, const size_type size, const size_type move_distan
  */
 void mem_forward(void *begin, const size_type size, const size_type move_distance);
 
+/* copy [size] memory from [src] to [dst]
+ * param[dst]: the begin pos of the destination memory
+ * param[src]: the begin pos of the source memory
+ * param[size]: the size required to copy
+ */
+void mem_move(void *dst, void *src, const size_type size);
 /* compare two memory spaces
  * param[arg1]: memory pointer to be compared
  * param[arg2]: memory pointer to be compared
@@ -99,6 +105,8 @@ public:
     void clear()
     { mem_clear(address(), sizeof(NodeBase<T>)); }
 };
+
+void test_Memory_main();
 
 };
 

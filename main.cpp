@@ -1,7 +1,8 @@
-#include "Core/RapidConfig.h"
+#include "Core/Vector.h"
 using namespace rapid;
 
 int main()
 {
+    test_Vector_main();
     return 0;
 }

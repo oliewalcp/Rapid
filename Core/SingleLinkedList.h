@@ -150,5 +150,6 @@ template<typename T>
 using Slist = SingleLinkedList<T>;
 
 
+void test_SingleLinkedList_main();
 };
 #endif // SINGLELINKEDLIST_H
