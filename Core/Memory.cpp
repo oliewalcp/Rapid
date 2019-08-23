@@ -5,8 +5,8 @@ using uint32 = unsigned int;
 using uint16 = unsigned short;
 using uint8 = unsigned char;
 
-#define null_return1(a) if(a == nullptr) return;
-#define null_return2(a, b) if(a == nullptr || b == nullptr) return;
+#define null_return1(a) if((a) == nullptr) return;
+#define null_return2(a, b) if((a) == nullptr || (b) == nullptr) return;
 
 template<typename T>
 static inline void copy_memory(void *dst, void *src)
@@ -52,7 +52,7 @@ void rapid::mem_copy(void *dst, void *src, const size_type size)
     char *d = reinterpret_cast<char *>(dst), *s = reinterpret_cast<char *>(src);
     size_type count = size / 8;
     __mem_copy<uint64>(d, s, count);
-    count = size * 8;
+    count = count * 8;
     __mem_copy<uint8>(d + count, s + count, size % 8);
 }
 

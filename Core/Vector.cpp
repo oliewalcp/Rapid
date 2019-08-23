@@ -1,5 +1,6 @@
 #include "Core/Vector.h"
 #include "Core/Exception.h"
+#include "Core/IO.h"
 #include <iostream>
 
 template<typename T>
@@ -21,11 +22,11 @@ void rapid::Vector<T>::clear()
 template<typename T>
 void rapid::Vector<T>::_F_initialize(SizeType s)
 {
-    NodeBase<Type> *temp = _M_data;
-    _M_data = new NodeBase<Type>[s];
+    NodeBase<ValueType> *temp = _M_data;
+    _M_data = new NodeBase<ValueType>[s];
     if(temp != nullptr)
     {
-        mem_copy(_M_data, temp, size() * sizeof(Type));
+        mem_copy(_M_data, temp, size() > s ? s : size() * sizeof(ValueType));
         delete[] temp;
     }
     _M_capacity = s;
@@ -41,8 +42,8 @@ void rapid::Vector<T>::_F_copy_data(Vector<T> &v)
     }
     if(capacity() > 0)
     {
-        _M_data = new NodeBase<Type>[capacity()];
-        mem_copy(_M_data[0].address(), v._M_data[0].address(), _M_size * sizeof(Type));
+        _M_data = new NodeBase<ValueType>[capacity()];
+        mem_copy(_M_data[0].address(), v._M_data[0].address(), _M_size * sizeof(ValueType));
     }
 }
 
@@ -52,12 +53,10 @@ void rapid::Vector<T>::_F_insert(const iterator &it, ConstReference arg)
     if(size() >= capacity())
     { _F_growth(); }
     if(it == end())
-    {
-        _M_data[size()].construct(arg);
-    }
+    { _M_data[size()].construct(arg); }
     else
     {
-        mem_backward(_M_data[it._M_current_index].address(), (size() - it._M_current_index) * sizeof(Type), sizeof(Type));
+        mem_backward(_M_data[it._M_current_index].address(), (size() - it._M_current_index) * sizeof(ValueType), sizeof(ValueType));
         _M_data[it._M_current_index].construct(arg);
     }
     _F_add_size(1);
@@ -67,7 +66,7 @@ template<typename T>
 void rapid::Vector<T>::_F_erase(const iterator &it)
 {
     if(it == end()) return;
-    mem_forward(_M_data[it._M_current_index + 1].address(), (size() - it._M_current_index) * sizeof(Type), sizeof(Type));
+    mem_forward(_M_data[it._M_current_index + 1].address(), (size() - it._M_current_index) * sizeof(ValueType), sizeof(ValueType));
     _F_add_size(-1);
 }
 
@@ -95,14 +94,16 @@ void rapid::Vector<T>::resize(SizeType s)
     if(s > capacity())
     { _F_initialize(s); }
     else if(s > size())
-    { mem_clear(_M_data[0].address() + size(), (s - size()) * sizeof(Type)); }
+    { mem_clear(_M_data[0].address() + size(), (s - size()) * sizeof(ValueType)); }
     else
-    { mem_clear(_M_data[0].address() + s, (size() - s) * sizeof(Type)); }
-    _M_size = s;
+    {
+        mem_clear(_M_data[0].address() + s, (size() - s) * sizeof(ValueType));
+        _M_size = s;
+    }
 }
 
 template<typename T>
-typename rapid::Vector<T>::iterator rapid::Vector<T>::find(Type arg)
+typename rapid::Vector<T>::iterator rapid::Vector<T>::find(ValueType arg)
 {
     for(SizeType i = 0; i < size(); i++)
     {
@@ -116,7 +117,8 @@ template<typename T>
 static void print_vector(rapid::Vector<T> &v)
 {
     for(T value : v)
-        std::cout << value << std::endl;
+        std::cout << value << " ";
+    std::cout << std::endl;
 }
 void rapid::test_Vector_main()
 {
@@ -156,7 +158,7 @@ void rapid::test_Vector_main()
         std::cout << "the element at index 3 is: " << vec.at(3) << std::endl;
         std::cout << "the element at index 10 is: " << vec.at(10) << std::endl;
     }
-    catch (IndexOutOfArrayException e)
+    catch (IndexOutOfArrayException &e)
     {
         std::cout << e.what() << std::endl;
     }

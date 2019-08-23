@@ -43,7 +43,7 @@ void rapid::gb2312_to_zone_bit_code(unsigned char *result, const char *code)
     result[1] += 0xA0;
 }
 
-#ifdef _WIN32
+#ifdef __WIN32
 #include <windows.h>
 
 rapid::size_type rapid::utf8_len(const char *ansi)

@@ -21,7 +21,7 @@ public:
     using RvalueReference = ValueType&&;
     using SizeType = size_type;
 
-    using const_iterator = iterator;
+    using const_iterator = const iterator;
     using const_reverse_iterator = const reverse_iterator;
 private:
 
@@ -30,7 +30,9 @@ private:
         NodeBase<ValueType> *Data;
         Node *Next;
         Node *Previous;
-        Node(ConstReference arg, Node *n = nullptr, Node *p = nullptr) : Data(new NodeBase<ValueType>(arg)), Next(n), Previous(p) { }
+        Node(ConstReference arg, Node *n = nullptr, Node *p = nullptr)
+            : Data(new NodeBase<ValueType>(arg)), Next(n), Previous(p)
+        { }
         ~Node() { delete Data; }
     };
     Node *_M_head;

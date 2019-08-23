@@ -16,12 +16,12 @@ template<typename _Tp>
 class Matrix
 {
 private:
-    using Type = _Tp;
-    using Reference = Type&;
-    using ConstReference = const Type &;
-    using RvalueReference = Type &&;
+    using ValueType = _Tp;
+    using Reference = ValueType&;
+    using ConstReference = const ValueType &;
+    using RvalueReference = ValueType &&;
     using SizeType = long;
-    using DataType = NodeBase<Type>;
+    using DataType = NodeBase<ValueType>;
 
     using MatrixRef = Matrix<_Tp>&;
     using RvalueMatrixRef = Matrix<_Tp> &&;
@@ -40,28 +40,28 @@ protected:
     void _F_add(MatrixRef m);
     void _F_filter(MatrixRef m);
 
-    static void _clear(DataType **mem, SizeType r);
-    static Matrix<_Tp>* _F_multiply(MatrixRef m1, MatrixRef m2);
+    static void _SF_clear(DataType **mem, SizeType r);
+    static Matrix<_Tp>* _SF_multiply(MatrixRef m1, MatrixRef m2);
 public:
     Matrix(SizeType r = 1, SizeType c = 1)
     { _F_resize(r, c); }
     Matrix(SizeType r, SizeType c, ConstReference default_value)
     { _F_construct_default(r, c, default_value); }
     Matrix(SizeType r, SizeType c, RvalueReference default_value)
-    { _F_construct_default(r, c, forward<Type>(default_value)); }
+    { _F_construct_default(r, c, forward<ValueType>(default_value)); }
     Matrix(MatrixRef m)
     { _F_copy(m); }
     Matrix(RvalueMatrixRef m)
     { _F_copy(forward<Matrix<_Tp>>(m)); }
-    Matrix(std::initializer_list<std::initializer_list<Type>> m);
+    Matrix(std::initializer_list<std::initializer_list<ValueType>> m);
     virtual ~Matrix() { }
 
     void set_value(SizeType r, SizeType c, ConstReference v)
     { _F_set_value(r, c, v); }
     void set_value(SizeType r, SizeType c, RvalueReference v)
-    { _F_set_value(r, c, forward<Type>(v)); }
+    { _F_set_value(r, c, forward<ValueType>(v)); }
 
-    Type get_value(SizeType r, SizeType c)
+    ValueType get_value(SizeType r, SizeType c)
     { return _M_data[r][c].content(); }
 
     SizeType row()
@@ -78,7 +78,7 @@ public:
     void multiply(SizeType r, ConstReference n)
     { _F_multiply(r, n); }
     void multiply(SizeType r, RvalueReference n)
-    { _F_multiply(r, forward<Type>(n)); }
+    { _F_multiply(r, forward<ValueType>(n)); }
     void multiply(MatrixRef m)
     { _F_multiply(m); }
     void multiply(RvalueMatrixRef m)
@@ -98,16 +98,16 @@ public:
 
     // need call by manual
     void clear()
-    { _clear(_M_data, row()); }
+    { _SF_clear(_M_data, row()); }
 
     static Matrix<_Tp>* multiply(MatrixRef m1, MatrixRef m2)
-    { return _F_multiply(m1, m2); }
+    { return _SF_multiply(m1, m2); }
     static Matrix<_Tp>* multiply(MatrixRef m1, RvalueMatrixRef m2)
-    { return _F_multiply(m1, forward<Matrix<_Tp>>(m2)); }
+    { return _SF_multiply(m1, forward<Matrix<_Tp>>(m2)); }
     static Matrix<_Tp>* multiply(RvalueMatrixRef m1, MatrixRef m2)
-    { return _F_multiply(forward<Matrix<_Tp>>(m1), m2); }
+    { return _SF_multiply(forward<Matrix<_Tp>>(m1), m2); }
     static Matrix<_Tp>* multiply(RvalueMatrixRef m1, RvalueMatrixRef m2)
-    { return _F_multiply(forward<Matrix<_Tp>>(m1), forward<Matrix<_Tp>>(m2)); }
+    { return _SF_multiply(forward<Matrix<_Tp>>(m1), forward<Matrix<_Tp>>(m2)); }
 
     // copy [m]'s data reference to [this]
     void copy_from(MatrixRef m)

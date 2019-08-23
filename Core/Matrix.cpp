@@ -2,7 +2,7 @@
 #include "Exception.h"
 
 template<typename _Tp>
-rapid::Matrix<_Tp>::Matrix(std::initializer_list<std::initializer_list<Type>> m)
+rapid::Matrix<_Tp>::Matrix(std::initializer_list<std::initializer_list<ValueType>> m)
 {
     _M_row = static_cast<SizeType>(m.size());
     SizeType i = 0, j = 0;
@@ -16,7 +16,7 @@ rapid::Matrix<_Tp>::Matrix(std::initializer_list<std::initializer_list<Type>> m)
         else if(static_cast<SizeType>(it->size()) != column())
         { throw SizeDoesNotMatchException("exception: target size does not match from source size!"); }
         j = 0;
-        for(Type t : *it)
+        for(ValueType t : *it)
         {
             set_value(i, j++, t);
         }
@@ -39,7 +39,7 @@ void rapid::Matrix<_Tp>::_F_copy(MatrixRef m)
 template<typename _Tp>
 void rapid::Matrix<_Tp>::_F_resize(SizeType r, SizeType c)
 {
-    _clear(_M_data, row());
+    _SF_clear(_M_data, row());
     _M_row = r;
     _M_column = c;
     _M_data = new DataType*[static_cast<unsigned long long>(row())];
@@ -52,7 +52,7 @@ void rapid::Matrix<_Tp>::_F_resize(SizeType r, SizeType c)
 template<typename _Tp>
 void rapid::Matrix<_Tp>::_F_construct_default(SizeType r, SizeType c, ConstReference value)
 {
-    _clear(_M_data, row());
+    _SF_clear(_M_data, row());
     _M_row = r;
     _M_column = c;
     _M_data = new DataType*[row()];
@@ -67,7 +67,7 @@ void rapid::Matrix<_Tp>::_F_construct_default(SizeType r, SizeType c, ConstRefer
 }
 
 template<typename _Tp>
-void rapid::Matrix<_Tp>::_clear(DataType **mem, SizeType r)
+void rapid::Matrix<_Tp>::_SF_clear(DataType **mem, SizeType r)
 {
     if(mem == nullptr) return;
     for(SizeType i = 0; i < r; i++)
@@ -83,7 +83,7 @@ void rapid::Matrix<_Tp>::_F_multiply(MatrixRef m)
 {
     if(row() != m.column() || column() != m.row())
     { throw SizeDoesNotMatchException("exception: target size does not match from source size!"); }
-    Matrix<_Tp> *temp = _F_multiply(*this, m);
+    Matrix<_Tp> *temp = _SF_multiply(*this, m);
     clear_and_copy(*temp);
     delete temp;
 }
@@ -96,7 +96,7 @@ void rapid::Matrix<_Tp>::_F_multiply(SizeType r, ConstReference n)
 }
 
 template<typename _Tp>
-rapid::Matrix<_Tp>* rapid::Matrix<_Tp>::_F_multiply(MatrixRef m1, MatrixRef m2)
+rapid::Matrix<_Tp>* rapid::Matrix<_Tp>::_SF_multiply(MatrixRef m1, MatrixRef m2)
 { 
     if(m1.row() != m2.column() || m1.column() != m2.row())
     { throw SizeDoesNotMatchException("exception: target size does not match from source size!"); }
@@ -105,7 +105,7 @@ rapid::Matrix<_Tp>* rapid::Matrix<_Tp>::_F_multiply(MatrixRef m1, MatrixRef m2)
     {
         for(SizeType j = 0; j < result->column(); j++)
         {
-            Type temp = m1.get_value(i, 0) * m2.get_value(0, j);
+            ValueType temp = m1.get_value(i, 0) * m2.get_value(0, j);
             for(SizeType m = 1; m < m1.column(); m++)
             {
                 temp = temp + m1.get_value(i, m) * m2.get_value(m, j);
@@ -218,8 +218,7 @@ void rapid::test_Matrix_main()
     Matrix<int> m3(m1);
     try
     {
-        Matrix<int> *m4 = Matrix<int>::multiply(m2, m3);
-        un_use(m4);
+        [[maybe_unused]] Matrix<int> *m4 = Matrix<int>::multiply(m2, m3);
     }
     catch(Exception &e)
     {
