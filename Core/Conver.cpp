@@ -74,4 +74,3 @@ char* rapid::to_ansi(const char *utf8)
     return str;
 }
 #endif
-
