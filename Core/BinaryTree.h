@@ -12,47 +12,48 @@ struct Equal
     int operator()(const T &arg1, const T &arg2);
 };
 
-template<typename _Key, typename _Value,
-         typename _EqualTo = Equal<_Key>>
+template<typename _DataType,
+         typename _EqualTo = Equal<_DataType>>
 class BinaryTree
 {
 protected:
-    using KeyType = _Key;
-    using KeyReference = KeyType &;
-    using KeyRvalueReference = KeyType &&;
-    using ConstKeyReference = const KeyType &;
-    using ValueType = _Value;
-    using ValueReference = ValueType &;
-    using ValueRvalueReference = ValueType &&;
-    using ConstValueReference = const ValueType &;
+    using Type = _DataType;
+    using Reference = Type &;
+    using RvalueReference = Type &&;
+    using ConstReference = const Type &;
 
-    struct BTreeDataNode
-    {
-        NodeBase<ValueType> Key;
-        NodeBase<ValueType> Value;
-    };
+    template<typename DataNodeType>
     struct BTreeNode
     {
     private:
-        BTreeDataNode *Data;
-        BTreeNode *Left;
-        BTreeNode *Right;
-        BTreeNode *Parent;
+        NodeBase<DataNodeType> *Data = nullptr;
+        BTreeNode *Left = nullptr;
+        BTreeNode *Right = nullptr;
+        BTreeNode *Parent = nullptr;
 
         friend class BinaryTree;
     public:
-        BTreeDataNode& data() { return *Data; }
+        BTreeNode(const DataNodeType &data) : Data(new NodeBase<DataNodeType>(data)) { }
+        DataNodeType& data() { return Data->ref_content(); }
     };
 
-    BTreeNode *_M_root;
+    using TreeNode = BTreeNode<_DataType>;
 
-    void _F_ajust() { }
+    TreeNode *_M_root = nullptr;
 
 public:
     BinaryTree() { }
     BinaryTree(const BinaryTree &) { }
 
-    BTreeNode& root() { return *_M_root; }
+    TreeNode* root() { return _M_root; }
+    TreeNode* left_child(const TreeNode *node)
+    { return node == nullptr ? nullptr : node->Left; }
+    TreeNode* right_child(const TreeNode *node)
+    { return node == nullptr ? nullptr : node->Right; }
+    TreeNode* parent(const TreeNode *node)
+    { return node == nullptr ? nullptr : node->Parent; }
+    void append_left(TreeNode *node, ConstReference data);
+    void remove(TreeNode *node);
 };
 
 }
