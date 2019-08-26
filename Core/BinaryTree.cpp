@@ -15,7 +15,7 @@ void rapid::BinaryTree<_DataType, _EqualTo>::append_left(TreeNode *node, ConstRe
 {
     if(node != nullptr)
     {
-        node->Left = new BTreeNode(data);
-        node->Left->Parent = node;
+        node->_M_left = new BTreeNode(data);
+        node->_M_left->_M_parent = node;
     }
 }

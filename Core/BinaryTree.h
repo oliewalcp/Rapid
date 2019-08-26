@@ -26,15 +26,15 @@ protected:
     struct BTreeNode
     {
     private:
-        NodeBase<DataNodeType> *Data = nullptr;
-        BTreeNode *Left = nullptr;
-        BTreeNode *Right = nullptr;
-        BTreeNode *Parent = nullptr;
+        NodeBase<DataNodeType> *_M_data = nullptr;
+        BTreeNode *_M_left = nullptr;
+        BTreeNode *_M_right = nullptr;
+        BTreeNode *_M_parent = nullptr;
 
         friend class BinaryTree;
     public:
-        BTreeNode(const DataNodeType &data) : Data(new NodeBase<DataNodeType>(data)) { }
-        DataNodeType& data() { return Data->ref_content(); }
+        BTreeNode(const DataNodeType &data) : _M_data(new NodeBase<DataNodeType>(data)) { }
+        DataNodeType& data() { return _M_data->ref_content(); }
     };
 
     using TreeNode = BTreeNode<_DataType>;
@@ -47,11 +47,11 @@ public:
 
     TreeNode* root() { return _M_root; }
     TreeNode* left_child(const TreeNode *node)
-    { return node == nullptr ? nullptr : node->Left; }
+    { return node == nullptr ? nullptr : node->_M_left; }
     TreeNode* right_child(const TreeNode *node)
-    { return node == nullptr ? nullptr : node->Right; }
+    { return node == nullptr ? nullptr : node->_M_right; }
     TreeNode* parent(const TreeNode *node)
-    { return node == nullptr ? nullptr : node->Parent; }
+    { return node == nullptr ? nullptr : node->_M_parent; }
     void append_left(TreeNode *node, ConstReference data);
     void remove(TreeNode *node);
 };
