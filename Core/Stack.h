@@ -10,18 +10,18 @@ template<typename T>
 class Stack
 {
 private:
-    using Type = T;
-    using Pointer = Type*;
-    using Reference = Type&;
-    using ConstReference = const Type &;
-    using RvalueReference = Type&&;
+    using ValueType = T;
+    using Pointer = ValueType*;
+    using Reference = ValueType&;
+    using ConstReference = const ValueType &;
+    using RvalueReference = ValueType&&;
     using SizeType = size_type;
 
     struct Node
     {
         Node *Next;
-        NodeBase<Type> *Data;
-        Node(ConstReference arg) : Next(nullptr), Data(new NodeBase<Type>(arg)) {}
+        NodeBase<ValueType> *Data;
+        Node(ConstReference arg) : Next(nullptr), Data(new NodeBase<ValueType>(arg)) {}
         ~Node() { delete Data; }
     };
 
@@ -52,9 +52,9 @@ public:
     { _F_push(arg); }
 
     inline void push(RvalueReference arg)
-    { _F_push(forward<Type>(arg)); }
+    { _F_push(forward<ValueType>(arg)); }
 
-    inline Type top()
+    inline ValueType top()
     { return _M_top->Data->content(); }
 
     void pop();

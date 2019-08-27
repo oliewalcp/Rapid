@@ -37,6 +37,7 @@ HEADERS += \
     Core/BinaryTree.h \
     Core/Exception.h \
     Core/IO.h \
+    Core/IteratorBase.h \
     Core/Matrix.h \
     Core/Memory.h \
     Core/RapidConfig.h \
