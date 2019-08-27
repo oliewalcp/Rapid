@@ -14,8 +14,7 @@ struct Equal
     int operator()(const T &arg1, const T &arg2) const;
 };
 
-template<typename _DataType,
-         typename _EqualTo = Equal<_DataType>>
+template<typename _DataType>
 class BinaryTree
 {
 private:
@@ -55,9 +54,9 @@ private:
         DataNodeType& data()
         { return _M_data->ref_content(); }
     };
-
+public:
     using TreeNode = BTreeNode<DataType>;
-
+private:
     TreeNode *_M_root = nullptr;
 
 public:
