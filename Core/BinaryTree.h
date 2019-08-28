@@ -115,7 +115,7 @@ public:
         { delete node; }
     }
     static bool is_brother(const TreeNode *node1, const TreeNode *node2)
-    { return parent(node1) == parent(node2); }
+    { return parent(node1) == parent(node2) && node1 != node2; }
 
 public:
 
@@ -140,10 +140,37 @@ public:
     { return iterator(_M_root); }
     iterator end()
     { return iterator(); }
+    const_iterator cbegin()
+    { return const_iterator(_M_root); }
+    const_iterator cend()
+    { return const_iterator(); }
+
     fiterator fbegin()
     { return fiterator(_M_root); }
     fiterator fend()
     { return iterator(); }
+    const_fiterator cfbegin()
+    { return const_fiterator(_M_root); }
+    const_fiterator cfend()
+    { return const_fiterator(); }
+
+    miterator mbegin()
+    { return miterator(_M_root); }
+    miterator mend()
+    { return miterator(); }
+    const_miterator cmbegin()
+    { return const_miterator(_M_root); }
+    const_miterator cmend()
+    { return const_miterator(); }
+
+    aiterator abegin()
+    { return aiterator(_M_root); }
+    aiterator aend()
+    { return aiterator(); }
+    const_aiterator cabegin()
+    { return const_aiterator(_M_root); }
+    const_aiterator caend()
+    { return const_aiterator(); }
 };
 
 }

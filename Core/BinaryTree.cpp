@@ -28,320 +28,259 @@ void rapid::BinaryTree<_DataType>::clear()
         delete it._M_current;
     }
 }
-//---------------------***********---------------------//
+//---------------------***************---------------------//
 template<typename _DataType>
 typename rapid::BinaryTree<_DataType>::TreeNode* left_child_under(
         typename rapid::BinaryTree<_DataType>::TreeNode *node)
 {
     using BT = rapid::BinaryTree<_DataType>;
-    using Node = typename BT::TreeNode;
-    Node *result = node;
-    while(result != nullptr && BT::left_child(result) != nullptr)
+    while(node != nullptr && BT::left_child(node) != nullptr)
     {
-        result = BT::left_child(result);
+        node = BT::left_child(node);
     }
-    return result;
+    return node;
 }
 template<typename _DataType>
 typename rapid::BinaryTree<_DataType>::TreeNode* left_leaves(
         typename rapid::BinaryTree<_DataType>::TreeNode *node)
 {
     using BT = rapid::BinaryTree<_DataType>;
-    using Node = typename BT::TreeNode;
-    Node *result = left_child_under<_DataType>(node);
-    while(BT::right_child(result) != nullptr)
+    node = left_child_under<_DataType>(node);
+    while(BT::right_child(node) != nullptr)
     {
-        result = left_child_under<_DataType>(node);
+        node = left_child_under<_DataType>(BT::right_child(node));
     }
-    return result;
+    return node;
 }
 template<typename _DataType>
 typename rapid::BinaryTree<_DataType>::TreeNode* former_next(
-        typename rapid::BinaryTree<_DataType>::TreeNode *current,
-        typename rapid::BinaryTree<_DataType>::TreeNode *next)
+        typename rapid::BinaryTree<_DataType>::TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
-    using Node = typename BT::TreeNode;
-    if(next == nullptr)
+    if(BT::left_child(current) != nullptr)
     {
-        return nullptr;
+        return BT::left_child(current);
     }
-    if(BT::left_child(next) != nullptr)
+    if(BT::right_child(current) != nullptr)
     {
-        return BT::left_child(next);
-    }
-    if(BT::right_child(next) != nullptr)
-    {
-        return BT::right_child(next);
-    }
-    if(next == BT::left_child(current))
-    {
-        if(BT::right_child(current) == nullptr)
-        {
-            if(BT::parent(current) != nullptr)
-            {
-                return BT::right_child(BT::parent(current));
-            }
-            return nullptr;
-        }
         return BT::right_child(current);
     }
-    if(BT::is_brother(next, current))
+    while(current != nullptr && BT::right_child(current) == nullptr)
     {
-        Node *node = BT::parent(BT::parent(next));
-        while(node != nullptr && BT::right_child(node) == nullptr)
-        {
-            node = BT::parent(node);
-        }
-        if(node == nullptr || BT::right_child(node) == nullptr)
-        {
-            return nullptr;
-        }
-        return BT::right_child(node);
+        current = BT::parent(current);
     }
-    return nullptr;
+    return BT::right_child(current);
 }
 template<typename _DataType>
 typename rapid::BinaryTree<_DataType>::TreeNode* middle_next(
-        typename rapid::BinaryTree<_DataType>::TreeNode *current,
-        typename rapid::BinaryTree<_DataType>::TreeNode *next)
+        typename rapid::BinaryTree<_DataType>::TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
-    if(next == nullptr)
+    if(BT::right_child(current) != nullptr)
     {
-        return nullptr;
+        return left_child_under<_DataType>(BT::right_child(current));
     }
-    if(BT::parent(next) == current)
+    if(current != BT::right_child(BT::parent(current)))
     {
-        if(BT::parent(current) == nullptr)
-        {
-            return nullptr;
-        }
-        next = BT::parent(current);
-        while(BT::parent(next) != nullptr && BT::right_child(BT::parent(next)) == next)
-        {
-            next = BT::parent(next);
-        }
-        if(BT::parent(next) == nullptr)
-        {
-            return nullptr;
-        }
-        return left_child_under<_DataType>(BT::right_child(next));
+        return BT::parent(current);
     }
-    if(BT::right_child(next) != nullptr)
-    {
-        return left_child_under<_DataType>(BT::right_child(next));
-    }
-    return BT::parent(next);
+    return BT::parent(BT::parent(current));
 }
 
 template<typename _DataType>
 typename rapid::BinaryTree<_DataType>::TreeNode* after_next(
-        typename rapid::BinaryTree<_DataType>::TreeNode *current,
-        typename rapid::BinaryTree<_DataType>::TreeNode *next)
+        typename rapid::BinaryTree<_DataType>::TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
-    using Node = typename BT::TreeNode;
-    if(next == nullptr)
+    if(current == BT::left_child(BT::parent(current)))
     {
+        return left_leaves<_DataType>(BT::right_child(BT::parent(current)));
+    }
+    if(current == BT::right_child(BT::parent(current)))
+    {
+        return BT::parent(current);
+    }
+    return nullptr;
+}
+
+template<typename _DataType>
+typename rapid::BinaryTree<_DataType>::TreeNode* former_previous(
+        typename rapid::BinaryTree<_DataType>::TreeNode *current)
+{
+    using namespace rapid;
+    using BT = BinaryTree<_DataType>;
+    if(current == BT::left_child(BT::parent(current)))
+    {
+        return BT::parent(current);
+    }
+    if(current == BT::right_child(BT::parent(current)))
+    {
+        current = BT::left_child(BT::parent(current));
+        while(current != nullptr && BT::right_child(current) == nullptr)
+        {
+            current = BT::left_child(current);
+        }
+        if(BT::right_child(current) == nullptr)
+        {
+            return current;
+        }
+        return BT::right_child(current);
+    }
+    return nullptr;
+}
+template<typename _DataType>
+typename rapid::BinaryTree<_DataType>::TreeNode* middle_previous(
+        typename rapid::BinaryTree<_DataType>::TreeNode *current)
+{
+    using namespace rapid;
+    using BT = BinaryTree<_DataType>;
+    if(BT::left_child(current) != nullptr)
+    {
+        return BT::left_child(current);
+    }
+    if(current == BT::right_child(BT::parent(current)))
+    {
+        return BT::parent(current);
+    }
+    return nullptr;
+}
+
+template<typename _DataType>
+typename rapid::BinaryTree<_DataType>::TreeNode* after_previous(
+        typename rapid::BinaryTree<_DataType>::TreeNode *current)
+{
+    using namespace rapid;
+    using BT = BinaryTree<_DataType>;
+    if(BT::right_child(current) != nullptr)
+    {
+        return BT::right_child(current);
+    }
+    if(BT::right_child(BT::parent(current)) == current)
+    {
+        current = BT::parent(current);
+        while(current != nullptr && BT::left_child(current) == nullptr)
+        {
+            current = BT::parent(current);
+        }
+        if(BT::left_child(current) != nullptr)
+        {
+            return BT::left_child(current);
+        }
         return nullptr;
     }
+    return BT::left_child(current);
 }
-//---------------------***********---------------------//
+//---------------------***************---------------------//
 //---------------------------------------------------------//
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::FormerIterator::_F_next()
 {
-    if(_M_current == nullptr) return;
-    TreeNode *temp = _M_next;
-    _M_next = former_next<_DataType>(_M_current, _M_next);
-    _M_current = temp;
+    _M_current = former_next<_DataType>(_M_current);
 }
 
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::FormerIterator::_F_previous()
 {
-
+    _M_current = former_previous<_DataType>(_M_current);
 }
 
 template<typename _DataType>
 rapid::BinaryTree<_DataType>::FormerIterator::FormerIterator(const TreeNode *root)
 {
     _M_current = root;
-    if(left_child(_M_current) != nullptr)
-    {
-        _M_next = left_child(_M_current);
-    }
-    else
-    {
-        _M_next = right_child(_M_current);
-    }
 }
 //---------------------------------------------------------//
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstFormerIterator::_F_next()
 {
-    if(_M_current == nullptr) return;
-    TreeNode *temp = _M_next;
-    _M_next = former_next<_DataType>(_M_current, _M_next);
-    _M_current = temp;
+    _M_current = former_next<_DataType>(_M_current);
 }
 
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstFormerIterator::_F_previous()
 {
-    if(_M_current == nullptr) return;
+    _M_current = former_previous<_DataType>(_M_current);
 }
 
 template<typename _DataType>
 rapid::BinaryTree<_DataType>::ConstFormerIterator::ConstFormerIterator(const TreeNode *root)
 {
     _M_current = root;
-    if(left_child(_M_current) != nullptr)
-    {
-        _M_next = left_child(_M_current);
-    }
-    else
-    {
-        _M_next = right_child(_M_current);
-    }
 }
 //---------------------------------------------------------//
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::MiddleIterator::_F_next()
 {
-    if(_M_current == nullptr) return;
-    TreeNode *temp = _M_next;
-    _M_next = middle_next<_DataType>(_M_current, _M_next);
-    _M_current = temp;
+    _M_current = middle_next<_DataType>(_M_current);
 }
 
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::MiddleIterator::_F_previous()
 {
-
+    _M_current = middle_previous<_DataType>(_M_current);
 }
 
 template<typename _DataType>
 rapid::BinaryTree<_DataType>::MiddleIterator::MiddleIterator(const TreeNode *root)
 {
-    _M_current = root;
-    while(_M_current != nullptr && left_child(_M_current) != nullptr)
-    {
-        _M_current = left_child(_M_current);
-    }
-    if(parent(_M_current) == nullptr)
-    {
-        _M_next = left_child_under(right_child(_M_current));
-    }
-    else
-    {
-        _M_next = parent(_M_current);
-    }
+    _M_current = left_child_under(root);
 }
 
 //---------------------------------------------------------//
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstMiddleIterator::_F_next()
 {
-    if(_M_current == nullptr) return;
-    TreeNode *temp = _M_next;
-    _M_next = middle_next<_DataType>(_M_current, _M_next);
-    _M_current = temp;
+    _M_current = middle_next<_DataType>(_M_current);
 }
 
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstMiddleIterator::_F_previous()
 {
-
+    _M_current = middle_previous<_DataType>(_M_current);
 }
 
 template<typename _DataType>
 rapid::BinaryTree<_DataType>::ConstMiddleIterator::ConstMiddleIterator(const TreeNode *root)
 {
-    _M_current = root;
-    while(_M_current != nullptr && left_child(_M_current) != nullptr)
-    {
-        _M_current = left_child(_M_current);
-    }
-    if(parent(_M_current) == nullptr)
-    {
-        _M_next = left_child_under(right_child(_M_current));
-    }
-    else
-    {
-        _M_next = parent(_M_current);
-    }
+    _M_current = left_child_under(root);
 }
 //---------------------------------------------------------//
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::AfterIterator::_F_next()
 {
-    if(_M_current == nullptr) return;
-    TreeNode *temp = _M_next;
-    _M_next = after_next<_DataType>(_M_current, _M_next);
-    _M_current = temp;
+    _M_current = after_next<_DataType>(_M_current);
 }
 
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::AfterIterator::_F_previous()
 {
-
+    _M_current = after_previous<_DataType>(_M_current);
 }
 
 template<typename _DataType>
 rapid::BinaryTree<_DataType>::AfterIterator::AfterIterator(const TreeNode *root)
 {
     _M_current = left_leaves<_DataType>(root);
-    if(parent(_M_current) == nullptr)
-    {
-        _M_next = nullptr;
-    }
-    else
-    {
-        _M_next = parent(_M_current);
-        while(right_child(_M_next) == nullptr)
-        {
-            _M_next = parent(_M_next);
-        }
-        _M_next = left_leaves<_DataType>(right_child(_M_next));
-    }
 }
 //---------------------------------------------------------//
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstAfterIterator::_F_next()
 {
-    if(_M_current == nullptr) return;
-    TreeNode *temp = _M_next;
-    _M_next = after_next<_DataType>(_M_current, _M_next);
-    _M_current = temp;
+    _M_current = after_next<_DataType>(_M_current);
 }
 
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstAfterIterator::_F_previous()
 {
-
+    _M_current = after_previous<_DataType>(_M_current);
 }
 
 template<typename _DataType>
 rapid::BinaryTree<_DataType>::ConstAfterIterator::ConstAfterIterator(const TreeNode *root)
 {
     _M_current = left_leaves<_DataType>(root);
-    if(parent(_M_current) == nullptr)
-    {
-        _M_next = nullptr;
-    }
-    else
-    {
-        _M_next = parent(_M_current);
-        while(right_child(_M_next) == nullptr)
-        {
-            _M_next = parent(_M_next);
-        }
-        _M_next = left_leaves<_DataType>(right_child(_M_next));
-    }
 }
 //---------------------------------------------------------//

@@ -6,7 +6,6 @@ class type \
 { \
 private: \
     TreeNode *_M_current = nullptr; \
-    TreeNode *_M_next = nullptr; \
 \
     void _F_next(); \
     void _F_previous(); \
@@ -16,9 +15,9 @@ private: \
     type(const TreeNode *root); \
 public: \
     type() { } \
-    type(const type &it) : _M_current(it._M_current), _M_next(it._M_next) { } \
+    type(const type &it) : _M_current(it._M_current) { } \
     type(type &&it) \
-        : _M_current(forward<type>(it)._M_current), _M_next(forward<type>(it)._M_next) \
+        : _M_current(forward<type>(it)._M_current) \
     { } \
 \
     type operator++() \
