@@ -34,6 +34,7 @@ SOURCES += \
 
 HEADERS += \
     Core/Atomic.h \
+    Core/BalanceBinaryTree.h \
     Core/BinaryTree.h \
     Core/Exception.h \
     Core/IO.h \

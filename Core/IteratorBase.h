@@ -12,7 +12,7 @@ private: \
 \
     friend class BinaryTree; \
 \
-    type(const TreeNode *root); \
+    type(TreeNode *root); \
 public: \
     type() { } \
     type(const type &it) : _M_current(it._M_current) { } \

@@ -1,9 +1,8 @@
 #include "Core/BinaryTree.h"
 using namespace rapid;
-#include <type_traits>
-#include <iostream>
 
 int main()
 {
+    test_BinaryTree_main();
     return 0;
 }

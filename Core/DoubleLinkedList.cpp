@@ -117,3 +117,9 @@ typename rapid::DoubleLinkedList<T>::ValueType rapid::DoubleLinkedList<T>::back(
     return _M_tail->Data->content();
 }
 
+#include <iostream>
+
+void rapid::test_DoubleLinkedList_main()
+{
+
+}
