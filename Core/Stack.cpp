@@ -12,16 +12,6 @@ rapid::Stack<T>::Stack(const Stack &arg) : _M_size(0), _M_top(nullptr)
 }
 
 template<typename T>
-void rapid::Stack<T>::pop()
-{
-    if(empty()) return;
-    Node *n = _M_top;
-    _M_top = _M_top->Next;
-    delete n;
-    _F_add_size(-1);
-}
-
-template<typename T>
 void rapid::Stack<T>::clear()
 {
     Node *n = _M_top;
@@ -34,14 +24,7 @@ void rapid::Stack<T>::clear()
     _M_size = 0;
 }
 
-template<typename T>
-void rapid::Stack<T>::_F_push(ConstReference arg)
-{
-    Node *n = _F_construct_node(arg);
-    n->Next = _M_top;
-    _M_top = n;
-    _F_add_size(1);
-}
+
 #include <iostream>
 void rapid::test_Stack_main()
 {

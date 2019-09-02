@@ -21,6 +21,7 @@ private:
     using Reference = DataType &;
     using RvalueReference = DataType &&;
     using ConstReference = const DataType &;
+    using SizeType = long;
 
     template<typename DataNodeType>
     struct BTreeNode
@@ -30,30 +31,44 @@ private:
         BTreeNode *_M_left;
         BTreeNode *_M_right;
         BTreeNode *_M_parent;
+        SizeType _M_child_number;
 
         friend class BinaryTree;
+
+        void add_child_number(SizeType size)
+        { _M_child_number += size; }
 
         BTreeNode* append_left(ConstReference data)
         { return set_left(new BTreeNode<DataNodeType>(data, _M_left, nullptr, this)); }
         BTreeNode* append_right(ConstReference data)
         { return set_right(new BTreeNode<DataNodeType>(data, _M_right, nullptr, this)); }
 
+        BTreeNode* set_parent(BTreeNode *node)
+        { return _M_parent = node; }
+        BTreeNode* set_left(BTreeNode *node)
+        {
+            add_child_number(- (_M_left == nullptr ? 0 : _M_left->_M_child_number + 1));
+            add_child_number(node == nullptr ? 0 : node->_M_child_number);
+            return _M_left = node;
+        }
+        BTreeNode* set_right(BTreeNode *node)
+        {
+            add_child_number(- (_M_right == nullptr ? 0 : _M_right->_M_child_number + 1));
+            add_child_number(node == nullptr ? 0 : node->_M_child_number);
+            return _M_right = node;
+        }
     public:
         BTreeNode(const DataNodeType &data, BTreeNode *left = nullptr,
                   BTreeNode *right = nullptr, BTreeNode *parent = nullptr)
-            : _M_data(new NodeBase<DataNodeType>(data)), _M_left(left), _M_right(right), _M_parent(parent)
-        { }
+            : _M_data(new NodeBase<DataNodeType>(data)), _M_parent(parent), _M_child_number(0)
+        {
+            set_left(left);
+            set_right(right);
+        }
         ~BTreeNode()
         { delete _M_data; }
         DataNodeType& data()
         { return _M_data->ref_content(); }
-
-        BTreeNode* set_left(BTreeNode *node)
-        { return _M_left = node; }
-        BTreeNode* set_right(BTreeNode *node)
-        { return _M_right = node; }
-        BTreeNode* set_parent(BTreeNode *node)
-        { return _M_parent = node; }
     };
 public:
     using TreeNode = BTreeNode<DataType>;
@@ -99,41 +114,17 @@ public:
     static TreeNode* parent(const TreeNode *node)
     { return node == nullptr ? nullptr : node->_M_parent; }
     static TreeNode* set_left(TreeNode *node, TreeNode *child)
-    {
-        if(node != nullptr)
-        { return node->set_left(child); }
-        return nullptr;
-    }
+    { return node == nullptr ? nullptr : node->set_left(child); }
     static TreeNode* set_right(TreeNode *node, TreeNode *child)
-    {
-        if(node != nullptr)
-        { return node->set_right(child); }
-        return nullptr;
-    }
+    { return node == nullptr ? nullptr : node->set_right(child); }
     static TreeNode* append_left(TreeNode *node, ConstReference data)
-    {
-        if(node != nullptr)
-        { return node->append_left(data); }
-        return nullptr;
-    }
+    { return node == nullptr ? nullptr : node->append_left(data); }
     static TreeNode* append_left(TreeNode *node, RvalueReference data)
-    {
-        if(node != nullptr)
-        { return node->append_left(forward<DataType>(data)); }
-        return nullptr;
-    }
+    { return node == nullptr ? nullptr : node->append_left(forward<DataType>(data)); }
     static TreeNode* append_right(TreeNode *node, ConstReference data)
-    {
-        if(node != nullptr)
-        { return node->append_right(data); }
-        return nullptr;
-    }
+    { return node == nullptr ? nullptr : node->append_right(data); }
     static TreeNode* append_right(TreeNode *node, RvalueReference data)
-    {
-        if(node != nullptr)
-        { return node->append_right(forward<DataType>(data)); }
-        return nullptr;
-    }
+    { return node == nullptr ? nullptr : node->append_right(forward<DataType>(data)); }
     static void remove(TreeNode *node)
     {
         if(node != nullptr)
@@ -141,6 +132,8 @@ public:
     }
     static bool is_brother(const TreeNode *node1, const TreeNode *node2)
     { return parent(node1) == parent(node2) && node1 != node2; }
+    static void rotate_left(TreeNode *node);
+    static void rotate_right(TreeNode *node);
 
 public:
     class FormerIterator

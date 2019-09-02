@@ -21,17 +21,22 @@ private:
     {
         Node *Next;
         NodeBase<ValueType> *Data;
-        Node(ConstReference arg) : Next(nullptr), Data(new NodeBase<ValueType>(arg)) {}
+        Node(ConstReference arg, Node *n = nullptr)
+            : Next(n), Data(new NodeBase<ValueType>(arg)) {}
         ~Node() { delete Data; }
     };
 
     SizeType _M_size;
     Node *_M_top;
 
-    void _F_push(ConstReference arg);
+    void _F_push(ConstReference arg)
+    {
+        _M_top = _F_construct_node(arg, _M_top);
+        _F_add_size(1);
+    }
 
-    inline Node* _F_construct_node(ConstReference arg)
-    { return new Node(arg); }
+    inline Node* _F_construct_node(ConstReference arg, Node *next = nullptr)
+    { return new Node(arg, next); }
 
     inline void _F_add_size(SizeType arg)
     { _M_size += arg; }
@@ -57,7 +62,14 @@ public:
     inline ValueType top()
     { return _M_top->Data->content(); }
 
-    void pop();
+    void pop()
+    {
+        if(empty()) return;
+        Node *n = _M_top;
+        _M_top = _M_top->Next;
+        delete n;
+        _F_add_size(-1);
+    }
     void clear();
 };
 

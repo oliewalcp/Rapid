@@ -74,6 +74,18 @@ void rapid::BinaryTree<_DataType>::clear()
         delete it._M_current;
     }
 }
+
+template<typename _DataType>
+void rapid::BinaryTree<_DataType>::rotate_right(TreeNode *node)
+{
+
+}
+
+template<typename _DataType>
+void rapid::BinaryTree<_DataType>::rotate_left(TreeNode *node)
+{
+
+}
 //---------------------***************---------------------//
 template<typename _DataType>
 typename rapid::BinaryTree<_DataType>::TreeNode* left_child_under(
