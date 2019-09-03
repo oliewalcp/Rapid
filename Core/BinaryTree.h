@@ -21,7 +21,7 @@ private:
     using Reference = DataType &;
     using RvalueReference = DataType &&;
     using ConstReference = const DataType &;
-    using SizeType = long;
+    using SizeType = size_type;
 
     template<typename DataNodeType>
     struct BTreeNode

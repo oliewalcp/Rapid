@@ -1,16 +1,12 @@
 #include "Core/BinaryTree.h"
 #include "Core/DoubleLinkedList.h"
-#include "Core/Stack.h"
 using namespace rapid;
-
-
-struct A
-{
-
-};
+#include <iostream>
 
 int main()
 {
-    test_DoubleLinkedList_main();
+    unsigned int a = 10;
+    a += static_cast<unsigned int>(-1);
+    std::cout << a << std::endl;
     return 0;
 }

@@ -65,8 +65,6 @@ private:
     { return new Node(arg, p, n); }
     inline void _F_add_size(SizeType i)
     { _M_size += i; }
-    inline void _F_initialize(Node *n)
-    { _M_tail = _M_head = n; }
     iterator _F_insert(const iterator &it, ConstReference arg)
     {
         _F_add_size(1);
