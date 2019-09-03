@@ -15,6 +15,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Core/Stack.cpp \
     Core/BinaryTree.cpp \
     Core/Conver.cpp \
     Core/DoubleLinkedList.cpp \
@@ -22,7 +23,6 @@ SOURCES += \
     Core/IO.cpp \
     Core/Matrix.cpp \
     Core/SingleLinkedList.cpp \
-    Core/Stack.cpp \
     Core/Vector.cpp \
     Gui/Application.cpp \
     Gui/Frame.cpp \

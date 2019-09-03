@@ -3,6 +3,7 @@
 
 #include "Memory.h"
 #include "TypeTraits.h"
+#include <bits/move.h>
 
 namespace rapid
 {
@@ -34,7 +35,15 @@ private:
         _M_top = _F_construct_node(arg, _M_top);
         _F_add_size(1);
     }
-
+    void _F_exchange(const Stack &s)
+    {
+        Node *temp = _M_top;
+        SizeType st = _M_size;
+        _M_top = s._M_top;
+        _M_size = s._M_size;
+        s._M_top = temp;
+        s._M_size = st;
+    }
     inline Node* _F_construct_node(ConstReference arg, Node *next = nullptr)
     { return new Node(arg, next); }
 
@@ -70,7 +79,16 @@ public:
         delete n;
         _F_add_size(-1);
     }
-    void clear();
+    void clear()
+    {
+        while(!empty())
+        { pop(); }
+    }
+
+    void swap(const Stack &s)
+    { _F_exchange(s); }
+    void swap(Stack &&s)
+    { _F_exchange(forward<Stack>(s)); }
 };
 
 void test_Stack_main();

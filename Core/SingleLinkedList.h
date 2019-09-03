@@ -63,9 +63,12 @@ public:
 
         iterator(Node *p, Node *c , Node *n) : _M_pervious(p), _M_next(n), _M_current(c) { }
     public:
-        iterator() : _M_pervious(nullptr), _M_next(nullptr), _M_current(nullptr) {}
-        iterator(const iterator &it) { _F_set(it); }
-        iterator(iterator && it) { _F_set(forward<iterator>(it)); }
+        iterator() : _M_pervious(nullptr), _M_next(nullptr), _M_current(nullptr)
+        {}
+        iterator(const iterator &it)
+        { _F_set(it); }
+        iterator(iterator && it)
+        { _F_set(forward<iterator>(it)); }
 
         iterator operator=(const iterator &arg)
         { _F_set(arg._M_pervious, arg._M_current, arg._M_next); }
@@ -133,8 +136,10 @@ public:
 
     void clear();
 
-    inline iterator begin() { return iterator(nullptr, _M_head, _M_head == nullptr ? nullptr : _M_head->Next); }
-    inline iterator end() { return iterator(_M_tail, nullptr, nullptr); }
+    inline iterator begin()
+    { return iterator(nullptr, _M_head, _M_head == nullptr ? nullptr : _M_head->Next); }
+    inline iterator end()
+    { return iterator(_M_tail, nullptr, nullptr); }
 
     Type front();
     Type back();

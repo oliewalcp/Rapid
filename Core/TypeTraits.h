@@ -23,14 +23,6 @@ struct RemoveReference
 { typedef T type; };
 
 template<typename T>
-struct RemoveReference<T*>
-{ typedef T type; };
-
-template<typename T>
-struct RemoveReference<const T*>
-{ typedef T type; };
-
-template<typename T>
 struct RemoveReference<T&>
 { typedef T type; };
 
@@ -38,12 +30,24 @@ template<typename T>
 struct RemoveReference<T&&>
 { typedef T type; };
 
+//template<typename T>
+//struct RemoveReference<const T&>
+//{ typedef T type; };
+
+//template<typename T>
+//struct RemoveReference<const T&&>
+//{ typedef T type; };
+
 template<typename T>
-struct RemoveReference<const T&>
+struct RemovePointer
 { typedef T type; };
 
 template<typename T>
-struct RemoveReference<const T&&>
+struct RemovePointer<T*>
+{ typedef T type; };
+
+template<typename T>
+struct RemovePointer<const T*>
 { typedef T type; };
 
 template<typename T>

@@ -1,10 +1,16 @@
 #include "Core/BinaryTree.h"
-#include <stack>
-#include <deque>
+#include "Core/DoubleLinkedList.h"
+#include "Core/Stack.h"
 using namespace rapid;
+
+
+struct A
+{
+
+};
 
 int main()
 {
-    test_BinaryTree_main();
+    test_DoubleLinkedList_main();
     return 0;
 }

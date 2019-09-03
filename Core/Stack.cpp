@@ -11,20 +11,6 @@ rapid::Stack<T>::Stack(const Stack &arg) : _M_size(0), _M_top(nullptr)
     }
 }
 
-template<typename T>
-void rapid::Stack<T>::clear()
-{
-    Node *n = _M_top;
-    while(n != nullptr)
-    {
-        Node *temp = n;
-        n = n->Next;
-        delete temp;
-    }
-    _M_size = 0;
-}
-
-
 #include <iostream>
 void rapid::test_Stack_main()
 {

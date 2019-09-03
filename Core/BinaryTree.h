@@ -28,10 +28,10 @@ private:
     {
     private:
         NodeBase<DataNodeType> *_M_data;
-        BTreeNode *_M_left;
-        BTreeNode *_M_right;
-        BTreeNode *_M_parent;
-        SizeType _M_child_number;
+        BTreeNode *_M_left = nullptr;
+        BTreeNode *_M_right = nullptr;
+        BTreeNode *_M_parent = nullptr;
+        SizeType _M_child_number = 0;
 
         friend class BinaryTree;
 
@@ -39,36 +39,46 @@ private:
         { _M_child_number += size; }
 
         BTreeNode* append_left(ConstReference data)
-        { return set_left(new BTreeNode<DataNodeType>(data, _M_left, nullptr, this)); }
+        { return set_left(new BTreeNode<DataNodeType>(data, _M_left, nullptr)); }
         BTreeNode* append_right(ConstReference data)
-        { return set_right(new BTreeNode<DataNodeType>(data, _M_right, nullptr, this)); }
+        { return set_right(new BTreeNode<DataNodeType>(data, _M_right, nullptr)); }
 
         BTreeNode* set_parent(BTreeNode *node)
         { return _M_parent = node; }
         BTreeNode* set_left(BTreeNode *node)
         {
             add_child_number(- (_M_left == nullptr ? 0 : _M_left->_M_child_number + 1));
-            add_child_number(node == nullptr ? 0 : node->_M_child_number);
+            if(node != nullptr)
+            {
+                node->set_parent(this);
+                add_child_number(node->_M_child_number);
+            }
             return _M_left = node;
         }
         BTreeNode* set_right(BTreeNode *node)
         {
             add_child_number(- (_M_right == nullptr ? 0 : _M_right->_M_child_number + 1));
-            add_child_number(node == nullptr ? 0 : node->_M_child_number);
+            if(node != nullptr)
+            {
+                node->set_parent(this);
+                add_child_number(node->_M_child_number);
+            }
             return _M_right = node;
         }
     public:
         BTreeNode(const DataNodeType &data, BTreeNode *left = nullptr,
-                  BTreeNode *right = nullptr, BTreeNode *parent = nullptr)
-            : _M_data(new NodeBase<DataNodeType>(data)), _M_parent(parent), _M_child_number(0)
+                  BTreeNode *right = nullptr, [[maybe_unused]] BTreeNode *parent = nullptr)
+            : _M_data(new NodeBase<DataNodeType>(data))
         {
             set_left(left);
             set_right(right);
         }
         ~BTreeNode()
         { delete _M_data; }
-        DataNodeType& data()
+        DataNodeType& data() const
         { return _M_data->ref_content(); }
+        SizeType child_size() const
+        { return _M_child_number; }
     };
 public:
     using TreeNode = BTreeNode<DataType>;
@@ -91,6 +101,10 @@ public:
     { return _M_root = new TreeNode(data, _M_root); }
     TreeNode* append_root(RvalueReference data)
     { return _M_root = new TreeNode(forward<DataType>(data), _M_root); }
+    SizeType size() const
+    { return _M_root == nullptr ? 0 : _M_root->child_size() + 1; }
+    bool empty() const
+    { return _M_root == nullptr; }
     void clear();
 
     void swap(const BinaryTree &tree)
@@ -132,8 +146,8 @@ public:
     }
     static bool is_brother(const TreeNode *node1, const TreeNode *node2)
     { return parent(node1) == parent(node2) && node1 != node2; }
-    static void rotate_left(TreeNode *node);
-    static void rotate_right(TreeNode *node);
+    static void left_rotate(TreeNode *node);
+    static void right_rotate(TreeNode *node);
 
 public:
     class FormerIterator

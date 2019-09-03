@@ -12,33 +12,17 @@ int rapid::Equal<T>::operator()(const T &arg1, const T &arg2) const
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::_F_copy(const BinaryTree &tree)
 {
-    using namespace rapid;
+    clear();
+    if(tree.empty())
+    { return; }
+    append_root(tree.root()->data());
     TreeNode *visit = tree._M_root;
     Stack<TreeNode*> src, dst;
+    dst.push(root());
+    src.push(tree.root());
+    auto ddd = src.top()->data();
     while(visit != nullptr)
     {
-        TreeNode *node = visit;
-        TreeNode *new_node = new TreeNode(tree.root()->data());
-        dst.push(new_node);
-        src.push(node);
-        if(parent(node) == nullptr)
-        {
-            _M_root = new_node;
-        }
-        while(parent(node) != src.top())
-        {
-            dst.pop();
-            src.pop();
-        }
-        if(right_child(parent(node)) == node)
-        {
-            dst.top()->append_right(node->data());
-        }
-        else
-        {
-            dst.top()->append_left(node->data());
-        }
-
         if(visit->_M_left != nullptr)
         {
             visit = visit->_M_left;
@@ -47,9 +31,26 @@ void rapid::BinaryTree<_DataType>::_F_copy(const BinaryTree &tree)
         {
             visit = visit->_M_right;
         }
-        else
+        else if(visit->_M_parent != nullptr)
         {
             visit = visit->_M_parent;
+            while(parent(src.top()) == visit && right_child(visit) == nullptr && !src.empty())
+            {
+                dst.pop();
+                src.pop();
+            }
+            visit = visit->_M_right;
+        }
+        else break;
+        src.push(visit);
+        ddd = src.top()->data();
+        if(right_child(parent(visit)) == visit)
+        {
+            dst.push(dst.top()->append_right(visit->data()));
+        }
+        else
+        {
+            dst.push(dst.top()->append_left(visit->data()));
         }
     }
 }
@@ -73,19 +74,45 @@ void rapid::BinaryTree<_DataType>::clear()
         }
         delete it._M_current;
     }
+    _M_root = nullptr;
 }
 
 template<typename _DataType>
-void rapid::BinaryTree<_DataType>::rotate_right(TreeNode *node)
+void rapid::BinaryTree<_DataType>::right_rotate(TreeNode *node)
 {
-
+    TreeNode *original_parent = parent(node);
+    TreeNode *left_node = left_child(node);
+    TreeNode *left_node_right_child = right_child(left_node);
+    if(right_child(original_parent) == node)
+    {
+        original_parent->_M_right = left_node;
+    }
+    else
+    {
+        original_parent->_M_left = left_node;
+    }
+    node->set_left(left_node_right_child);
+    left_node->set_right(node);
 }
 
 template<typename _DataType>
-void rapid::BinaryTree<_DataType>::rotate_left(TreeNode *node)
+void rapid::BinaryTree<_DataType>::left_rotate(TreeNode *node)
 {
-
+    TreeNode *original_parent = parent(node);
+    TreeNode *right_node = right_child(node);
+    TreeNode *right_node_left_child = left_child(right_node);
+    if(right_child(original_parent) == node)
+    {
+        original_parent->_M_right = right_node;
+    }
+    else
+    {
+        original_parent->_M_left = right_node;
+    }
+    node->set_right(right_node_left_child);
+    right_node->set_left(node);
 }
+
 //---------------------***************---------------------//
 template<typename _DataType>
 typename rapid::BinaryTree<_DataType>::TreeNode* left_child_under(
@@ -387,7 +414,7 @@ void rapid::test_BinaryTree_main()
     {
         std::cout << *it << " ";
     }
-    std::cout << "----------------------------" << std::endl;
+    std::cout << std::endl << "----------------------------" << std::endl;
     BinaryTree<int> bt2(bt);
     std::cout << "middle: " << std::endl;
     for(int i : bt2)
@@ -404,4 +431,11 @@ void rapid::test_BinaryTree_main()
     {
         std::cout << *it << " ";
     }
+    std::cout << std::endl << "----------------------------" << std::endl;
+    bt.right_rotate(root);
+    for(int i : bt2)
+    {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
 }
