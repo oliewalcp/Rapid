@@ -74,7 +74,13 @@ private:
             set_right(right);
         }
         ~BTreeNode()
-        { delete _M_data; }
+        {
+            delete _M_data;
+            if(_M_left != nullptr)
+            { delete _M_left; }
+            if(_M_right != nullptr)
+            { delete _M_right; }
+        }
         DataNodeType& data() const
         { return _M_data->ref_content(); }
         SizeType child_size() const
@@ -86,6 +92,14 @@ private:
     TreeNode *_M_root = nullptr;
 
     void _F_copy(const BinaryTree &tree);
+
+    static void _SF_dealloc(TreeNode *node)
+    { }
+    static void _SF_release(TreeNode *node)
+    {
+        if(node != nullptr)
+        { delete node; }
+    }
 public:
     BinaryTree() { }
     BinaryTree(const BinaryTree &tree)
@@ -105,7 +119,11 @@ public:
     { return _M_root == nullptr ? 0 : _M_root->child_size() + 1; }
     bool empty() const
     { return _M_root == nullptr; }
-    void clear();
+    void clear()
+    {
+        delete _M_root;
+        _M_root = nullptr;
+    }
 
     void swap(const BinaryTree &tree)
     {
@@ -128,9 +146,17 @@ public:
     static TreeNode* parent(const TreeNode *node)
     { return node == nullptr ? nullptr : node->_M_parent; }
     static TreeNode* set_left(TreeNode *node, TreeNode *child)
-    { return node == nullptr ? nullptr : node->set_left(child); }
+    {
+        if(node == nullptr) return nullptr;
+        _SF_release(left_child(node));
+        return node->set_left(child);
+    }
     static TreeNode* set_right(TreeNode *node, TreeNode *child)
-    { return node == nullptr ? nullptr : node->set_right(child); }
+    {
+        if(node == nullptr) return nullptr;
+        _SF_release(right_child(node));
+        return node->set_right(child);
+    }
     static TreeNode* append_left(TreeNode *node, ConstReference data)
     { return node == nullptr ? nullptr : node->append_left(data); }
     static TreeNode* append_left(TreeNode *node, RvalueReference data)

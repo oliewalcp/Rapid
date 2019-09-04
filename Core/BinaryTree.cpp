@@ -56,28 +56,6 @@ void rapid::BinaryTree<_DataType>::_F_copy(const BinaryTree &tree)
 }
 
 template<typename _DataType>
-void rapid::BinaryTree<_DataType>::clear()
-{
-    for(auto it = abegin(); it != aend(); ++it)
-    {
-        TreeNode *p = parent(it._M_current);
-        if(p != nullptr)
-        {
-            if(it._M_current == left_child(p))
-            {
-                p->set_left(nullptr);
-            }
-            else
-            {
-                p->set_right(nullptr);
-            }
-        }
-        delete it._M_current;
-    }
-    _M_root = nullptr;
-}
-
-template<typename _DataType>
 void rapid::BinaryTree<_DataType>::right_rotate(TreeNode *node)
 {
     TreeNode *original_parent = parent(node);

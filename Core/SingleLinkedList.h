@@ -93,7 +93,7 @@ public:
         { return _M_current->Data->content(); }
 
         Type* operator->() const
-        { return &_M_current->Data->address(); }
+        { return _M_current->Data->address(); }
 
         bool operator==(const iterator& arg) const
         { return _M_current == arg._M_current; }

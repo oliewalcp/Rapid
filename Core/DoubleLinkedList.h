@@ -21,8 +21,6 @@ public:
     using RvalueReference = ValueType&&;
     using SizeType = size_type;
 
-    using const_iterator = const iterator;
-    using const_reverse_iterator = const reverse_iterator;
 private:
 
     struct Node
@@ -36,7 +34,7 @@ private:
             if(p != nullptr)
             { p->set_next(this); }
             if(n != nullptr)
-            { n->set_pervious(this); }
+            { n->set_previous(this); }
         }
         ~Node()
         {
@@ -49,17 +47,17 @@ private:
             if(Previous != nullptr)
             { Previous->set_next(Next); }
             if(Next != nullptr)
-            { Next->set_pervious(Previous); }
+            { Next->set_previous(Previous); }
             set_next(nullptr);
         }
         void set_next(Node *n)
         { Next = n; }
-        void set_pervious(Node *n)
+        void set_previous(Node *n)
         { Previous = n; }
     };
-    Node *_M_head;
-    Node *_M_tail;
-    SizeType _M_size;
+    Node *_M_head = nullptr;
+    Node *_M_tail = nullptr;
+    SizeType _M_size = 0;
 
     inline Node* _F_construct_node(ConstReference arg, Node *p = nullptr, Node *n = nullptr)
     { return new Node(arg, p, n); }
@@ -75,12 +73,20 @@ private:
             { _M_head = _M_tail; }
             return iterator(_M_tail);
         }
-        return iterator(_F_construct_node(arg, it._M_current->Previous, it._M_current));
+        Node *n = _F_construct_node(arg, it._M_current->Previous, it._M_current);
+        if(_M_head->Previous != nullptr)
+        { _M_head = _M_head->Previous; }
+        return iterator(n);
     }
     void _F_erase(const iterator &it)
     {
         if(it == end()) return;
+        if(it._M_current == _M_tail)
+        { _M_tail = _M_tail->Previous; }
+        else if(it._M_current == _M_head)
+        { _M_head = _M_head->Next; }
         it._M_current->dealloc();
+        delete it._M_current;
         _F_add_size(-1);
     }
     iterator _F_find(ConstReference arg);
@@ -94,17 +100,14 @@ public:
 
         friend class DoubleLinkedList;
 
-        inline void _M_set(const iterator &it)
-        { _M_current = it._M_current; }
-
         iterator(Node *n) : _M_current(n) { }
     public:
         iterator() : _M_current(nullptr) { }
-        iterator(const iterator &it) { _M_set(it); }
-        iterator(iterator && it) { _M_set(forward<iterator>(it)); }
+        iterator(const iterator &it) : _M_current(it._M_current) { }
+        iterator(iterator && it) : _M_current(forward<iterator>(it)._M_current) { }
 
         iterator operator=(const iterator &it)
-        { _M_set(it); }
+        { return iterator(_M_current = it._M_current); }
         iterator operator++()
         {
             if(_M_current != nullptr)
@@ -135,11 +138,64 @@ public:
         { return _M_current->Data->content(); }
 
         ValueType* operator->() const
-        { return &_M_current->Data->address(); }
+        { return _M_current->Data->address(); }
 
         bool operator==(const iterator& arg) const
         { return _M_current == arg._M_current; }
         bool operator!=(const iterator& arg) const
+        { return _M_current != arg._M_current; }
+    };
+
+    class const_iterator
+    {
+    private:
+        Node *_M_current;
+
+        friend class DoubleLinkedList;
+
+        const_iterator(Node *n) : _M_current(n) { }
+    public:
+        const_iterator() : _M_current(nullptr) { }
+        const_iterator(const const_iterator &it) : _M_current(it._M_current) { }
+        const_iterator(const_iterator && it) : _M_current(forward<const_iterator>(it)._M_current) { }
+
+        const_iterator operator=(const const_iterator &it)
+        { return const_iterator(_M_current = it._M_current); }
+        const_iterator operator++()
+        {
+            if(_M_current != nullptr)
+            { _M_current = _M_current->Next; }
+            return *this;
+        }
+        const_iterator operator++(int)
+        {
+            const_iterator it = *this;
+            if(_M_current != nullptr)
+            { _M_current = _M_current->Next; }
+            return it;
+        }
+        const_iterator operator--()
+        {
+            if(_M_current != nullptr && _M_current->Previous != nullptr)
+            { _M_current = _M_current->Previous; }
+            return *this;
+        }
+        const_iterator operator--(int)
+        {
+            const_iterator it = *this;
+            if(_M_current != nullptr && _M_current->Previous != nullptr)
+            { _M_current = _M_current->Previous; }
+            return it;
+        }
+        ValueType operator*() const
+        { return _M_current->Data->content(); }
+
+        ValueType* operator->() const
+        { return _M_current->Data->address(); }
+
+        bool operator==(const const_iterator& arg) const
+        { return _M_current == arg._M_current; }
+        bool operator!=(const const_iterator& arg) const
         { return _M_current != arg._M_current; }
     };
 
@@ -150,16 +206,13 @@ public:
 
         friend class DoubleLinkedList;
 
-        inline void __set(Node *n)
-        { _M_current = n; }
-        inline void __set(const reverse_iterator &it)
-        { __set(it._M_current); }
-
         reverse_iterator(Node *n) : _M_current(n) { }
     public:
-        reverse_iterator(const reverse_iterator &it) { __set(it); }
-        reverse_iterator(reverse_iterator && it) { __set(forward<reverse_iterator>(it)); }
+        reverse_iterator(const reverse_iterator &it) : _M_current(it._M_current) { }
+        reverse_iterator(reverse_iterator && it) : _M_current(forward<reverse_iterator>(it)._M_current) { }
 
+        reverse_iterator operator=(const reverse_iterator &it)
+        { return reverse_iterator(_M_current = it._M_current); }
         reverse_iterator operator++()
         {
             if(_M_current != nullptr)
@@ -190,7 +243,7 @@ public:
         { return _M_current->Data->content(); }
 
         ValueType* operator->() const
-        { return &_M_current->Data->address(); }
+        { return _M_current->Data->address(); }
 
         bool operator==(const reverse_iterator& arg) const
         { return _M_current == arg._M_current; }
@@ -198,11 +251,63 @@ public:
         { return _M_current != arg._M_current; }
     };
 
-    DoubleLinkedList() : _M_head(nullptr), _M_tail(nullptr), _M_size(0) { }
-    DoubleLinkedList(const DoubleLinkedList<ValueType> &dll)
+    class const_reverse_iterator
     {
-        for(Node *n = dll._M_head; n != nullptr; n = n->Next)
-        { push_back(n->Data->const_ref_content()); }
+    private:
+        Node *_M_current;
+
+        friend class DoubleLinkedList;
+
+        const_reverse_iterator(Node *n) : _M_current(n) { }
+    public:
+        const_reverse_iterator(const const_reverse_iterator &it) : _M_current(it._M_current) { }
+        const_reverse_iterator(const_reverse_iterator && it) : _M_current(forward<const_reverse_iterator>(it)._M_current) { }
+
+        const_reverse_iterator operator=(const const_reverse_iterator &it)
+        { return const_reverse_iterator(_M_current = it._M_current); }
+        const_reverse_iterator operator++()
+        {
+            if(_M_current != nullptr)
+            { _M_current = _M_current->Previous; }
+            return *this;
+        }
+        const_reverse_iterator operator++(int)
+        {
+            const_reverse_iterator it = *this;
+            if(_M_current != nullptr)
+            { _M_current = _M_current->Previous; }
+            return it;
+        }
+        const_reverse_iterator operator--()
+        {
+            if(_M_current != nullptr && _M_current->Next != nullptr)
+            { _M_current = _M_current->Next; }
+            return *this;
+        }
+        const_reverse_iterator operator--(int)
+        {
+            reverse_iterator it = *this;
+            if(_M_current != nullptr && _M_current->Next != nullptr)
+            { _M_current = _M_current->Next; }
+            return it;
+        }
+        ValueType operator*() const
+        { return _M_current->Data->content(); }
+
+        ValueType* operator->() const
+        { return _M_current->Data->address(); }
+
+        bool operator==(const const_reverse_iterator& arg) const
+        { return _M_current == arg._M_current; }
+        bool operator!=(const const_reverse_iterator& arg) const
+        { return _M_current != arg._M_current; }
+    };
+
+    DoubleLinkedList() { }
+    DoubleLinkedList(DoubleLinkedList<ValueType> &dll)
+    {
+        for(auto it = dll.begin(); it != dll.end(); ++it)
+        { push_back(*it); }
     }
     ~DoubleLinkedList()
     { clear(); }
@@ -252,10 +357,18 @@ public:
     { return iterator(_M_head); }
     iterator end()
     { return iterator(_M_tail == nullptr ? nullptr : _M_tail->Next); }
+    const_iterator cbegin()
+    { return const_iterator(_M_head); }
+    const_iterator cend()
+    { return const_iterator(_M_tail == nullptr ? nullptr : _M_tail->Next); }
     reverse_iterator rbegin()
-    { return reverse_iterator(_M_tail); }
+    { return reverse_iterator(_M_head); }
     reverse_iterator rend()
-    { return reverse_iterator(_M_head == nullptr ? nullptr : _M_head->Previous); }
+    { return reverse_iterator(_M_tail == nullptr ? nullptr : _M_head->Previous); }
+    const_reverse_iterator crbegin()
+    { return const_reverse_iterator(_M_head); }
+    const_reverse_iterator crend()
+    { return const_reverse_iterator(_M_tail == nullptr ? nullptr : _M_head->Previous); }
 
     ValueType front()
     { return _M_head == nullptr ? NodeBase<ValueType>().content() : _M_head->Data->content(); }
