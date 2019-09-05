@@ -389,5 +389,6 @@ template<typename T>
 using List = DoubleLinkedList<T>;
 
 void test_DoubleLinkedList_main();
+
 };
 #endif // DOUBLELINKEDLIST_H

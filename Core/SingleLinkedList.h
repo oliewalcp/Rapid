@@ -33,8 +33,6 @@ private:
 
     inline Node* _F_construct_node(ConstReference arg) { return new Node(arg); }
     inline void _F_add_size(SizeType i) { _M_size += i; }
-    void _F_create_list(ConstReference arg);
-    void _F_create_list(Node *n);
     inline void _F_initialize(Node *n)
     { _M_tail = _M_head = n; }
 

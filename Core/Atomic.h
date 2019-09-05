@@ -82,11 +82,8 @@ public:
         type_assert();
         memset(&_M_data, 0, sizeof(T));
     }
-    Atomic(T value)
-    {
-        type_assert();
-        _M_data = value;
-    }
+    Atomic(T value) : _M_data(value)
+    { type_assert(); }
 
     T add_and_fetch(T value)
     { return sync_fetch_after_add(&_M_data, value); }

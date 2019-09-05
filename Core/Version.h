@@ -22,4 +22,5 @@ namespace rapid
     using size_type = unsigned long;
 }
 
+
 #endif // VERSION_H

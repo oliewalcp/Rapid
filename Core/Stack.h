@@ -69,7 +69,7 @@ public:
     { _F_push(forward<ValueType>(arg)); }
 
     inline ValueType top()
-    { return _M_top->Data->content(); }
+    { return _M_top != nullptr ? _M_top->Data->content() : NodeBase<ValueType>().content(); }
 
     void pop()
     {

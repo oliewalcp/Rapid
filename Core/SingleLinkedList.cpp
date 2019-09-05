@@ -9,20 +9,6 @@ rapid::SingleLinkedList<T>::SingleLinkedList(const SingleLinkedList<T> &sll)
 }
 
 template<typename T>
-void rapid::SingleLinkedList<T>::_F_create_list(ConstReference arg)
-{
-    if(_M_head == nullptr)
-    { _F_initialize(_F_construct_node(arg)); }
-}
-
-template<typename T>
-void rapid::SingleLinkedList<T>::_F_create_list(Node *n)
-{
-    if(_M_head == nullptr)
-    { _F_initialize(n); }
-}
-
-template<typename T>
 void rapid::SingleLinkedList<T>::_F_insert(const iterator &it, ConstReference arg)
 {
     Node *n = _F_construct_node(arg);
@@ -60,7 +46,7 @@ void rapid::SingleLinkedList<T>::_F_erase(iterator &it)
         delete it._M_current;
         it._M_current = it._M_next;
     }
-    _F_add_size(-1);
+    _F_add_size(static_cast<SizeType>(-1));
 }
 
 template<typename T>
@@ -86,7 +72,7 @@ void rapid::SingleLinkedList<T>::pop_back()
         n_before->Next = nullptr;
         delete n_after;
     }
-    _F_add_size(-1);
+    _F_add_size(static_cast<SizeType>(-1));
 }
 
 template<typename T>
@@ -96,7 +82,7 @@ void rapid::SingleLinkedList<T>::pop_front()
     Node *n = _M_head;
     _M_head = _M_head->Next;
     delete n;
-    _F_add_size(-1);
+    _F_add_size(static_cast<SizeType>(-1));
 }
 
 template<typename T>
