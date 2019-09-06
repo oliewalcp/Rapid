@@ -1,10 +1,8 @@
-#include "Core/BinaryTree.h"
+#include "Core/DoubleLinkedList.h"
 using namespace rapid;
-#include <iostream>
-#include <list>
 
 int main()
 {
-    test_BinaryTree_main();
+    test_DoubleLinkedList_main();
     return 0;
 }

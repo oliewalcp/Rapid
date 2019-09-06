@@ -559,8 +559,7 @@ public:
     { return const_aiterator(_M_root); }
     const_aiterator caend() const
     { return const_aiterator(); }
-#define ReverseOk
-#ifndef ReverseOk
+
     class ReverseFormerIterator
     {
     private:
@@ -615,11 +614,271 @@ public:
         { return _M_current != forward<ReverseFormerIterator>(it)._M_current; }
     };
 
-    class ConstReverseFormerIterator;
-    class ReverseMiddleIterator;
-    class ConstReverseMiddleIterator;
-    class ReverseAfterIterator;
-    class ConstReverseAfterIterator;
+    class ConstReverseFormerIterator
+    {
+    private:
+        TreeNode *_M_current = nullptr;
+
+        void _F_next();
+        void _F_previous();
+
+        friend class BinaryTree;
+
+        ConstReverseFormerIterator(TreeNode *root);
+    public:
+        ConstReverseFormerIterator() { }
+        ConstReverseFormerIterator(const ConstReverseFormerIterator &it) : _M_current(it._M_current) { }
+        ConstReverseFormerIterator(ConstReverseFormerIterator &&it)
+            : _M_current(forward<ConstReverseFormerIterator>(it)._M_current)
+        { }
+
+        ConstReverseFormerIterator operator++()
+        {
+            ConstReverseFormerIterator it = *this;
+            _F_next();
+            return it;
+        }
+        ConstReverseFormerIterator operator++(int)
+        {
+            _F_next();
+            return *this;
+        }
+        ConstReverseFormerIterator operator--()
+        {
+            ConstReverseFormerIterator it = *this;
+            _F_previous();
+            return it;
+        }
+        ConstReverseFormerIterator operator--(int)
+        {
+            _F_previous();
+            return *this;
+        }
+        DataType operator*() const
+        { return _M_current->data(); }
+        DataType* operator->() const
+        { return &_M_current->data(); }
+        bool operator==(const ConstReverseFormerIterator &it) const
+        { return _M_current == it._M_current; }
+        bool operator==(ConstReverseFormerIterator &&it) const
+        { return _M_current == forward<ConstReverseFormerIterator>(it)._M_current; }
+        bool operator!=(const ConstReverseFormerIterator &it) const
+        { return _M_current != it._M_current; }
+        bool operator!=(ConstReverseFormerIterator &&it) const
+        { return _M_current != forward<ConstReverseFormerIterator>(it)._M_current; }
+    };
+    class ReverseMiddleIterator
+    {
+    private:
+        TreeNode *_M_current = nullptr;
+
+        void _F_next();
+        void _F_previous();
+
+        friend class BinaryTree;
+
+        ReverseMiddleIterator(TreeNode *root);
+    public:
+        ReverseMiddleIterator() { }
+        ReverseMiddleIterator(const ReverseMiddleIterator &it) : _M_current(it._M_current) { }
+        ReverseMiddleIterator(ReverseMiddleIterator &&it)
+            : _M_current(forward<ReverseMiddleIterator>(it)._M_current)
+        { }
+
+        ReverseMiddleIterator operator++()
+        {
+            ReverseMiddleIterator it = *this;
+            _F_next();
+            return it;
+        }
+        ReverseMiddleIterator operator++(int)
+        {
+            _F_next();
+            return *this;
+        }
+        ReverseMiddleIterator operator--()
+        {
+            ReverseMiddleIterator it = *this;
+            _F_previous();
+            return it;
+        }
+        ReverseMiddleIterator operator--(int)
+        {
+            _F_previous();
+            return *this;
+        }
+        DataType operator*() const
+        { return _M_current->data(); }
+        DataType* operator->() const
+        { return &_M_current->data(); }
+        bool operator==(const ReverseMiddleIterator &it) const
+        { return _M_current == it._M_current; }
+        bool operator==(ReverseMiddleIterator &&it) const
+        { return _M_current == forward<ReverseMiddleIterator>(it)._M_current; }
+        bool operator!=(const ReverseMiddleIterator &it) const
+        { return _M_current != it._M_current; }
+        bool operator!=(ReverseMiddleIterator &&it) const
+        { return _M_current != forward<ReverseMiddleIterator>(it)._M_current; }
+    };
+    class ConstReverseMiddleIterator
+    {
+    private:
+        TreeNode *_M_current = nullptr;
+
+        void _F_next();
+        void _F_previous();
+
+        friend class BinaryTree;
+
+        ConstReverseMiddleIterator(TreeNode *root);
+    public:
+        ConstReverseMiddleIterator() { }
+        ConstReverseMiddleIterator(const ConstReverseMiddleIterator &it) : _M_current(it._M_current) { }
+        ConstReverseMiddleIterator(ConstReverseMiddleIterator &&it)
+            : _M_current(forward<ConstReverseMiddleIterator>(it)._M_current)
+        { }
+
+        ConstReverseMiddleIterator operator++()
+        {
+            ConstReverseMiddleIterator it = *this;
+            _F_next();
+            return it;
+        }
+        ConstReverseMiddleIterator operator++(int)
+        {
+            _F_next();
+            return *this;
+        }
+        ConstReverseMiddleIterator operator--()
+        {
+            ConstReverseMiddleIterator it = *this;
+            _F_previous();
+            return it;
+        }
+        ConstReverseMiddleIterator operator--(int)
+        {
+            _F_previous();
+            return *this;
+        }
+        DataType operator*() const
+        { return _M_current->data(); }
+        DataType* operator->() const
+        { return &_M_current->data(); }
+        bool operator==(const ConstReverseMiddleIterator &it) const
+        { return _M_current == it._M_current; }
+        bool operator==(ConstReverseMiddleIterator &&it) const
+        { return _M_current == forward<ConstReverseMiddleIterator>(it)._M_current; }
+        bool operator!=(const ConstReverseMiddleIterator &it) const
+        { return _M_current != it._M_current; }
+        bool operator!=(ConstReverseMiddleIterator &&it) const
+        { return _M_current != forward<ConstReverseMiddleIterator>(it)._M_current; }
+    };
+    class ReverseAfterIterator
+    {
+    private:
+        TreeNode *_M_current = nullptr;
+
+        void _F_next();
+        void _F_previous();
+
+        friend class BinaryTree;
+
+        ReverseAfterIterator(TreeNode *root);
+    public:
+        ReverseAfterIterator() { }
+        ReverseAfterIterator(const ReverseAfterIterator &it) : _M_current(it._M_current) { }
+        ReverseAfterIterator(ReverseAfterIterator &&it)
+            : _M_current(forward<ReverseAfterIterator>(it)._M_current)
+        { }
+
+        ReverseAfterIterator operator++()
+        {
+            ReverseAfterIterator it = *this;
+            _F_next();
+            return it;
+        }
+        ReverseAfterIterator operator++(int)
+        {
+            _F_next();
+            return *this;
+        }
+        ReverseAfterIterator operator--()
+        {
+            ReverseAfterIterator it = *this;
+            _F_previous();
+            return it;
+        }
+        ReverseAfterIterator operator--(int)
+        {
+            _F_previous();
+            return *this;
+        }
+        DataType operator*() const
+        { return _M_current->data(); }
+        DataType* operator->() const
+        { return &_M_current->data(); }
+        bool operator==(const ReverseAfterIterator &it) const
+        { return _M_current == it._M_current; }
+        bool operator==(ReverseAfterIterator &&it) const
+        { return _M_current == forward<ReverseAfterIterator>(it)._M_current; }
+        bool operator!=(const ReverseAfterIterator &it) const
+        { return _M_current != it._M_current; }
+        bool operator!=(ReverseAfterIterator &&it) const
+        { return _M_current != forward<ReverseAfterIterator>(it)._M_current; }
+    };
+    class ConstReverseAfterIterator
+    {
+    private:
+        TreeNode *_M_current = nullptr;
+
+        void _F_next();
+        void _F_previous();
+
+        friend class BinaryTree;
+
+        ConstReverseAfterIterator(TreeNode *root);
+    public:
+        ConstReverseAfterIterator() { }
+        ConstReverseAfterIterator(const ConstReverseAfterIterator &it) : _M_current(it._M_current) { }
+        ConstReverseAfterIterator(ConstReverseAfterIterator &&it)
+            : _M_current(forward<ConstReverseAfterIterator>(it)._M_current)
+        { }
+
+        ConstReverseAfterIterator operator++()
+        {
+            ConstReverseAfterIterator it = *this;
+            _F_next();
+            return it;
+        }
+        ConstReverseAfterIterator operator++(int)
+        {
+            _F_next();
+            return *this;
+        }
+        ConstReverseAfterIterator operator--()
+        {
+            ConstReverseAfterIterator it = *this;
+            _F_previous();
+            return it;
+        }
+        ConstReverseAfterIterator operator--(int)
+        {
+            _F_previous();
+            return *this;
+        }
+        DataType operator*() const
+        { return _M_current->data(); }
+        DataType* operator->() const
+        { return &_M_current->data(); }
+        bool operator==(const ConstReverseAfterIterator &it) const
+        { return _M_current == it._M_current; }
+        bool operator==(ConstReverseAfterIterator &&it) const
+        { return _M_current == forward<ConstReverseAfterIterator>(it)._M_current; }
+        bool operator!=(const ConstReverseAfterIterator &it) const
+        { return _M_current != it._M_current; }
+        bool operator!=(ConstReverseAfterIterator &&it) const
+        { return _M_current != forward<ConstReverseAfterIterator>(it)._M_current; }
+    };
 
     using reverse_iterator = ReverseMiddleIterator;
     using const_reverse_iterator = ConstReverseMiddleIterator;
@@ -633,48 +892,52 @@ public:
 
     reverse_iterator rbegin()
     { return reverse_iterator(_M_root); }
+    reverse_iterator rend()
+    { return reverse_iterator(); }
+    const_reverse_iterator rbegin() const
+    { return const_reverse_iterator(_M_root); }
     const_reverse_iterator rend() const
     { return const_reverse_iterator(); }
 
     freverse_iterator frbegin()
-    { return fiterator(_M_root); }
+    { return freverse_iterator(_M_root); }
     freverse_iterator frend()
-    { return fiterator(); }
+    { return freverse_iterator(); }
     const_freverse_iterator frbegin() const
-    { return const_fiterator(_M_root); }
+    { return const_freverse_iterator(_M_root); }
     const_freverse_iterator frend() const
-    { return const_fiterator(); }
+    { return const_freverse_iterator(); }
     const_freverse_iterator cfrbegin() const
-    { return const_fiterator(_M_root); }
+    { return const_freverse_iterator(_M_root); }
     const_freverse_iterator cfrend() const
-    { return const_fiterator(); }
+    { return const_freverse_iterator(); }
 
     mreverse_iterator mrbegin()
-    { return miterator(_M_root); }
+    { return mreverse_iterator(_M_root); }
     mreverse_iterator mrend()
-    { return miterator(); }
+    { return mreverse_iterator(); }
     const_mreverse_iterator mrbegin() const
-    { return const_miterator(_M_root); }
+    { return const_mreverse_iterator(_M_root); }
     const_mreverse_iterator mrend() const
-    { return const_miterator(); }
+    { return const_mreverse_iterator(); }
     const_mreverse_iterator cmrbegin() const
-    { return const_miterator(_M_root); }
+    { return const_mreverse_iterator(_M_root); }
     const_mreverse_iterator cmrend() const
-    { return const_miterator(); }
+    { return const_mreverse_iterator(); }
 
     areverse_iterator arbegin()
-    { return aiterator(_M_root); }
+    { return areverse_iterator(_M_root); }
     areverse_iterator arend()
-    { return aiterator(); }
+    { return areverse_iterator(); }
     const_areverse_iterator arbegin() const
-    { return const_aiterator(_M_root); }
+    { return const_areverse_iterator(_M_root); }
     const_areverse_iterator arend() const
-    { return const_aiterator(); }
+    { return const_areverse_iterator(); }
     const_areverse_iterator carbegin() const
-    { return const_aiterator(_M_root); }
+    { return const_areverse_iterator(_M_root); }
     const_areverse_iterator carend() const
-    { return const_aiterator(); }
-#endif
+    { return const_areverse_iterator(); }
+
 };
 
 void test_BinaryTree_main();
