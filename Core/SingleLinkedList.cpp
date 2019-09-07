@@ -1,17 +1,6 @@
 #include "Core/SingleLinkedList.h"
 
 template<typename T>
-rapid::SingleLinkedList<T>::SingleLinkedList(const SingleLinkedList<T> &sll)
-    : _M_head(nullptr), _M_size(0)
-{
-    iterator temp = before_begin();
-    for(auto it = sll.begin(); it != sll.end(); ++it)
-    {
-        temp = insert_after(temp, *it);
-    }
-}
-
-template<typename T>
 void rapid::SingleLinkedList<T>::clear()
 {
     Node *n = _M_head;
@@ -25,14 +14,15 @@ void rapid::SingleLinkedList<T>::clear()
 }
 
 template<typename T>
-typename rapid::SingleLinkedList<T>::iterator rapid::SingleLinkedList<T>::_F_find(ConstReference arg)
+typename rapid::SingleLinkedList<T>::iterator
+    rapid::SingleLinkedList<T>::_F_find(ConstReference arg) const
 {
-   for(auto it = begin(); it != end(); ++it)
+   for(const_iterator it = begin(); it != end(); ++it)
    {
        if((*it) == arg)
-       { return it; }
+       { return it._F_const_cast(); }
    }
-   return end();
+   return end()._F_const_cast();
 }
 
 template<typename T>
@@ -40,12 +30,13 @@ template<typename IteratorType>
 typename rapid::SingleLinkedList<T>::iterator
     rapid::SingleLinkedList<T>::insert_after(const_iterator pos, IteratorType b, IteratorType e)
 {
-    for(IteratorType it = b; true; ++it)
+    iterator r;
+    while(b != e)
     {
-        iterator r = insert_after(pos, *it);
-        if(b == e)
-            return r;
+        r = insert_after(pos, *b);
+        ++b;
     }
+    return r;
 }
 
 #include <iostream>

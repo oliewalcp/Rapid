@@ -40,7 +40,7 @@ void rapid::BinaryTree<_DataType>::_F_copy(const BinaryTree &tree)
                 new_node = append_right(dst.top(), *it);
             }
         }
-        src.push(it._M_current);
+        src.push(const_cast<TreeNode*>(it._M_current));
         dst.push(new_node);
     }
 }
@@ -341,13 +341,13 @@ rapid::BinaryTree<_DataType>::FormerIterator::FormerIterator(TreeNode *root)
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstFormerIterator::_F_next()
 {
-    _M_current = former_next<_DataType>(_M_current);
+    _M_current = former_next<_DataType>(const_cast<TreeNode*>(_M_current));
 }
 
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstFormerIterator::_F_previous()
 {
-    _M_current = former_previous<_DataType>(_M_current);
+    _M_current = former_previous<_DataType>(const_cast<TreeNode*>(_M_current));
 }
 
 template<typename _DataType>
@@ -378,13 +378,13 @@ rapid::BinaryTree<_DataType>::MiddleIterator::MiddleIterator(TreeNode *root)
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstMiddleIterator::_F_next()
 {
-    _M_current = middle_next<_DataType>(_M_current);
+    _M_current = middle_next<_DataType>(const_cast<TreeNode*>(_M_current));
 }
 
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstMiddleIterator::_F_previous()
 {
-    _M_current = middle_previous<_DataType>(_M_current);
+    _M_current = middle_previous<_DataType>(const_cast<TreeNode*>(_M_current));
 }
 
 template<typename _DataType>
@@ -414,13 +414,13 @@ rapid::BinaryTree<_DataType>::AfterIterator::AfterIterator(TreeNode *root)
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstAfterIterator::_F_next()
 {
-    _M_current = after_next<_DataType>(_M_current);
+    _M_current = after_next<_DataType>(const_cast<TreeNode*>(_M_current));
 }
 
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstAfterIterator::_F_previous()
 {
-    _M_current = after_previous<_DataType>(_M_current);
+    _M_current = after_previous<_DataType>(const_cast<TreeNode*>(_M_current));
 }
 
 template<typename _DataType>
@@ -450,13 +450,13 @@ rapid::BinaryTree<_DataType>::ReverseFormerIterator::ReverseFormerIterator(TreeN
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstReverseFormerIterator::_F_next()
 {
-    _M_current = former_previous<_DataType>(_M_current);
+    _M_current = former_previous<_DataType>(const_cast<TreeNode*>(_M_current));
 }
 
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstReverseFormerIterator::_F_previous()
 {
-    _M_current = former_next<_DataType>(_M_current);
+    _M_current = former_next<_DataType>(const_cast<TreeNode*>(_M_current));
 }
 
 template<typename _DataType>
@@ -488,13 +488,13 @@ rapid::BinaryTree<_DataType>::ReverseMiddleIterator::ReverseMiddleIterator(TreeN
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstReverseMiddleIterator::_F_next()
 {
-    _M_current = middle_previous<_DataType>(_M_current);
+    _M_current = middle_previous<_DataType>(const_cast<TreeNode*>(_M_current));
 }
 
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstReverseMiddleIterator::_F_previous()
 {
-    _M_current = middle_next<_DataType>(_M_current);
+    _M_current = middle_next<_DataType>(const_cast<TreeNode*>(_M_current));
 }
 
 template<typename _DataType>
@@ -526,13 +526,13 @@ rapid::BinaryTree<_DataType>::ReverseAfterIterator::ReverseAfterIterator(TreeNod
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstReverseAfterIterator::_F_next()
 {
-    _M_current = after_previous<_DataType>(_M_current);
+    _M_current = after_previous<_DataType>(const_cast<TreeNode*>(_M_current));
 }
 
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::ConstReverseAfterIterator::_F_previous()
 {
-    _M_current = after_next<_DataType>(_M_current);
+    _M_current = after_next<_DataType>(const_cast<TreeNode*>(_M_current));
 }
 
 template<typename _DataType>

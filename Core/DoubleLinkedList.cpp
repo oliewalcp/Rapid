@@ -10,13 +10,17 @@ typename rapid::DoubleLinkedList<T>::iterator
     {
         _M_tail = _F_construct_node(_M_tail, nullptr, args...);
         if(_M_head == nullptr)
-        { _M_head = _M_tail; }
+        {
+            _M_head = _M_tail;
+        }
         return iterator(_M_tail);
     }
     iterator remove_const_it = it._F_const_cast();
     Node *n = _F_construct_node(remove_const_it._M_current->Previous, remove_const_it._M_current, args...);
     if(_M_head->Previous != nullptr)
-    { _M_head = _M_head->Previous; }
+    {
+        _M_head = _M_head->Previous;
+    }
     return iterator(n);
 }
 
@@ -25,22 +29,28 @@ template<typename IteratorType>
 typename rapid::DoubleLinkedList<T>::iterator
     rapid::DoubleLinkedList<T>::insert(const_iterator pos, IteratorType b, IteratorType e)
 {
-    for(IteratorType it = b; true; ++it)
+    iterator result = pos._F_const_cast();
+    while(b != e)
     {
-        iterator r = insert(pos, *it);
-        if(b == e)
-            return r;
+        result = insert(result, *b);
+        ++b;
     }
+    return result;
 }
 
 template<typename T>
 void rapid::DoubleLinkedList<T>::_F_erase(const_iterator it)
 {
-    if(it == end()) return;
+    if(it == end())
+        return;
     if(it._M_current == _M_tail)
-    { _M_tail = _M_tail->Previous; }
+    {
+        _M_tail = _M_tail->Previous;
+    }
     else if(it._M_current == _M_head)
-    { _M_head = _M_head->Next; }
+    {
+        _M_head = _M_head->Next;
+    }
     it._F_const_cast()._M_current->dealloc();
     delete it._M_current;
     _F_add_size(-1);
@@ -79,7 +89,7 @@ void rapid::DoubleLinkedList<T>::reverse()
 {
     Node *n1 = _M_head;
     Node *n2 = _M_tail;
-    while(n1 != n2 && n1->Next != n2)
+    while(n1 != n2 && n2->Next != n1)
     {
         NodeBase<ValueType> *temp = n1->Data;
         n1->Data = n2->Data;
@@ -103,7 +113,7 @@ void rapid::test_DoubleLinkedList_main()
     it = dll1.insert(it, 0);
     dll1.insert(it, -10);
     it = dll1.insert(it, -20);
-
+    std::cout << "size = " << dll1.size() << std::endl;
     for(int i : dll1)
     {
         std::cout << i << " ";
@@ -114,9 +124,23 @@ void rapid::test_DoubleLinkedList_main()
     DoubleLinkedList<int> dll2(dll1);
     dll2.pop_back();
     dll2.pop_front();
+    std::cout << "size = " << dll2.size() << std::endl;
     for(auto it = dll2.begin(); it != dll2.end(); ++it)
     {
         std::cout << *it << " ";
     }
     std::cout << std::endl;
+    std::cout << "----------------reverse----------------" << std::endl;
+    std::cout << "original data: " << std::endl;
+    for(int i : dll1)
+    {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "reverse data: " << std::endl;
+    dll1.reverse();
+    for(int i : dll1)
+    {
+        std::cout << i << " ";
+    }
 }

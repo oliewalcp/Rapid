@@ -1,9 +1,8 @@
-#include "Core/DoubleLinkedList.h"
-#include "Core/SingleLinkedList.h"
+#include "Core/BinaryTree.h"
 using namespace rapid;
 
 int main()
 {
-    test_SingleLinkedList_main();
+    test_BinaryTree_main();
     return 0;
 }

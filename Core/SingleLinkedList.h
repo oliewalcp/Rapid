@@ -25,6 +25,7 @@ private:
     {
         NodeBase<ValueType> *Data;
         Node *Next;
+        Node() : Data(new NodeBase<ValueType>()), Next(nullptr) { }
         template<typename ... Args>
         Node(Node *n, const Args & ... args)
             : Data(new NodeBase<ValueType>(args...)), Next(n) { }
@@ -35,8 +36,8 @@ private:
         Pointer address() const
         { return Data->address(); }
     };
-    Node *_M_head;
-    SizeType _M_size;
+    Node *_M_head = new Node();
+    SizeType _M_size = 0;
 
     template<typename ... Args>
     Node* _F_construct_node(Node *n, const Args & ... args)
@@ -47,12 +48,24 @@ private:
 
     template<typename ... Args>
     iterator _F_insert_after(iterator it, const Args &... args)
-    { return iterator(it._M_current->Next = _F_construct_node(it._M_current->Next, args...)); }
+    {
+        _F_add_size(1);
+        return iterator(it._M_current->Next = _F_construct_node(it._M_current->Next, args...));
+    }
 
     void _F_erase_after(iterator it)
-    { it._M_current->Next = it._M_current->Next == nullptr ? nullptr : it._M_current->Next->Next; }
+    {
+        if(it == end()) return;
+        if(it._M_current->Next != nullptr)
+        {
+            Node *temp = it._M_current->Next->Next;
+            delete it._M_current->Next;
+            it._M_current->Next = temp;
+        }
+        _F_add_size(-1);
+    }
 
-    iterator _F_find(ConstReference arg);
+    iterator _F_find(ConstReference arg) const;
 
 public:
 
@@ -146,9 +159,14 @@ public:
         { return _M_current != arg._M_current; }
     };
 
-    SingleLinkedList() : _M_head(nullptr), _M_size(0) { }
-    SingleLinkedList(const SingleLinkedList<T> &sll);
-    virtual ~SingleLinkedList() { clear(); }
+    SingleLinkedList() { }
+    SingleLinkedList(const SingleLinkedList<T> &sll)
+    { insert_after(before_begin(), sll.begin(), sll.end()); }
+    ~SingleLinkedList()
+    {
+        clear();
+        delete _M_head;
+    }
 
     void swap(const SingleLinkedList &sll)
     {
@@ -176,7 +194,7 @@ public:
     void erase_after(iterator it)
     { _F_erase_after(it); }
     void erase_after(const_iterator it)
-    { _F_erase_after(it); }
+    { _F_erase_after(it._F_const_cast()); }
 
     iterator insert_after(iterator it, ConstReference arg)
     { return _F_insert_after(it, arg); }
@@ -206,12 +224,19 @@ public:
     const_iterator end() const
     { return const_iterator(); }
 
+    Reference front()
+    { return empty() ? NodeBase<ValueType>().ref_content() : *begin(); }
     Reference front() const
     { return empty() ? NodeBase<ValueType>().ref_content() : *begin(); }
 
     iterator find(ConstReference arg)
     { return _F_find(arg); }
     iterator find(RvalueReference arg)
+    { return _F_find(forward<ValueType>(arg)); }
+
+    iterator find(ConstReference arg) const
+    { return _F_find(arg); }
+    iterator find(RvalueReference arg) const
     { return _F_find(forward<ValueType>(arg)); }
 
     template<typename ... Args>
@@ -231,7 +256,7 @@ public:
     { return _F_insert_after(it._F_const_cast(), forward<Args>(args)...); }
     template<typename ... Args>
     iterator emplace_after(iterator it, Args && ... args)
-    { return _F_insert_after(it, forward<Args...>(args...)); }
+    { return _F_insert_after(it, forward<Args>(args)...); }
 
 };
 

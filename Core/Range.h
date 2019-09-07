@@ -49,6 +49,12 @@ public:
         ValueType operator--(int)
         { return _M_current--; }
 
+        Reference operator*()
+        { return _M_current; }
+
+        Pointer operator->()
+        { return &_M_current; }
+
         Reference operator*() const
         { return _M_current; }
 
@@ -87,6 +93,12 @@ public:
         ValueType operator--(int)
         { return _M_current--; }
 
+        Reference operator*()
+        { return _M_current; }
+
+        Pointer operator->()
+        { return &_M_current; }
+
         Reference operator*() const
         { return _M_current; }
 
@@ -108,18 +120,18 @@ public:
     iterator end()
     { return iterator(_M_end); }
     iterator begin() const
-    { return const_iterator(_M_start); }
+    { return iterator(_M_start); }
     iterator end() const
-    { return const_iterator(_M_end); }
+    { return iterator(_M_end); }
 
     reverse_iterator rbegin()
     { return reverse_iterator(_M_end); }
     reverse_iterator rend()
     { return reverse_iterator(_M_start); }
     reverse_iterator rbegin() const
-    { return const_reverse_iterator(_M_end); }
+    { return reverse_iterator(_M_end); }
     reverse_iterator rend() const
-    { return const_reverse_iterator(_M_start); }
+    { return reverse_iterator(_M_start); }
 
 };
 
