@@ -1,17 +1,92 @@
 #include "Core/DoubleLinkedList.h"
 
 template<typename T>
-typename rapid::DoubleLinkedList<T>::iterator rapid::DoubleLinkedList<T>::_F_find(ConstReference arg)
+template<typename ... Args>
+typename rapid::DoubleLinkedList<T>::iterator
+    rapid::DoubleLinkedList<T>::_F_insert(const_iterator it, const Args & ... args)
+{
+    _F_add_size(1);
+    if(it == cend())
+    {
+        _M_tail = _F_construct_node(_M_tail, nullptr, args...);
+        if(_M_head == nullptr)
+        { _M_head = _M_tail; }
+        return iterator(_M_tail);
+    }
+    iterator remove_const_it = it._F_const_cast();
+    Node *n = _F_construct_node(remove_const_it._M_current->Previous, remove_const_it._M_current, args...);
+    if(_M_head->Previous != nullptr)
+    { _M_head = _M_head->Previous; }
+    return iterator(n);
+}
+
+template<typename T>
+template<typename IteratorType>
+typename rapid::DoubleLinkedList<T>::iterator
+    rapid::DoubleLinkedList<T>::insert(const_iterator pos, IteratorType b, IteratorType e)
+{
+    for(IteratorType it = b; true; ++it)
+    {
+        iterator r = insert(pos, *it);
+        if(b == e)
+            return r;
+    }
+}
+
+template<typename T>
+void rapid::DoubleLinkedList<T>::_F_erase(const_iterator it)
+{
+    if(it == end()) return;
+    if(it._M_current == _M_tail)
+    { _M_tail = _M_tail->Previous; }
+    else if(it._M_current == _M_head)
+    { _M_head = _M_head->Next; }
+    it._F_const_cast()._M_current->dealloc();
+    delete it._M_current;
+    _F_add_size(-1);
+}
+
+template<typename T>
+typename rapid::DoubleLinkedList<T>::iterator
+    rapid::DoubleLinkedList<T>::_F_find(ConstReference arg)
 {
     Node *temp = _M_head;
     while(temp != nullptr)
     {
-        const ValueType &data = temp->Data->const_ref_content();
-        if(data == arg)
+        if(temp->Data->const_ref_content() == arg)
         { return iterator(temp); }
         temp = temp->Next;
     }
     return end();
+}
+
+template<typename T>
+void rapid::DoubleLinkedList<T>::clear()
+{
+    Node *n = _M_head;
+    while(n != nullptr)
+    {
+        Node *m = n->Next;
+        delete n;
+        n = m;
+    }
+    _M_head = _M_tail = nullptr;
+    _M_size = 0;
+}
+
+template<typename T>
+void rapid::DoubleLinkedList<T>::reverse()
+{
+    Node *n1 = _M_head;
+    Node *n2 = _M_tail;
+    while(n1 != n2 && n1->Next != n2)
+    {
+        NodeBase<ValueType> *temp = n1->Data;
+        n1->Data = n2->Data;
+        n2->Data = temp;
+        n1 = n1->Next;
+        n2 = n2->Previous;
+    }
 }
 
 #include <iostream>

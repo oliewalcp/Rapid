@@ -81,11 +81,13 @@ public:
 
     NodeBase() { }
 
-    NodeBase(const T &arg)
-    { construct(arg); }
+    template<typename ... Args>
+    NodeBase(Args ... args)
+    { construct(args...); }
 
-    void construct(const T &arg)
-    { ::new(address()) T(arg); }
+    template<typename ... Args>
+    void construct(Args ... args)
+    { ::new(address()) T(args...); }
 
     T* address()
     { return reinterpret_cast<T *>(&__Data[0]); }

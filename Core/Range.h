@@ -12,31 +12,27 @@ template<typename T = int>
 class Range
 {
 public:
-    class IteratorImpl;
-    class ConstIteratorImpl;
-    class ReverseIteratorImpl;
-    class ConstReverseIteratorImpl;
-private:
     using ValueType = T;
+    using Reference = ValueType &;
     using ConstReference = const ValueType &;
+    using Pointer = ValueType *;
+    using RvalueReference = ValueType &&;
 
-    using iterator = IteratorImpl;
-    using const_iterator = ConstIteratorImpl;
-    using reverse_iterator = ReverseIteratorImpl;
-    using const_reverse_iterator = ConstReverseIteratorImpl;
-
+private:
     ValueType _M_start, _M_end;// contain [_M_end] and [_M_start]
 
 public:
-    class RangeIteratorBase
+    class iterator
     {
     protected:
-        ValueType _M_current;
-        RangeIteratorBase(ConstReference c)
-        { _M_current = c; }
+        friend class Range;
 
+        ValueType _M_current;
+
+        iterator(ConstReference c)
+        { _M_current = c; }
     public:
-        RangeIteratorBase(const RangeIteratorBase &it) : _M_current(*it) { }
+        iterator(const iterator &it) : _M_current(*it) { }
 
         ValueType operator+(const ValueType arg)
         { return _M_current += arg; }
@@ -53,27 +49,28 @@ public:
         ValueType operator--(int)
         { return _M_current--; }
 
-        ValueType operator*() const
+        Reference operator*() const
         { return _M_current; }
 
-        ValueType* operator->() const
+        Pointer operator->() const
         { return &_M_current; }
 
-        bool operator==(const RangeIteratorBase& arg) const
+        bool operator==(const iterator& arg) const
         { return _M_current > arg._M_current; }
-        bool operator!=(const RangeIteratorBase& arg) const
+        bool operator!=(const iterator& arg) const
         { return _M_current != arg._M_current; }
     };
-    class RangeReverseIteratorBase
+    class reverse_iterator
     {
     protected:
-        ValueType _M_current;
-        RangeReverseIteratorBase(ConstReference c)
-        { _M_current = c; }
+        friend class Range;
 
+        ValueType _M_current;
+
+        reverse_iterator(ConstReference c)
+        { _M_current = c; }
     public:
-        RangeReverseIteratorBase(const RangeReverseIteratorBase &it)
-            : _M_current(*it) { }
+        reverse_iterator(const reverse_iterator &it) : _M_current(*it) { }
 
         ValueType operator+(const ValueType arg)
         { return _M_current += arg; }
@@ -81,90 +78,49 @@ public:
         { return _M_current -= arg; }
 
         ValueType operator++()
-        { return --_M_current; }
-        ValueType operator++(int)
-        { return _M_current--; }
-
-        ValueType operator--()
         { return ++_M_current; }
-        ValueType operator--(int)
+        ValueType operator++(int)
         { return _M_current++; }
 
-        ValueType operator*() const
+        ValueType operator--()
+        { return --_M_current; }
+        ValueType operator--(int)
+        { return _M_current--; }
+
+        Reference operator*() const
         { return _M_current; }
 
-        ValueType* operator->() const
+        Pointer operator->() const
         { return &_M_current; }
 
-        bool operator==(const RangeReverseIteratorBase& arg) const
-        { return _M_current < arg._M_current; }
-        bool operator!=(const RangeReverseIteratorBase& arg) const
+        bool operator==(const reverse_iterator& arg) const
+        { return _M_current > arg._M_current; }
+        bool operator!=(const reverse_iterator& arg) const
         { return _M_current != arg._M_current; }
     };
-    class IteratorImpl : public RangeIteratorBase
-    {
-    protected:
-        IteratorImpl(ConstReference n) : RangeIteratorBase(n) { }
-    public:
-        IteratorImpl(const IteratorImpl &it) : RangeIteratorBase(it) { }
-        IteratorImpl(IteratorImpl && it)
-            : RangeIteratorBase(forward<IteratorImpl>(it)) { }
-    };
-    class ConstIteratorImpl : public RangeIteratorBase
-    {
-    protected:
-        ConstIteratorImpl(ConstReference n) : RangeIteratorBase(n) { }
-    public:
-        ConstIteratorImpl(const ConstIteratorImpl &it) : RangeIteratorBase(it) { }
-        ConstIteratorImpl(ConstIteratorImpl && it)
-            : RangeIteratorBase(forward<ConstIteratorImpl>(it)) { }
-    };
-    class ReverseIteratorImpl : public RangeReverseIteratorBase
-    {
-    protected:
-        ReverseIteratorImpl(ConstReference n) : RangeReverseIteratorBase(n) { }
-    public:
-        ReverseIteratorImpl(const ReverseIteratorImpl &it) : RangeReverseIteratorBase(it) { }
-        ReverseIteratorImpl(ReverseIteratorImpl && it)
-            : RangeReverseIteratorBase(forward<ReverseIteratorImpl>(it)) { }
-    };
-    class ConstReverseIteratorImpl : public RangeReverseIteratorBase
-    {
-    protected:
-        ConstReverseIteratorImpl(ConstReference n) : RangeReverseIteratorBase(n) { }
-    public:
-        ConstReverseIteratorImpl(const ConstReverseIteratorImpl &it) : RangeReverseIteratorBase(it) { }
-        ConstReverseIteratorImpl(ConstReverseIteratorImpl && it)
-            : RangeReverseIteratorBase(forward<ConstReverseIteratorImpl>(it)) { }
-    };
 
-    Range(ValueType s, ValueType e) : _M_start(s), _M_end(e) { }
+    Range(RvalueReference s, RvalueReference e)
+        : _M_start(forward<ValueType>(s)), _M_end(forward<ValueType>(e)) { }
+    Range(ConstReference s, ConstReference e) : _M_start(s), _M_end(e) { }
 
     iterator begin()
     { return iterator(_M_start); }
     iterator end()
     { return iterator(_M_end); }
-    const_iterator begin() const
+    iterator begin() const
     { return const_iterator(_M_start); }
-    const_iterator end() const
-    { return const_iterator(_M_end); }
-    const_iterator cbegin() const
-    { return const_iterator(_M_start); }
-    const_iterator cend() const
+    iterator end() const
     { return const_iterator(_M_end); }
 
     reverse_iterator rbegin()
     { return reverse_iterator(_M_end); }
     reverse_iterator rend()
     { return reverse_iterator(_M_start); }
-    const_reverse_iterator rbegin() const
+    reverse_iterator rbegin() const
     { return const_reverse_iterator(_M_end); }
-    const_reverse_iterator rend() const
+    reverse_iterator rend() const
     { return const_reverse_iterator(_M_start); }
-    const_reverse_iterator crbegin() const
-    { return const_reverse_iterator(_M_end); }
-    const_reverse_iterator crend() const
-    { return const_reverse_iterator(_M_start); }
+
 };
 
 };

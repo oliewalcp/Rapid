@@ -11,8 +11,6 @@ namespace rapid
 template<typename T>
 class DoubleLinkedList
 {
-private:
-    struct Node;
 public:
     using ValueType = T;
     using Pointer = ValueType*;
@@ -21,15 +19,10 @@ public:
     using RvalueReference = ValueType&&;
     using SizeType = size_type;
 
-    class IteratorImpl;
-    using iterator = BothIteratorBase<IteratorImpl, ValueType, Node, DoubleLinkedList>;
-    class ConstIteratorImpl;
-    using const_iterator = BothIteratorBase<ConstIteratorImpl, ValueType, Node, DoubleLinkedList>;
-    class ReverseIteratorImpl;
-    using reverse_iterator = BothIteratorBase<ReverseIteratorImpl, ValueType, Node, DoubleLinkedList>;
-    class ConstReverseIteratorImpl;
-    using const_reverse_iterator = BothIteratorBase<ConstReverseIteratorImpl, ValueType, Node, DoubleLinkedList>;
-
+    class iterator;
+    class const_iterator;
+    class reverse_iterator;
+    class const_reverse_iterator;
 private:
 
     struct Node
@@ -37,80 +30,52 @@ private:
         NodeBase<ValueType> *Data;
         Node *Next;
         Node *Previous;
-        Node(ConstReference arg, Node *p = nullptr, Node *n = nullptr)
-            : Data(new NodeBase<ValueType>(arg)), Next(n), Previous(p)
+
+        template<typename ... Args>
+        Node(Node *p, Node *n, const Args & ... args)
+            : Data(new NodeBase<ValueType>(args...)), Next(n), Previous(p)
         {
             if(p != nullptr)
-            { p->set_next(this); }
+            { p->Next = this; }
             if(n != nullptr)
-            { n->set_previous(this); }
+            { n->Previous = this; }
         }
+
         ~Node()
-        {
-            delete Data;
-            if(Next != nullptr)
-            { delete Next; }
-        }
+        { delete Data; }
         void dealloc()
         {
-            if(Previous != nullptr)
-            { Previous->set_next(Next); }
             if(Next != nullptr)
-            { Next->set_previous(Previous); }
-            set_next(nullptr);
+            { Next->Previous = Previous; }
+            if(Previous != nullptr)
+            { Previous->Next = Next; }
         }
-        void set_next(Node *n)
-        { Next = n; }
-        void set_previous(Node *n)
-        { Previous = n; }
-        ValueType& data()
+        Reference data() const
         { return Data->ref_content(); }
-        ValueType* address()
+        Pointer address() const
         { return Data->address(); }
     };
     Node *_M_head = nullptr;
     Node *_M_tail = nullptr;
     SizeType _M_size = 0;
 
-    inline Node* _F_construct_node(ConstReference arg, Node *p = nullptr, Node *n = nullptr)
-    { return new Node(arg, p, n); }
-    inline void _F_add_size(SizeType i)
+    template<typename ... Args>
+    Node* _F_construct_node(Node *p, Node *n, const Args & ... args)
+    { return new Node(p, n, args...); }
+
+    void _F_add_size(SizeType i)
     { _M_size += i; }
-    iterator _F_insert(const iterator &it, ConstReference arg)
-    {
-        _F_add_size(1);
-        if(it == end())
-        {
-            _M_tail = _F_construct_node(arg, _M_tail);
-            if(_M_head == nullptr)
-            { _M_head = _M_tail; }
-            return iterator(_M_tail);
-        }
-        Node *n = _F_construct_node(arg, it._M_current->Previous, it._M_current);
-        if(_M_head->Previous != nullptr)
-        { _M_head = _M_head->Previous; }
-        return iterator(n);
-    }
-    void _F_erase(const iterator &it)
-    {
-        if(it == end()) return;
-        if(it._M_current == _M_tail)
-        { _M_tail = _M_tail->Previous; }
-        else if(it._M_current == _M_head)
-        { _M_head = _M_head->Next; }
-        it._M_current->dealloc();
-        delete it._M_current;
-        _F_add_size(-1);
-    }
+
+    template<typename ... Args>
+    iterator _F_insert(const_iterator it, const Args & ... args);
+
+    void _F_erase(const_iterator it);
     iterator _F_find(ConstReference arg);
 
 public:
-
-    class DoubleLinkedListIteratorBase
+    class iterator
     {
     protected:
-        using ItBase = DoubleLinkedListIteratorBase;
-
         Node *_M_current;
         void _F_next()
         {
@@ -122,17 +87,122 @@ public:
             if(_M_current != nullptr)
             { _M_current = _M_current->Previous; }
         }
+        const_iterator _F_const_cast()
+        { return const_iterator(_M_current); }
 
-        DoubleLinkedListIteratorBase(Node *n) : _M_current(n) { }
+        friend DoubleLinkedList;
+        iterator(Node *n) : _M_current(n) { }
     public:
-        DoubleLinkedListIteratorBase(const ItBase &it) : _M_current(it._M_current) { }
+        iterator() : _M_current(nullptr) { }
+        iterator(const iterator &it)
+            : _M_current(it._M_current) { }
+        iterator(iterator && it)
+            : _M_current(forward<iterator>(it)._M_current) { }
+
+        iterator operator++()
+        {
+            iterator it = *this;
+            _F_next();
+            return it;
+        }
+        iterator operator++(int)
+        {
+            _F_next();
+            return *this;
+        }
+        iterator operator--()
+        {
+            iterator it = *this;
+            _F_previous();
+            return it;
+        }
+        iterator operator--(int)
+        {
+            _F_previous();
+            return *this;
+        }
+        Reference operator*() const
+        { return _M_current->data(); }
+        Pointer operator->() const
+        { return _M_current->address(); }
+        bool operator==(const iterator &it) const
+        { return _M_current == it._M_current; }
+        bool operator==(iterator &&it) const
+        { return _M_current == forward<iterator>(it)._M_current; }
+        bool operator!=(const iterator &it) const
+        { return _M_current != it._M_current; }
+        bool operator!=(iterator &&it) const
+        { return _M_current != forward<iterator>(it)._M_current; }
+        iterator operator=(const iterator &it)
+        { return _M_current = it._M_current; }
     };
-    class DoubleLinkedListReverseIteratorBase
+
+    class reverse_iterator
     {
     protected:
-        using ItBase = DoubleLinkedListReverseIteratorBase;
-
         Node *_M_current;
+        void _F_next()
+        {
+            if(_M_current != nullptr)
+            { _M_current = _M_current->Previous; }
+        }
+        void _F_previous()
+        {
+            if(_M_current != nullptr)
+            { _M_current = _M_current->Next; }
+        }
+
+        friend DoubleLinkedList;
+        reverse_iterator(Node *n) : _M_current(n) { }
+    public:
+        reverse_iterator() : _M_current(nullptr) { }
+        reverse_iterator(const reverse_iterator &it)
+            : _M_current(it._M_current) { }
+        reverse_iterator(reverse_iterator && it)
+            : _M_current(forward<reverse_iterator>(it)._M_current) { }
+
+        reverse_iterator operator++()
+        {
+            reverse_iterator it = *this;
+            _F_next();
+            return it;
+        }
+        reverse_iterator operator++(int)
+        {
+            _F_next();
+            return *this;
+        }
+        reverse_iterator operator--()
+        {
+            reverse_iterator it = *this;
+            _F_previous();
+            return it;
+        }
+        reverse_iterator operator--(int)
+        {
+            _F_previous();
+            return *this;
+        }
+        Reference operator*() const
+        { return _M_current->data(); }
+        Pointer operator->() const
+        { return _M_current->address(); }
+        bool operator==(const reverse_iterator &it) const
+        { return _M_current == it._M_current; }
+        bool operator==(reverse_iterator &&it) const
+        { return _M_current == forward<reverse_iterator>(it)._M_current; }
+        bool operator!=(const reverse_iterator &it) const
+        { return _M_current != it._M_current; }
+        bool operator!=(reverse_iterator &&it) const
+        { return _M_current != forward<reverse_iterator>(it)._M_current; }
+        reverse_iterator operator=(const reverse_iterator &it)
+        { return _M_current = it._M_current; }
+    };
+
+    class const_iterator
+    {
+    private:
+        const Node *_M_current;
         void _F_next()
         {
             if(_M_current != nullptr)
@@ -144,97 +214,173 @@ public:
             { _M_current = _M_current->Previous; }
         }
 
-        DoubleLinkedListReverseIteratorBase(Node *n) : _M_current(n) { }
+        friend DoubleLinkedList;
+
+        iterator _F_const_cast()
+        { return iterator(const_cast<Node*>(_M_current)); }
+        const_iterator(Node *n) : _M_current(n) { }
     public:
-        DoubleLinkedListReverseIteratorBase(const ItBase &it) : _M_current(it._M_current) { }
-    };
-    class IteratorImpl : public DoubleLinkedListIteratorBase
-    {
-    protected:
-        IteratorImpl(Node *n) : DoubleLinkedListIteratorBase(n) { }
-    public:
-        IteratorImpl(const IteratorImpl &it) : DoubleLinkedListIteratorBase(it._M_current) { }
+        const_iterator() : _M_current(nullptr) { }
+        const_iterator(const const_iterator &it)
+            : _M_current(it._M_current) { }
+        const_iterator(const_iterator && it)
+            : _M_current(forward<const_iterator>(it)._M_current) { }
+        const_iterator(const iterator &it)
+            : _M_current(it._M_current) { }
+        const_iterator(iterator &&it)
+            : _M_current(forward<iterator>(it)._M_current) { }
+
+        const_iterator operator++()
+        {
+            const_iterator it = *this;
+            _F_next();
+            return it;
+        }
+        const_iterator operator++(int)
+        {
+            _F_next();
+            return *this;
+        }
+        const_iterator operator--()
+        {
+            const_iterator it = *this;
+            _F_previous();
+            return it;
+        }
+        const_iterator operator--(int)
+        {
+            _F_previous();
+            return *this;
+        }
+        Reference operator*() const
+        { return _M_current->data(); }
+        Pointer operator->() const
+        { return _M_current->address(); }
+        bool operator==(const const_iterator &it) const
+        { return _M_current == it._M_current; }
+        bool operator!=(const const_iterator &it) const
+        { return _M_current != it._M_current; }
+        const_iterator operator=(const const_iterator &it)
+        { return _M_current = it._M_current; }
     };
 
-    class ConstIteratorImpl : public DoubleLinkedListIteratorBase
+    class const_reverse_iterator
     {
     protected:
-        ConstIteratorImpl(Node *n)
-            : DoubleLinkedListIteratorBase(n) { }
-    public:
-        ConstIteratorImpl(const ConstIteratorImpl &it)
-            : DoubleLinkedListIteratorBase(it._M_current) { }
-    };
+        const Node *_M_current;
+        void _F_next()
+        {
+            if(_M_current != nullptr)
+            { _M_current = _M_current->Previous; }
+        }
+        void _F_previous()
+        {
+            if(_M_current != nullptr)
+            { _M_current = _M_current->Next; }
+        }
 
-    class ReverseIteratorImpl : public DoubleLinkedListReverseIteratorBase
-    {
-    protected:
-        ReverseIteratorImpl(Node *n)
-            : DoubleLinkedListIteratorBase(n) { }
-    public:
-        ReverseIteratorImpl(const ReverseIteratorImpl &it)
-            : DoubleLinkedListIteratorBase(it._M_current) { }
-    };
+        reverse_iterator _F_const_cast()
+        { return reverse_iterator(const_cast<Node*>(_M_current)); }
 
-    class ConstReverseIteratorImpl : public DoubleLinkedListReverseIteratorBase
-    {
-    protected:
-        ConstReverseIteratorImpl(Node *n)
-            : DoubleLinkedListIteratorBase(n) { }
+        friend DoubleLinkedList;
+        const_reverse_iterator(Node *n) : _M_current(n) { }
     public:
-        ConstReverseIteratorImpl(const ReverseIteratorImpl &it)
-            : DoubleLinkedListIteratorBase(it._M_current) { }
+        const_reverse_iterator() : _M_current(nullptr) { }
+        const_reverse_iterator(const const_reverse_iterator &it)
+            : _M_current(it._M_current) { }
+        const_reverse_iterator(const_reverse_iterator && it)
+            : _M_current(forward<const_reverse_iterator>(it)._M_current) { }
+        const_reverse_iterator(const reverse_iterator &it)
+            : _M_current(it._M_current) { }
+        const_reverse_iterator(reverse_iterator &&it)
+            : _M_current(forward<reverse_iterator>(it)._M_current) { }
+
+        const_reverse_iterator operator++()
+        {
+            const_reverse_iterator it = *this;
+            _F_next();
+            return it;
+        }
+        const_reverse_iterator operator++(int)
+        {
+            _F_next();
+            return *this;
+        }
+        const_reverse_iterator operator--()
+        {
+            const_reverse_iterator it = *this;
+            _F_previous();
+            return it;
+        }
+        const_reverse_iterator operator--(int)
+        {
+            _F_previous();
+            return *this;
+        }
+        Reference operator*() const
+        { return _M_current->data(); }
+        Pointer operator->() const
+        { return _M_current->address(); }
+        bool operator==(const const_reverse_iterator &it) const
+        { return _M_current == it._M_current; }
+        bool operator==(const_reverse_iterator &&it) const
+        { return _M_current == forward<const_reverse_iterator>(it)._M_current; }
+        bool operator!=(const const_reverse_iterator &it) const
+        { return _M_current != it._M_current; }
+        bool operator!=(const_reverse_iterator &&it) const
+        { return _M_current != forward<const_reverse_iterator>(it)._M_current; }
+        const_reverse_iterator operator=(const const_reverse_iterator &it)
+        { return _M_current = it._M_current; }
     };
 
     DoubleLinkedList() { }
-    DoubleLinkedList(DoubleLinkedList<ValueType> &dll)
-    {
-        for(auto it = dll.begin(); it != dll.end(); ++it)
-        { push_back(*it); }
-    }
+    DoubleLinkedList(const DoubleLinkedList<ValueType> &dll)
+    { insert<const_iterator>(cend(), dll.begin(), dll.end()); }
+    template<typename IteratorType>
+    DoubleLinkedList(const IteratorType &b, const IteratorType &e)
+    { insert<IteratorType>(cend(), b, e); }
     ~DoubleLinkedList()
     { clear(); }
 
-    inline SizeType size() const
+    SizeType size() const
     { return _M_size; }
-    inline bool empty() const
-    { return _M_size == 0; }
+    bool empty() const
+    { return size() == 0; }
 
-    inline iterator push_back(ConstReference arg)
+    iterator push_back(ConstReference arg)
     { return insert(end(), arg); }
-    inline iterator push_back(RvalueReference arg)
+    iterator push_back(RvalueReference arg)
     { return insert(end(), forward<ValueType>(arg)); }
 
-    inline iterator push_front(ConstReference arg)
+    iterator push_front(ConstReference arg)
     { return insert(begin(), arg); }
-    inline iterator push_front(RvalueReference arg)
+    iterator push_front(RvalueReference arg)
     { return insert(begin(), forward<ValueType>(arg)); }
 
-    inline void pop_back()
+    void pop_back()
     { erase(iterator(_M_tail)); }
-    inline void pop_front()
+    void pop_front()
     { erase(iterator(_M_head)); }
 
-    inline void erase(iterator &it)
+    void erase(iterator it)
     { _F_erase(it); }
-    inline void erase(iterator && it)
-    { _F_erase(forward<iterator>(it)); }
-    inline iterator insert(iterator &it, ConstReference arg)
-    { return _F_insert(it, arg); }
-    inline iterator insert(iterator && it, ConstReference arg)
-    { return _F_insert(forward<iterator>(it), arg); }
-    inline iterator insert(iterator &it, RvalueReference arg)
-    { return _F_insert(it, forward<ValueType>(arg)); }
-    inline iterator insert(iterator && it, RvalueReference arg)
-    { return _F_insert(forward<iterator>(it), forward<ValueType>(arg)); }
+    void erase(const_iterator it)
+    { _F_erase(it); }
 
-    void clear()
-    {
-        if(_M_head != nullptr)
-        { delete _M_head; }
-        _M_head = _M_tail = nullptr;
-        _M_size = 0;
-    }
+    iterator insert(iterator it, ConstReference arg)
+    { return _F_insert(it, arg); }
+    iterator insert(iterator it, RvalueReference arg)
+    { return _F_insert(it, forward<ValueType>(arg)); }
+
+    iterator insert(const_iterator it, ConstReference arg)
+    { return _F_insert(it, arg); }
+    iterator insert(const_iterator it, RvalueReference arg)
+    { return _F_insert(it, forward<ValueType>(arg)); }
+
+    template<typename IteratorType>
+    iterator insert(const_iterator pos, IteratorType b, IteratorType e);
+
+    void clear();
 
     iterator begin()
     { return iterator(_M_head); }
@@ -261,16 +407,42 @@ public:
     const_reverse_iterator crend() const
     { return const_reverse_iterator(_M_tail == nullptr ? nullptr : _M_head->Previous); }
 
-    ValueType front()
-    { return _M_head == nullptr ? NodeBase<ValueType>().content() : _M_head->Data->content(); }
-    ValueType back()
-    { return _M_tail == nullptr ? NodeBase<ValueType>().content() : _M_tail->Data->content(); }
+    Reference front() const
+    { return _M_head == nullptr ? NodeBase<ValueType>().ref_content() : _M_head->data(); }
+    Reference back() const
+    { return _M_tail == nullptr ? NodeBase<ValueType>().ref_content() : _M_tail->data(); }
 
-    inline iterator find(ConstReference arg)
+    iterator find(ConstReference arg)
     { return _F_find(arg); }
-    inline iterator find(RvalueReference arg)
+    iterator find(RvalueReference arg)
     { return _F_find(forward<ValueType>(arg)); }
 
+    void reverse();
+
+    template<typename ... Args>
+    iterator emplace_front(const Args & ... args)
+    { return _F_insert(begin(), args...); }
+    template<typename ... Args>
+    iterator emplace_front(Args && ... args)
+    { return _F_insert(begin(), forward<Args>(args)...); }
+    template<typename ... Args>
+    iterator emplace_back(const Args & ... args)
+    { return _F_insert(end(), args...); }
+    template<typename ... Args>
+    iterator emplace_back(Args && ... args)
+    { return _F_insert(end(), forward<Args>(args)...); }
+    template<typename ... Args>
+    iterator emplace(const_iterator it, const Args & ... args)
+    { return _F_insert(it._F_const_cast(), args...); }
+    template<typename ... Args>
+    iterator emplace(iterator it, const Args & ... args)
+    { return _F_insert(it, args...); }
+    template<typename ... Args>
+    iterator emplace(const_iterator it, Args && ... args)
+    { return _F_insert(it._F_const_cast(), forward<Args>(args)...); }
+    template<typename ... Args>
+    iterator emplace(iterator it, Args && ... args)
+    { return _F_insert(it, forward<Args...>(args...)); }
 };
 
 template<typename T>
