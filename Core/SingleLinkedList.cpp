@@ -1,9 +1,10 @@
 #include "Core/SingleLinkedList.h"
+#include "Core/Stack.h"
 
 template<typename T>
 void rapid::SingleLinkedList<T>::clear()
 {
-    Node *n = _M_head;
+    Node *n = _M_head->Next;
     while(n != nullptr)
     {
         Node *temp = n;
@@ -11,6 +12,26 @@ void rapid::SingleLinkedList<T>::clear()
         delete temp;
     }
     _M_size = 0;
+}
+
+template<typename T>
+void rapid::SingleLinkedList<T>::reverse()
+{
+    Stack<Node *> s;
+    for(Node *n = _M_head->Next; n != nullptr; n = n->Next)
+    {
+        s.push(n);
+    }
+    _M_head->Next = s.top();
+    while(!s.empty())
+    {
+        Node *top_node = s.top();
+        top_node->Next = nullptr;
+        s.pop();
+        if(s.empty()) break;
+        Node *top_under_node = s.top();
+        top_node->Next = top_under_node;
+    }
 }
 
 template<typename T>
@@ -22,7 +43,7 @@ typename rapid::SingleLinkedList<T>::iterator
        if((*it) == arg)
        { return it._F_const_cast(); }
    }
-   return end()._F_const_cast();
+   return cend()._F_const_cast();
 }
 
 template<typename T>
@@ -71,6 +92,12 @@ void rapid::test_SingleLinkedList_main()
         std::cout << i << std::endl;
     }
     std::cout << "total size: " << ss.size() << std::endl;
+    std::cout << "---------reverse------------" << std::endl;
+    ss.reverse();
+    for(int i : ss)
+    {
+        std::cout << i << std::endl;
+    }
     std::cout << "************debug singleLinkedList end************" << std::endl;
 }
 

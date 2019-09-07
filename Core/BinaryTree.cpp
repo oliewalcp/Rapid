@@ -2,14 +2,6 @@
 #include "Core/Stack.h"
 #include <iostream>
 
-template<typename T>
-int rapid::Equal<T>::operator()(const T &arg1, const T &arg2) const
-{
-    if(arg1 < arg2) return 1;
-    if(arg2 < arg1) return -1;
-    return 0;
-}
-
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::_F_copy(const BinaryTree &tree)
 {
@@ -46,10 +38,11 @@ void rapid::BinaryTree<_DataType>::_F_copy(const BinaryTree &tree)
 }
 
 template<typename _DataType>
-void rapid::BinaryTree<_DataType>::right_rotate(TreeNode *node)
+typename rapid::BinaryTree<_DataType>::TreeNode*
+    rapid::BinaryTree<_DataType>::right_rotate(TreeNode *node)
 {
     TreeNode *left_node = left_child(node);
-    if(left_node == nullptr) return;
+    if(left_node == nullptr) return nullptr;
     TreeNode *original_parent = parent(node);
     TreeNode *left_node_right_child = right_child(left_node);
     if(original_parent != nullptr)
@@ -83,13 +76,17 @@ void rapid::BinaryTree<_DataType>::right_rotate(TreeNode *node)
 
     if(node == root())
     { _M_root = left_node; }
+
+    node->update_depth();
+    return left_node;
 }
 
 template<typename _DataType>
-void rapid::BinaryTree<_DataType>::left_rotate(TreeNode *node)
+typename rapid::BinaryTree<_DataType>::TreeNode*
+    rapid::BinaryTree<_DataType>::left_rotate(TreeNode *node)
 {
     TreeNode *right_node = right_child(node);
-    if(right_node == nullptr) return;
+    if(right_node == nullptr) return nullptr;
     TreeNode *original_parent = parent(node);
     TreeNode *right_node_left_child = left_child(right_node);
     if(original_parent != nullptr)
@@ -123,6 +120,9 @@ void rapid::BinaryTree<_DataType>::left_rotate(TreeNode *node)
 
     if(node == root())
     { _M_root = right_node; }
+
+    node->update_depth();
+    return right_node;
 }
 
 //---------------------***************---------------------//
@@ -570,6 +570,8 @@ void rapid::test_BinaryTree_main()
     {
         std::cout << *it << " ";
     }
+    std::cout << std::endl;
+    std::cout << "depth: ----->  " << bt.depth() << std::endl;
     std::cout << std::endl << "----------------------------" << std::endl;
     BinaryTree<int> bt2(bt);
     std::cout << "size = " << bt2.size() << std::endl;

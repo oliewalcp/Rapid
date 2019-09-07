@@ -1,8 +1,8 @@
-#include "Core/BinaryTree.h"
+#include "Core/BalanceBinaryTree.h"
 using namespace rapid;
 
 int main()
 {
-    test_BinaryTree_main();
+    test_BalanceBinayTree_main();
     return 0;
 }

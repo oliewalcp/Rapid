@@ -210,6 +210,7 @@ public:
     iterator insert_after(const_iterator pos, IteratorType b, IteratorType e);
 
     void clear();
+    void reverse();
 
     iterator before_begin()
     { return iterator(_M_head); }
@@ -222,6 +223,12 @@ public:
     const_iterator begin() const
     { return const_iterator(_M_head->Next); }
     const_iterator end() const
+    { return const_iterator(); }
+    const_iterator cbefore_begin() const
+    { return const_iterator(_M_head); }
+    const_iterator cbegin() const
+    { return const_iterator(_M_head->Next); }
+    const_iterator cend() const
     { return const_iterator(); }
 
     Reference front()

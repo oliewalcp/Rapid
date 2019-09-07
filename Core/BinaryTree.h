@@ -7,12 +7,6 @@
 namespace rapid
 {
 
-template<typename T>
-struct Equal
-{
-    int operator()(const T &arg1, const T &arg2) const;
-};
-
 template<typename _DataType>
 class BinaryTree
 {
@@ -24,6 +18,10 @@ public:
     using SizeType = size_type;
 
 private:
+    template<typename T>
+    static constexpr T max(const T &t1, const T &t2)
+    { return t1 > t2 ? t1 : t2; }
+
     template<typename DataNodeType>
     struct BTreeNode
     {
@@ -33,6 +31,7 @@ private:
         BTreeNode *_M_right = nullptr;
         BTreeNode *_M_parent = nullptr;
         SizeType _M_child_number = 0;
+        SizeType _M_depth = 1;
 
         friend class BinaryTree;
 
@@ -41,6 +40,19 @@ private:
             _M_child_number += size;
             if(_M_parent != nullptr)
             { _M_parent->add_child_number(size); }
+        }
+        void update_depth()
+        {
+            if(_M_left != nullptr)
+            {
+                _M_depth = _M_left->_M_depth + 1;
+            }
+            if(_M_right != nullptr)
+            {
+                _M_depth = max(_M_right->_M_depth + 1, _M_depth);
+            }
+            if(_M_parent != nullptr)
+            { _M_parent->update_depth(); }
         }
 
         BTreeNode* append_left(ConstReference data)
@@ -58,7 +70,9 @@ private:
                 node->set_parent(this);
                 add_child_number(node->_M_child_number + 1);
             }
-            return _M_left = node;
+            _M_left = node;
+            update_depth();
+            return _M_left;
         }
         BTreeNode* set_right(BTreeNode *node)
         {
@@ -68,7 +82,9 @@ private:
                 node->set_parent(this);
                 add_child_number(node->_M_child_number + 1);
             }
-            return _M_right = node;
+            _M_right = node;
+            update_depth();
+            return _M_right;
         }
         ~BTreeNode()
         { delete _M_data; }
@@ -84,6 +100,8 @@ private:
         { return _M_data->ref_content(); }
         SizeType child_size() const
         { return _M_child_number; }
+        SizeType depth() const
+        { return _M_depth; }
     };
 public:
     using TreeNode = BTreeNode<DataType>;
@@ -92,13 +110,6 @@ private:
 
     void _F_copy(const BinaryTree &tree);
 
-    static void _SF_release(TreeNode *node)
-    {
-        if(node == nullptr) return;
-        _SF_release(node->_M_left);
-        _SF_release(node->_M_right);
-        delete node;
-    }
 public:
     BinaryTree() { }
     BinaryTree(const BinaryTree &tree)
@@ -107,6 +118,14 @@ public:
     { _F_copy(forward<BinaryTree>(tree)); }
     ~BinaryTree()
     { clear(); }
+
+    static void release(TreeNode *node)
+    {
+        if(node == nullptr) return;
+        release(node->_M_left);
+        release(node->_M_right);
+        delete node;
+    }
 
     TreeNode* root() const
     { return _M_root; }
@@ -118,9 +137,11 @@ public:
     { return _M_root == nullptr ? 0 : _M_root->child_size() + 1; }
     bool empty() const
     { return _M_root == nullptr; }
+    SizeType depth() const
+    { return depth(root()); }
     void clear()
     {
-        _SF_release(root());
+        release(root());
         _M_root = nullptr;
     }
 
@@ -137,9 +158,11 @@ public:
         temp._M_root = _M_root;
         _M_root = node;
     }
-    void left_rotate(TreeNode *node);
-    void right_rotate(TreeNode *node);
+    TreeNode* left_rotate(TreeNode *node);
+    TreeNode* right_rotate(TreeNode *node);
 
+    static SizeType depth(TreeNode *node)
+    { return node == nullptr ? 0 : node->depth(); }
     static TreeNode* left_child(const TreeNode *node)
     { return node == nullptr ? nullptr : node->_M_left; }
     static TreeNode* right_child(const TreeNode *node)
@@ -149,13 +172,13 @@ public:
     static TreeNode* set_left(TreeNode *node, TreeNode *child)
     {
         if(node == nullptr) return nullptr;
-        _SF_release(left_child(node));
+        release(left_child(node));
         return node->set_left(child);
     }
     static TreeNode* set_right(TreeNode *node, TreeNode *child)
     {
         if(node == nullptr) return nullptr;
-        _SF_release(right_child(node));
+        release(right_child(node));
         return node->set_right(child);
     }
     static TreeNode* append_left(TreeNode *node, ConstReference data)
@@ -167,12 +190,31 @@ public:
     static TreeNode* append_right(TreeNode *node, RvalueReference data)
     { return node == nullptr ? nullptr : node->append_right(forward<DataType>(data)); }
     static void remove(TreeNode *node)
+    { release(node); }
+    static void remove_left(TreeNode *node)
+    { set_left(node, nullptr); }
+    static void remove_right(TreeNode *node)
+    { set_right(node, nullptr); }
+    static TreeNode* erase_left(TreeNode *node)
     {
-        if(node != nullptr)
-        { delete node; }
+        if(node == nullptr) return nullptr;
+        TreeNode *result = left_child(node);
+        node->set_left(nullptr);
+        return result;
+    }
+    static TreeNode* erase_right(TreeNode *node)
+    {
+        if(node == nullptr) return nullptr;
+        TreeNode *result = right_child(node);
+        node->set_right(nullptr);
+        return result;
     }
     static bool is_brother(const TreeNode *node1, const TreeNode *node2)
     { return parent(node1) == parent(node2) && node1 != node2; }
+    static SizeType left_child_size(TreeNode *node)
+    { return node == nullptr ? 0 : (left_child(node) == nullptr ? 0 : (left_child(node)->child_size() + 1)); }
+    static SizeType right_child_size(TreeNode *node)
+    { return node == nullptr ? 0 : (right_child(node) == nullptr ? 0 : (right_child(node)->child_size() + 1)); }
 
 private:
     class FormerIterator;
@@ -193,8 +235,8 @@ private:
         friend class BinaryTree;
         ConstFormerIterator _F_const_cast()
         { return ConstFormerIterator(_M_current); }
-        FormerIterator(TreeNode *root);
     public:
+        FormerIterator(TreeNode *root);
         FormerIterator() { }
         FormerIterator(const FormerIterator &it)
             : _M_current(it._M_current) { }
@@ -243,8 +285,8 @@ private:
         friend class BinaryTree;
         FormerIterator _F_const_cast()
         { return FormerIterator(const_cast<TreeNode *>(_M_current)); }
-        ConstFormerIterator(TreeNode *root);
     public:
+        ConstFormerIterator(TreeNode *root);
         ConstFormerIterator() { }
         ConstFormerIterator(const ConstFormerIterator &it)
             : _M_current(it._M_current) { }
@@ -297,8 +339,8 @@ private:
         friend class BinaryTree;
         ConstMiddleIterator _F_const_cast()
         { return ConstMiddleIterator(_M_current); }
-        MiddleIterator(TreeNode *root);
     public:
+        MiddleIterator(TreeNode *root);
         MiddleIterator() { }
         MiddleIterator(const MiddleIterator &it)
             : _M_current(it._M_current) { }
@@ -347,8 +389,8 @@ private:
         friend class BinaryTree;
         MiddleIterator _F_const_cast()
         { return MiddleIterator(const_cast<TreeNode *>(_M_current)); }
-        ConstMiddleIterator(TreeNode *root);
     public:
+        ConstMiddleIterator(TreeNode *root);
         ConstMiddleIterator() { }
         ConstMiddleIterator(const ConstMiddleIterator &it)
             : _M_current(it._M_current) { }
@@ -405,8 +447,8 @@ private:
         friend class BinaryTree;
         ConstAfterIterator _F_const_cast()
         { return ConstAfterIterator(_M_current); }
-        AfterIterator(TreeNode *root);
     public:
+        AfterIterator(TreeNode *root);
         AfterIterator() { }
         AfterIterator(const AfterIterator &it)
             : _M_current(it._M_current) { }
@@ -455,8 +497,8 @@ private:
         friend class BinaryTree;
         AfterIterator _F_const_cast()
         { return AfterIterator(const_cast<TreeNode *>(_M_current)); }
-        ConstAfterIterator(TreeNode *root);
     public:
+        ConstAfterIterator(TreeNode *root);
         ConstAfterIterator() { }
         ConstAfterIterator(const ConstAfterIterator &it)
             : _M_current(it._M_current) { }
@@ -583,8 +625,8 @@ private:
         ConstReverseFormerIterator _F_const_cast()
         { return ConstReverseFormerIterator(_M_current); }
         friend class BinaryTree;
-        ReverseFormerIterator(TreeNode *root);
     public:
+        ReverseFormerIterator(TreeNode *root);
         ReverseFormerIterator() { }
         ReverseFormerIterator(const ReverseFormerIterator &it)
             : _M_current(it._M_current) { }
@@ -633,8 +675,8 @@ private:
         friend class BinaryTree;
         ReverseFormerIterator _F_const_cast()
         { return ReverseFormerIterator(const_cast<TreeNode *>(_M_current)); }
-        ConstReverseFormerIterator(TreeNode *root);
     public:
+        ConstReverseFormerIterator(TreeNode *root);
         ConstReverseFormerIterator() { }
         ConstReverseFormerIterator(const ConstReverseFormerIterator &it)
             : _M_current(it._M_current) { }
@@ -691,8 +733,8 @@ private:
         friend class BinaryTree;
         ConstReverseMiddleIterator _F_const_cast()
         { return ConstReverseMiddleIterator(_M_current); }
-        ReverseMiddleIterator(TreeNode *root);
     public:
+        ReverseMiddleIterator(TreeNode *root);
         ReverseMiddleIterator() { }
         ReverseMiddleIterator(const ReverseMiddleIterator &it)
             : _M_current(it._M_current) { }
@@ -741,8 +783,8 @@ private:
         friend class BinaryTree;
         ReverseMiddleIterator _F_const_cast()
         { return ReverseMiddleIterator(const_cast<TreeNode *>(_M_current)); }
-        ConstReverseMiddleIterator(TreeNode *root);
     public:
+        ConstReverseMiddleIterator(TreeNode *root);
         ConstReverseMiddleIterator() { }
         ConstReverseMiddleIterator(const ConstReverseMiddleIterator &it)
             : _M_current(it._M_current) { }
@@ -799,8 +841,8 @@ private:
         friend class BinaryTree;
         ConstReverseAfterIterator _F_const_cast()
         { return ConstReverseAfterIterator(_M_current); }
-        ReverseAfterIterator(TreeNode *root);
     public:
+        ReverseAfterIterator(TreeNode *root);
         ReverseAfterIterator() { }
         ReverseAfterIterator(const ReverseAfterIterator &it)
             : _M_current(it._M_current) { }
@@ -849,8 +891,8 @@ private:
         friend class BinaryTree;
         ReverseAfterIterator _F_const_cast()
         { return ReverseAfterIterator(const_cast<TreeNode *>(_M_current)); }
-        ConstReverseAfterIterator(TreeNode *root);
     public:
+        ConstReverseAfterIterator(TreeNode *root);
         ConstReverseAfterIterator() { }
         ConstReverseAfterIterator(const ConstReverseAfterIterator &it)
             : _M_current(it._M_current) { }
