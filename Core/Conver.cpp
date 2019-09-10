@@ -1,5 +1,8 @@
+#ifndef CONVER_CPP
+#define CONVER_CPP
+
 #include "Conver.h"
-#include "Memory.h"
+#include "Core/Memory.h"
 
 unsigned char rapid::hex_to_int(const char arg)
 {
@@ -74,3 +77,5 @@ char* rapid::to_ansi(const char *utf8)
     return str;
 }
 #endif
+
+#endif // end CONVER_CPP

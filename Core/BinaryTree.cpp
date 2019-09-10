@@ -1,6 +1,8 @@
-#include "Core/BinaryTree.h"
-#include "Core/Stack.h"
-#include <iostream>
+#ifndef BINARYTREE_CPP
+#define BINARYTREE_CPP
+
+#include "BinaryTree.h"
+#include "Stack.h"
 
 template<typename _DataType>
 void rapid::BinaryTree<_DataType>::_F_copy(const BinaryTree &tree)
@@ -127,8 +129,8 @@ typename rapid::BinaryTree<_DataType>::TreeNode*
 
 //---------------------***************---------------------//
 template<typename _DataType>
-typename rapid::BinaryTree<_DataType>::TreeNode* left_child_under(
-        typename rapid::BinaryTree<_DataType>::TreeNode *node)
+typename rapid::BinaryTree<_DataType>::TreeNode*
+    rapid::BinaryTree<_DataType>::left_child_under(TreeNode *node)
 {
     using BT = rapid::BinaryTree<_DataType>;
     while(node != nullptr && BT::left_child(node) != nullptr)
@@ -138,8 +140,8 @@ typename rapid::BinaryTree<_DataType>::TreeNode* left_child_under(
     return node;
 }
 template<typename _DataType>
-typename rapid::BinaryTree<_DataType>::TreeNode* right_child_under(
-        typename rapid::BinaryTree<_DataType>::TreeNode *node)
+typename rapid::BinaryTree<_DataType>::TreeNode*
+    rapid::BinaryTree<_DataType>::right_child_under(TreeNode *node)
 {
     using BT = rapid::BinaryTree<_DataType>;
     while(node != nullptr && BT::right_child(node) != nullptr)
@@ -149,32 +151,32 @@ typename rapid::BinaryTree<_DataType>::TreeNode* right_child_under(
     return node;
 }
 template<typename _DataType>
-typename rapid::BinaryTree<_DataType>::TreeNode* left_leaves(
-        typename rapid::BinaryTree<_DataType>::TreeNode *node)
+typename rapid::BinaryTree<_DataType>::TreeNode*
+    rapid::BinaryTree<_DataType>::left_leaves(TreeNode *node)
 {
     using BT = rapid::BinaryTree<_DataType>;
-    node = left_child_under<_DataType>(node);
+    node = left_child_under(node);
     while(BT::right_child(node) != nullptr)
     {
-        node = left_child_under<_DataType>(BT::right_child(node));
+        node = left_child_under(BT::right_child(node));
     }
     return node;
 }
 template<typename _DataType>
-typename rapid::BinaryTree<_DataType>::TreeNode* right_leaves(
-        typename rapid::BinaryTree<_DataType>::TreeNode *node)
+typename rapid::BinaryTree<_DataType>::TreeNode*
+    rapid::BinaryTree<_DataType>::right_leaves(TreeNode *node)
 {
     using BT = rapid::BinaryTree<_DataType>;
-    node = right_child_under<_DataType>(node);
+    node = right_child_under(node);
     while(BT::left_child(node) != nullptr)
     {
-        node = right_child_under<_DataType>(BT::left_child(node));
+        node = right_child_under(BT::left_child(node));
     }
     return node;
 }
 template<typename _DataType>
-typename rapid::BinaryTree<_DataType>::TreeNode* former_next(
-        typename rapid::BinaryTree<_DataType>::TreeNode *current)
+typename rapid::BinaryTree<_DataType>::TreeNode*
+    rapid::BinaryTree<_DataType>::former_next(TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
@@ -197,15 +199,15 @@ typename rapid::BinaryTree<_DataType>::TreeNode* former_next(
     return BT::right_child(current);
 }
 template<typename _DataType>
-typename rapid::BinaryTree<_DataType>::TreeNode* middle_next(
-        typename rapid::BinaryTree<_DataType>::TreeNode *current)
+typename rapid::BinaryTree<_DataType>::TreeNode*
+    rapid::BinaryTree<_DataType>::middle_next(TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
     using Node = typename BT::TreeNode;
     if(BT::right_child(current) != nullptr)
     {
-        return left_child_under<_DataType>(BT::right_child(current));
+        return left_child_under(BT::right_child(current));
     }
     if(current != BT::right_child(BT::parent(current)))
     {
@@ -222,8 +224,8 @@ typename rapid::BinaryTree<_DataType>::TreeNode* middle_next(
 }
 
 template<typename _DataType>
-typename rapid::BinaryTree<_DataType>::TreeNode* after_next(
-        typename rapid::BinaryTree<_DataType>::TreeNode *current)
+typename rapid::BinaryTree<_DataType>::TreeNode*
+    rapid::BinaryTree<_DataType>::after_next(TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
@@ -233,7 +235,7 @@ typename rapid::BinaryTree<_DataType>::TreeNode* after_next(
         {
             return BT::parent(current);
         }
-        return left_leaves<_DataType>(BT::right_child(BT::parent(current)));
+        return left_leaves(BT::right_child(BT::parent(current)));
     }
     if(current == BT::right_child(BT::parent(current)))
     {
@@ -243,8 +245,8 @@ typename rapid::BinaryTree<_DataType>::TreeNode* after_next(
 }
 
 template<typename _DataType>
-typename rapid::BinaryTree<_DataType>::TreeNode* former_previous(
-        typename rapid::BinaryTree<_DataType>::TreeNode *current)
+typename rapid::BinaryTree<_DataType>::TreeNode*
+    rapid::BinaryTree<_DataType>::former_previous(TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
@@ -257,21 +259,21 @@ typename rapid::BinaryTree<_DataType>::TreeNode* former_previous(
         current = BT::parent(current);
         if(BT::left_child(current) != nullptr)
         {
-            return right_leaves<_DataType>(BT::left_child(current));
+            return right_leaves(BT::left_child(current));
         }
         return current;
     }
     return nullptr;
 }
 template<typename _DataType>
-typename rapid::BinaryTree<_DataType>::TreeNode* middle_previous(
-        typename rapid::BinaryTree<_DataType>::TreeNode *current)
+typename rapid::BinaryTree<_DataType>::TreeNode*
+    rapid::BinaryTree<_DataType>::middle_previous(TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
     if(BT::left_child(current) != nullptr)
     {
-        return right_child_under<_DataType>(BT::left_child(current));
+        return right_child_under(BT::left_child(current));
     }
     if(current == BT::right_child(BT::parent(current)))
     {
@@ -285,8 +287,8 @@ typename rapid::BinaryTree<_DataType>::TreeNode* middle_previous(
 }
 
 template<typename _DataType>
-typename rapid::BinaryTree<_DataType>::TreeNode* after_previous(
-        typename rapid::BinaryTree<_DataType>::TreeNode *current)
+typename rapid::BinaryTree<_DataType>::TreeNode*
+    rapid::BinaryTree<_DataType>::after_previous(TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
@@ -321,318 +323,246 @@ typename rapid::BinaryTree<_DataType>::TreeNode* after_previous(
 //---------------------***************---------------------//
 //---------------------------------------------------------//
 template<typename _DataType>
-void rapid::BinaryTree<_DataType>::FormerIterator::_F_next()
+typename rapid::BinaryTree<_DataType>::TreeNode*
+    rapid::BinaryTree<_DataType>::erase(TreeNode *node)
 {
-    _M_current = former_next<_DataType>(_M_current);
-}
+    if(node == nullptr) return nullptr;
 
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::FormerIterator::_F_previous()
-{
-    _M_current = former_previous<_DataType>(_M_current);
-}
-
-template<typename _DataType>
-rapid::BinaryTree<_DataType>::FormerIterator::FormerIterator(TreeNode *root)
-{
-    _M_current = root;
-}
-//---------------------------------------------------------//
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ConstFormerIterator::_F_next()
-{
-    _M_current = former_next<_DataType>(const_cast<TreeNode*>(_M_current));
-}
-
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ConstFormerIterator::_F_previous()
-{
-    _M_current = former_previous<_DataType>(const_cast<TreeNode*>(_M_current));
-}
-
-template<typename _DataType>
-rapid::BinaryTree<_DataType>::ConstFormerIterator::ConstFormerIterator(TreeNode *root)
-{
-    _M_current = root;
-}
-//---------------------------------------------------------//
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::MiddleIterator::_F_next()
-{
-    _M_current = middle_next<_DataType>(_M_current);
-}
-
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::MiddleIterator::_F_previous()
-{
-    _M_current = middle_previous<_DataType>(_M_current);
-}
-
-template<typename _DataType>
-rapid::BinaryTree<_DataType>::MiddleIterator::MiddleIterator(TreeNode *root)
-{
-    _M_current = left_child_under<_DataType>(root);
-}
-
-//---------------------------------------------------------//
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ConstMiddleIterator::_F_next()
-{
-    _M_current = middle_next<_DataType>(const_cast<TreeNode*>(_M_current));
-}
-
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ConstMiddleIterator::_F_previous()
-{
-    _M_current = middle_previous<_DataType>(const_cast<TreeNode*>(_M_current));
-}
-
-template<typename _DataType>
-rapid::BinaryTree<_DataType>::ConstMiddleIterator::ConstMiddleIterator(TreeNode *root)
-{
-    _M_current = left_child_under<_DataType>(root);
-}
-//---------------------------------------------------------//
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::AfterIterator::_F_next()
-{
-    _M_current = after_next<_DataType>(_M_current);
-}
-
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::AfterIterator::_F_previous()
-{
-    _M_current = after_previous<_DataType>(_M_current);
-}
-
-template<typename _DataType>
-rapid::BinaryTree<_DataType>::AfterIterator::AfterIterator(TreeNode *root)
-{
-    _M_current = left_leaves<_DataType>(root);
-}
-//---------------------------------------------------------//
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ConstAfterIterator::_F_next()
-{
-    _M_current = after_next<_DataType>(const_cast<TreeNode*>(_M_current));
-}
-
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ConstAfterIterator::_F_previous()
-{
-    _M_current = after_previous<_DataType>(const_cast<TreeNode*>(_M_current));
-}
-
-template<typename _DataType>
-rapid::BinaryTree<_DataType>::ConstAfterIterator::ConstAfterIterator(TreeNode *root)
-{
-    _M_current = left_leaves<_DataType>(root);
-}
-//---------------------------------------------------------//
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ReverseFormerIterator::_F_next()
-{
-    _M_current = former_previous<_DataType>(_M_current);
-}
-
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ReverseFormerIterator::_F_previous()
-{
-    _M_current = former_next<_DataType>(_M_current);
-}
-
-template<typename _DataType>
-rapid::BinaryTree<_DataType>::ReverseFormerIterator::ReverseFormerIterator(TreeNode *root)
-{
-    _M_current = right_leaves<_DataType>(root);
-}
-//---------------------------------------------------------//
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ConstReverseFormerIterator::_F_next()
-{
-    _M_current = former_previous<_DataType>(const_cast<TreeNode*>(_M_current));
-}
-
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ConstReverseFormerIterator::_F_previous()
-{
-    _M_current = former_next<_DataType>(const_cast<TreeNode*>(_M_current));
-}
-
-template<typename _DataType>
-rapid::BinaryTree<_DataType>::ConstReverseFormerIterator::ConstReverseFormerIterator(TreeNode *root)
-{
-    _M_current = right_leaves<_DataType>(root);
+    TreeNode *left = left_child(node);
+    TreeNode *right = right_child(node);
+    if(right->depth() > left->depth())
+    {
+        if(left == nullptr)
+        {
+            TreeNode *node_parent = parent(node);
+            if(node_parent == nullptr)
+            {
+                return _M_root = right;
+            }
+            if(left_child(node_parent) == node)
+            {
+                return node_parent->set_left(right);
+            }
+            return node_parent->set_right(right);
+        }
+        // get min
+        TreeNode *reserve = left_child_under(right);
+        TreeNode *reserve_parent = parent(reserve);
+        TreeNode *temp = right_child(reserve);
+        reserve_parent->set_left(temp);
+        if(temp == nullptr)
+        {
+            temp = reserve_parent;
+        }
+        node->swap(reserve);
+        delete reserve;
+        return temp;
+    }
+    else
+    {
+        if(right == nullptr)
+        {
+            TreeNode *node_parent = parent(node);
+            if(node_parent == nullptr)
+            {
+                return _M_root = left;
+            }
+            if(left_child(node_parent) == node)
+            {
+                return node_parent->set_left(left);
+            }
+            return node_parent->set_right(left);
+        }
+        // get max
+        TreeNode *reserve = right_child_under(left);
+        TreeNode *reserve_parent = parent(reserve);
+        TreeNode *temp = left_child(reserve);
+        reserve_parent->set_right(temp);
+        if(temp == nullptr)
+        {
+            temp = reserve_parent;
+        }
+        node->swap(reserve);
+        delete reserve;
+        return temp;
+    }
 }
 
 //---------------------------------------------------------//
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ReverseMiddleIterator::_F_next()
+#include <iostream>
+#include <iomanip>
+#include <cmath>
+#include "DoubleLinkedList.h"
+#include "DoubleLinkedList.cpp"
+#define WORD_WIDTH 5
+
+template<typename T>
+static std::string to_string(const T &arg)
 {
-    _M_current = middle_previous<_DataType>(_M_current);
+    std::string result, temp = std::to_string(arg);
+    std::size_t s = result.size();
+    std::size_t left = (WORD_WIDTH - s) / 2;
+    std::size_t right = WORD_WIDTH - left;
+    for(std::size_t i = 0; i < left; ++i)
+    {
+        result.push_back(' ');
+    }
+    result += temp;
+    for(std::size_t i = 0; i < right; ++i)
+    {
+        result.push_back(' ');
+    }
+    return result;
 }
 
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ReverseMiddleIterator::_F_previous()
+static void print_space(int size)
 {
-    _M_current = middle_next<_DataType>(_M_current);
+    for(int i = 0; i < size; ++i)
+    {
+        std::cout << ' ';
+    }
 }
 
-template<typename _DataType>
-rapid::BinaryTree<_DataType>::ReverseMiddleIterator::ReverseMiddleIterator(TreeNode *root)
+template<typename T>
+void rapid::print_tree(const rapid::BinaryTree<T> &tree)
 {
-    _M_current = right_child_under<_DataType>(root);
+    using BT = rapid::BinaryTree<T>;
+    using TreeNode = typename BT::TreeNode;
+    DoubleLinkedList<TreeNode *> s;
+    s.push_back(tree.root());
+    int total_element = pow(2, tree.depth()) - 1;
+    for(int i = 1; i <= tree.depth(); ++i)
+    {
+        int temp_size = s.size();
+        for(int i = 0; i < temp_size; ++i)
+        {
+            TreeNode *node = s.front();
+            s.pop_front();
+            s.push_back(BT::left_child(node));
+            s.push_back(BT::right_child(node));
+            print_space(total_element / (i + 1) * WORD_WIDTH);
+            std::cout << to_string(node->data());
+        }
+    }
 }
 
-//---------------------------------------------------------//
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ConstReverseMiddleIterator::_F_next()
-{
-    _M_current = middle_previous<_DataType>(const_cast<TreeNode*>(_M_current));
-}
-
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ConstReverseMiddleIterator::_F_previous()
-{
-    _M_current = middle_next<_DataType>(const_cast<TreeNode*>(_M_current));
-}
-
-template<typename _DataType>
-rapid::BinaryTree<_DataType>::ConstReverseMiddleIterator::ConstReverseMiddleIterator(TreeNode *root)
-{
-    _M_current = right_child_under<_DataType>(root);
-}
-
-//---------------------------------------------------------//
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ReverseAfterIterator::_F_next()
-{
-    _M_current = after_previous<_DataType>(_M_current);
-}
-
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ReverseAfterIterator::_F_previous()
-{
-    _M_current = after_next<_DataType>(_M_current);
-}
-
-template<typename _DataType>
-rapid::BinaryTree<_DataType>::ReverseAfterIterator::ReverseAfterIterator(TreeNode *root)
-{
-    _M_current = root;
-}
-
-//---------------------------------------------------------//
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ConstReverseAfterIterator::_F_next()
-{
-    _M_current = after_previous<_DataType>(const_cast<TreeNode*>(_M_current));
-}
-
-template<typename _DataType>
-void rapid::BinaryTree<_DataType>::ConstReverseAfterIterator::_F_previous()
-{
-    _M_current = after_next<_DataType>(const_cast<TreeNode*>(_M_current));
-}
-
-template<typename _DataType>
-rapid::BinaryTree<_DataType>::ConstReverseAfterIterator::ConstReverseAfterIterator(TreeNode *root)
-{
-    _M_current = root;
-}
-//---------------------------------------------------------//
 void rapid::test_BinaryTree_main()
 {
+    std::cout << "------------" << __func__ << "------------" << std::endl;
     using Node = BinaryTree<int>::TreeNode;
     BinaryTree<int> bt;
+    Node *not_need;
     Node *root = bt.append_root(50);
     Node *temp = bt.append_left(root, 10);
     bt.append_left(temp, 20);
     temp = bt.append_right(temp, 100);
-    temp = bt.append_right(root, 500);
+    not_need = temp = bt.append_right(root, 500);
     bt.append_right(temp, -1);
     temp = bt.append_left(temp, -200);
     temp = bt.append_left(temp, 1);
     temp = bt.append_left(temp, 2);
     std::cout << "size = " << bt.size() << std::endl;
-    std::cout << "middle: " << std::endl;
-    for(int i : bt)
-    {
-        std::cout << i << " ";
-    }
-    std::cout << std::endl << "former: " << std::endl;
-    for(auto it = bt.fbegin(); it != bt.fend(); ++it)
-    {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl << "after: " << std::endl;
-    for(auto it = bt.abegin(); it != bt.aend(); ++it)
-    {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "depth: ----->  " << bt.depth() << std::endl;
-    std::cout << std::endl << "----------------------------" << std::endl;
-    BinaryTree<int> bt2(bt);
-    std::cout << "size = " << bt2.size() << std::endl;
-    std::cout << "middle: " << std::endl;
-    for(int i : bt2)
-    {
-        std::cout << i << " ";
-    }
-    std::cout << std::endl << "former: " << std::endl;
-    for(auto it = bt2.fbegin(); it != bt2.fend(); ++it)
-    {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl << "after: " << std::endl;
-    for(auto it = bt2.abegin(); it != bt2.aend(); ++it)
-    {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl << "----------------------------" << std::endl;
-    bt.right_rotate(root);
-    std::cout << "size = " << bt.size() << std::endl;
-    for(int i : bt)
-    {
-        std::cout << i << " ";
-    }
-    std::cout << std::endl << "after: " << std::endl;
-    for(auto it = bt.abegin(); it != bt.aend(); ++it)
-    {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl;
-    bt.left_rotate(root);
-    bt.left_rotate(bt.root());
-    std::cout << std::endl;
-    std::cout << "size = " << bt.size() << std::endl;
-    for(int i : bt)
-    {
-        std::cout << i << " ";
-    }
-    std::cout << std::endl << "after: " << std::endl;
-    for(auto it = bt.abegin(); it != bt.aend(); ++it)
-    {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl << "------------reverse----------------" << std::endl;
-    std::cout << "former reverse" << std::endl;
-    for(auto it = bt2.frbegin(); it != bt2.frend(); ++it)
-    {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "middle reverse" << std::endl;
-    for(auto it = bt2.mrbegin(); it != bt2.mrend(); ++it)
-    {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "after reverse" << std::endl;
-    for(auto it = bt2.arbegin(); it != bt2.arend(); ++it)
-    {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl;
+    print_tree(bt);
+//    std::cout << "middle: " << std::endl;
+//    for(int i : bt)
+//    {
+//        std::cout << i << " ";
+//    }
+//    std::cout << std::endl << "former: " << std::endl;
+//    for(auto it = bt.fbegin(); it != bt.fend(); ++it)
+//    {
+//        std::cout << *it << " ";
+//    }
+//    std::cout << std::endl << "after: " << std::endl;
+//    for(auto it = bt.abegin(); it != bt.aend(); ++it)
+//    {
+//        std::cout << *it << " ";
+//    }
+//    std::cout << std::endl;
+//    std::cout << "depth: ----->  " << bt.depth() << std::endl;
+//    std::cout << std::endl << "----------------------------" << std::endl;
+//    BinaryTree<int> bt2(bt);
+//    std::cout << "size = " << bt2.size() << std::endl;
+//    std::cout << "middle: " << std::endl;
+//    for(int i : bt2)
+//    {
+//        std::cout << i << " ";
+//    }
+//    std::cout << std::endl << "former: " << std::endl;
+//    for(auto it = bt2.fbegin(); it != bt2.fend(); ++it)
+//    {
+//        std::cout << *it << " ";
+//    }
+//    std::cout << std::endl << "after: " << std::endl;
+//    for(auto it = bt2.abegin(); it != bt2.aend(); ++it)
+//    {
+//        std::cout << *it << " ";
+//    }
+//    std::cout << std::endl;
+//    std::cout << std::endl << "----------------------------" << std::endl;
+//    bt.right_rotate(root);
+//    std::cout << "size = " << bt.size() << std::endl;
+//    for(int i : bt)
+//    {
+//        std::cout << i << " ";
+//    }
+//    std::cout << std::endl << "after: " << std::endl;
+//    for(auto it = bt.abegin(); it != bt.aend(); ++it)
+//    {
+//        std::cout << *it << " ";
+//    }
+//    std::cout << std::endl;
+//    bt.left_rotate(root);
+//    bt.left_rotate(bt.root());
+//    std::cout << std::endl;
+//    std::cout << "size = " << bt.size() << std::endl;
+//    for(int i : bt)
+//    {
+//        std::cout << i << " ";
+//    }
+//    std::cout << std::endl << "after: " << std::endl;
+//    for(auto it = bt.abegin(); it != bt.aend(); ++it)
+//    {
+//        std::cout << *it << " ";
+//    }
+//    std::cout << std::endl << "------------reverse----------------" << std::endl;
+//    std::cout << "former reverse" << std::endl;
+//    for(auto it = bt2.frbegin(); it != bt2.frend(); ++it)
+//    {
+//        std::cout << *it << " ";
+//    }
+//    std::cout << std::endl;
+//    std::cout << "middle reverse" << std::endl;
+//    for(auto it = bt2.mrbegin(); it != bt2.mrend(); ++it)
+//    {
+//        std::cout << *it << " ";
+//    }
+//    std::cout << std::endl;
+//    std::cout << "after reverse" << std::endl;
+//    for(auto it = bt2.arbegin(); it != bt2.arend(); ++it)
+//    {
+//        std::cout << *it << " ";
+//    }
+//    std::cout << std::endl;
+//    std::cout << "--------------erase--------------" << std::endl;
+//    bt.erase(not_need);
+//    std::cout << "size = " << bt.size() << std::endl;
+//    std::cout << "middle: " << std::endl;
+//    for(int i : bt)
+//    {
+//        std::cout << i << " ";
+//    }
+//    std::cout << std::endl << "former: " << std::endl;
+//    for(auto it = bt.fbegin(); it != bt.fend(); ++it)
+//    {
+//        std::cout << *it << " ";
+//    }
+//    std::cout << std::endl << "after: " << std::endl;
+//    for(auto it = bt.abegin(); it != bt.aend(); ++it)
+//    {
+//        std::cout << *it << " ";
+//    }
+//    std::cout << std::endl;
 }
+
+#endif // end BINARYTREE_CPP

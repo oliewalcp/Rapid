@@ -1,16 +1,12 @@
 #ifndef ATOMIC_H
 #define ATOMIC_H
 
-#include "Version.h"
-#include "TypeTraits.h"
+#include "Core/TypeTraits.h"
+#include "Core/Memory.h"
 #include <iostream>
 
 namespace rapid
 {
-
-#ifdef _X86
-#define compiler_output message
-#endif
 
 //#if defined(__clang__)
 //    /* Clang/LLVM. ---------------------------------------------- */
@@ -61,28 +57,17 @@ private:
     T _M_data;
     static constexpr void type_assert()
     {
-        static_assert(
-            IsSame<T, bool>::value ||
-            IsSame<T, char>::value ||
-            IsSame<T, unsigned char>::value ||
-            IsSame<T, short>::value ||
-            IsSame<T, unsigned short>::value ||
-            IsSame<T, int>::value ||
-            IsSame<T, unsigned int>::value ||
-            IsSame<T, long>::value ||
-            IsSame<T, unsigned long>::value ||
-            IsSame<T, long long>::value ||
-            IsSame<T, unsigned long long>::value ||
-            IsSame<T, wchar_t>::value,
-            "only support base data type");
+        static_assert(__is_assignable(T, T), "only support assignable type");
     }
 public:
     Atomic()
     {
         type_assert();
-        memset(&_M_data, 0, sizeof(T));
+        mem_clear(&_M_data, sizeof(T));
     }
-    Atomic(T value) : _M_data(value)
+    Atomic(const T &value) : _M_data(value)
+    { type_assert(); }
+    Atomic(T &&value) : _M_data(forward<T>(value))
     { type_assert(); }
 
     T add_and_fetch(T value)
@@ -114,7 +99,7 @@ public:
     { return sync_fetch_after_xor(&_M_data, value); }
 
     T operator=(T value)
-    { sync_value_compare_and_swap(&_M_data, _M_data, value); }
+    { return sync_value_compare_and_swap(&_M_data, _M_data, value); }
 
     friend std::ostream& operator<<(std::ostream &os, Atomic<T> &a)
     { return os << sync_value_compare_and_swap(&a._M_data, 0, a._M_data); }

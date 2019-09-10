@@ -1,7 +1,8 @@
-#ifndef BALANCEBINARYTREE_H
-#define BALANCEBINARYTREE_H
+#ifndef AVLTREE_H
+#define AVLTREE_H
 
-#include "Core/BinaryTree.h"
+#include "BinaryTree.h"
+#include <initializer_list>
 
 namespace rapid
 {
@@ -18,13 +19,13 @@ struct Compare
 };
 
 template<typename _DataType, typename _CompareType = Compare<_DataType>>
-class BalanceBinaryTree
+class AVLTree
 {
 private:
     using DataType = _DataType;
-    using TreeType = BinaryTree<DataType>;
     using CompareType = _CompareType;
-    using Self = BalanceBinaryTree;
+    using TreeType = BinaryTree<DataType>;
+    using Self = AVLTree;
     using TreeNode = typename BinaryTree<DataType>::TreeNode;
 public:
     using ValueType = DataType;
@@ -41,12 +42,17 @@ private:
 
     void _F_adjust(TreeNode *node);
     iterator _F_insert(ConstReference arg);
+    iterator _F_find(ConstReference arg) const;
+    void _F_erase(TreeNode *node)
+    { _F_adjust(_M_tree.erase(node)); }
 public:
-    BalanceBinaryTree() { }
-    BalanceBinaryTree(const Self &tree)
+    AVLTree() { }
+    AVLTree(const Self &tree)
         : _M_tree(TreeType(tree._M_tree)) { }
-    BalanceBinaryTree(Self &&tree)
+    AVLTree(Self &&tree)
         : _M_tree(TreeType(forward<Self>(tree)._M_tree)) { }
+    AVLTree(std::initializer_list<ValueType> arg_list)
+    { insert(arg_list); }
 
     void swap(const Self &tree)
     { _M_tree.swap(tree._M_tree); }
@@ -79,14 +85,39 @@ public:
     { return _M_tree.size(); }
     bool empty() const
     { return size() == 0; }
+    SizeType depth() const
+    { return _M_tree.depth(); }
 
+    iterator find(ConstReference arg) const
+    { return _F_find(arg); }
+    iterator find(RvalueReference arg) const
+    { return _F_find(forward<ValueType>(arg)); }
+
+    iterator insert(std::initializer_list<ValueType> arg_list)
+    {
+        iterator result;
+        for(auto it = arg_list.begin(); true; )
+        {
+            result = _F_insert(*it);
+            if(++it == arg_list.end())
+            {
+                return result;
+            }
+        }
+    }
     iterator insert(ConstReference arg)
     { return _F_insert(arg); }
     iterator insert(RvalueReference arg)
     { return _F_insert(forward<ValueType>(arg)); }
+    void erase(ConstReference arg)
+    { erase(find(arg)); }
+    void erase(RvalueReference arg)
+    { erase(find(forward<ValueType>(arg))); }
+    void erase(iterator it)
+    { _F_erase(_M_tree.tree_node(it)); }
 };
 
-void test_BalanceBinayTree_main();
+void test_AVLTree_main();
 
 }
-#endif // BALANCEBINARYTREE_H
+#endif // AVLTREE_H

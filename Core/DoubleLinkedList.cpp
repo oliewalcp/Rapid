@@ -1,4 +1,7 @@
-#include "Core/DoubleLinkedList.h"
+#ifndef DOUBLELINKEDLIST_CPP
+#define DOUBLELINKEDLIST_CPP
+
+#include "DoubleLinkedList.h"
 
 template<typename T>
 template<typename ... Args>
@@ -144,3 +147,5 @@ void rapid::test_DoubleLinkedList_main()
         std::cout << i << " ";
     }
 }
+
+#endif // end DOUBLELINKEDLIST_CPP

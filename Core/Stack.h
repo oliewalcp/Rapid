@@ -1,9 +1,8 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include "Memory.h"
-#include "TypeTraits.h"
-#include <bits/move.h>
+#include "Core/Memory.h"
+#include "Core/TypeTraits.h"
 
 namespace rapid
 {

@@ -1,9 +1,8 @@
 #ifndef DOUBLELINKEDLIST_H
 #define DOUBLELINKEDLIST_H
 
-#include "Memory.h"
-#include "TypeTraits.h"
-#include "IteratorBase.h"
+#include "Core/Memory.h"
+#include "Core/TypeTraits.h"
 
 namespace rapid
 {
@@ -451,7 +450,7 @@ using Dlist = DoubleLinkedList<T>;
 template<typename T>
 using List = DoubleLinkedList<T>;
 
-void test_DoubleLinkedList_main();
+extern void test_DoubleLinkedList_main();
 
 };
 #endif // DOUBLELINKEDLIST_H

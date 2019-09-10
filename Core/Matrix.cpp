@@ -1,3 +1,6 @@
+#ifndef MATRIX_CPP
+#define MATRIX_CPP
+
 #include "Matrix.h"
 #include "Exception.h"
 
@@ -188,7 +191,7 @@ void rapid::Matrix<_Tp>::power(SizeType p)
 using SizeType = long;
 
 template<typename T>
-void print_matrix(rapid::Matrix<T> &m)
+static void print_matrix(rapid::Matrix<T> &m)
 {
     std::cout << std::setiosflags(std::ios::left);
     for(SizeType i = 0; i < m.row(); i++)
@@ -261,3 +264,5 @@ void rapid::test_Matrix_main()
     m6.clear();
     m7.clear();
 }
+
+#endif // end MATRIX_CPP

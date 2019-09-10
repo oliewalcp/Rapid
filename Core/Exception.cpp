@@ -1,3 +1,6 @@
+#ifndef EXCEPTION_CPP
+#define EXCEPTION_CPP
+
 #include "Exception.h"
 
 using namespace rapid;
@@ -11,3 +14,5 @@ RegistExceptionImpl(Exception);
 RegistExceptionImpl(IndexOutOfArrayException);
 RegistExceptionImpl(SizeDoesNotMatchException);
 RegistExceptionImpl(CannotParseFileException);
+
+#endif // end EXCEPTION_CPP

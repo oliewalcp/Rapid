@@ -1,6 +1,8 @@
-#include "Core/Vector.h"
+#ifndef VECTOR_CPP
+#define VECTOR_CPP
+
+#include "Vector.h"
 #include "Core/Exception.h"
-#include "Core/IO.h"
 #include <iostream>
 
 template<typename T>
@@ -166,3 +168,5 @@ void rapid::test_Vector_main()
     print_vector(vec);
     std::cout << "---------------test end---------------" << std::endl;
 }
+
+#endif // end VECTOR_CPP

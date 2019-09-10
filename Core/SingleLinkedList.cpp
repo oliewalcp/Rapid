@@ -1,4 +1,7 @@
-#include "Core/SingleLinkedList.h"
+#ifndef SINGLELINKEDLIST_CPP
+#define SINGLELINKEDLIST_CPP
+
+#include "SingleLinkedList.h"
 #include "Core/Stack.h"
 
 template<typename T>
@@ -101,3 +104,4 @@ void rapid::test_SingleLinkedList_main()
     std::cout << "************debug singleLinkedList end************" << std::endl;
 }
 
+#endif // end SINGLELINKEDLIST_CPP

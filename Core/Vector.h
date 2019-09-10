@@ -1,9 +1,9 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include "Version.h"
-#include "Memory.h"
-#include "TypeTraits.h"
+#include "Core/Version.h"
+#include "Core/Memory.h"
+#include "Core/TypeTraits.h"
 
 namespace rapid
 {

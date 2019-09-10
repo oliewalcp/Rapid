@@ -15,7 +15,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    Core/BalanceBinaryTree.cpp \
+    Core/AVLTree.cpp \
     Core/Stack.cpp \
     Core/BinaryTree.cpp \
     Core/Conver.cpp \
@@ -25,34 +25,33 @@ SOURCES += \
     Core/Matrix.cpp \
     Core/SingleLinkedList.cpp \
     Core/Vector.cpp \
+    Core/Memory.cpp\
     Gui/Application.cpp \
     Gui/Frame.cpp \
     Gui/Label.cpp \
     Gui/Widget.cpp \
     Image/ImageBase.cpp \
-        main.cpp \
-    Core/Memory.cpp
+        main.cpp
 
 HEADERS += \
+    Core/AVLTree.h \
     Core/Atomic.h \
-    Core/BalanceBinaryTree.h \
     Core/BinaryTree.h \
     Core/Exception.h \
     Core/IO.h \
-    Core/IteratorBase.h \
     Core/Matrix.h \
     Core/Memory.h \
+    Core/Range.h \
     Core/RapidConfig.h \
     Core/SharedPointer.h \
+    Core/TypeTraits \
     Core/Vector.h \
     Core/Stack.h \
-    Core/TypeTraits.h \
     Core/Conver.h \
     Core/SingleLinkedList.h \
-    Core/Version.h \
-    Core/Range.h \
     Core/DoubleLinkedList.h \
     Core/Preoperation.h \
+    Core/Version.h \
     Gui/Application.h \
     Gui/Frame.h \
     Gui/GuiConfig.h \

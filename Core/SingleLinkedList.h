@@ -1,8 +1,8 @@
 #ifndef SINGLELINKEDLIST_H
 #define SINGLELINKEDLIST_H
 
-#include "Memory.h"
-#include "TypeTraits.h"
+#include "Core/Memory.h"
+#include "Core/TypeTraits.h"
 
 namespace rapid
 {

@@ -1,5 +1,8 @@
-#include "IO.h"
-#include "Conver.h"
+#ifndef IO_CPP
+#define IO_CPP
+
+#include "Core/IO.h"
+#include "Core/Conver.h"
 #include <iostream>
 
 rapid::ConsoleOutput rapid::out;
@@ -48,3 +51,5 @@ REGIST_OUT_TYPE(double)
 REGIST_OUT_TYPE(std::string)
 REGIST_WOUT_TYPE(std::wstring)
 REGIST_OUT_TYPE(out_stream)
+
+#endif // end IO_CPP

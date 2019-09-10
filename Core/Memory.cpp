@@ -1,3 +1,6 @@
+#ifndef MEMORY_CPP
+#define MEMORY_CPP
+
 #include "Memory.h"
 
 using uint64 = unsigned long long;
@@ -218,3 +221,4 @@ void rapid::test_Memory_main()
     delete[] c;
 }
 
+#endif // end MEMORY_CPP

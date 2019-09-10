@@ -1,4 +1,7 @@
-#include "Core/Stack.h"
+#ifndef STACK_CPP
+#define STACK_CPP
+
+#include "Stack.h"
 
 template<typename T>
 rapid::Stack<T>::Stack(const Stack &arg) : _M_size(0), _M_top(nullptr)
@@ -44,3 +47,5 @@ void rapid::test_Stack_main()
     std::cout << "total size: " << ss.size() << std::endl;
     std::cout << "************debug Stack end************" << std::endl;
 }
+
+#endif // end STACK_CPP
