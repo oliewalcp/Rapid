@@ -12,7 +12,7 @@ namespace rapid
 class ConsoleOutput
 {
 private:
-    typedef std::ostream&(*out_stream)(std::ostream&);
+    using out_stream = std::ostream&(*)(std::ostream&);
 public:
     OUT_PUT_TYPE(const char *);
     OUT_PUT_TYPE(bool);
@@ -30,6 +30,7 @@ public:
     OUT_PUT_TYPE(unsigned long long);
     OUT_PUT_TYPE(float);
     OUT_PUT_TYPE(double);
+    OUT_PUT_TYPE(long double);
     OUT_PUT_TYPE(std::string);
     OUT_PUT_TYPE(std::wstring);
     OUT_PUT_TYPE(out_stream);

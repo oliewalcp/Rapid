@@ -117,7 +117,106 @@ public:
     { _F_erase(_M_tree.tree_node(it)); }
 };
 
-void test_AVLTree_main();
-
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+template<typename _DataType, typename _CompareType>
+    void AVLTree<_DataType, _CompareType>::_F_adjust(TreeNode *node)
+{
+    TreeNode *visit = node;
+    while(visit != nullptr)
+    {
+        SizeType left_dep = _M_tree.depth(_M_tree.left_child(visit));
+        SizeType right_dep = _M_tree.depth(_M_tree.right_child(visit));
+        if(left_dep > right_dep && left_dep - right_dep > 1)
+        {
+            TreeNode *temp = _M_tree.left_child(visit);
+            if(_M_tree.depth(_M_tree.left_child(temp)) < _M_tree.depth(_M_tree.right_child(temp)))
+            {
+                _M_tree.left_rotate(temp);
+            }
+            visit = _M_tree.right_rotate(visit);
+        }
+        else if(right_dep > left_dep && right_dep - left_dep > 1)
+        {
+            TreeNode *temp = _M_tree.right_child(visit);
+            if(_M_tree.depth(_M_tree.right_child(temp)) < _M_tree.depth(_M_tree.left_child(temp)))
+            {
+                _M_tree.right_rotate(temp);
+            }
+            visit = _M_tree.left_rotate(visit);
+        }
+        visit = _M_tree.parent(visit);
+    }
 }
+
+template<typename _DataType, typename _CompareType>
+typename AVLTree<_DataType, _CompareType>::iterator
+    AVLTree<_DataType, _CompareType>::_F_find(ConstReference arg) const
+{
+    TreeNode *node = _M_tree.root();
+    iterator result;
+    while(true)
+    {
+        int res = CompareType()(arg, node->data());
+        if(res == 0)
+        {
+            return result = node;
+        }
+        if(res > 0)
+        {
+            node = _M_tree.left_child(node);
+        }
+        else
+        {
+            node = _M_tree.right_child(node);
+        }
+    }
+    return result;
+}
+
+template<typename _DataType, typename _CompareType>
+typename AVLTree<_DataType, _CompareType>::iterator
+    AVLTree<_DataType, _CompareType>::_F_insert(ConstReference arg)
+{
+    if(empty())
+    {
+        return iterator(_M_tree.append_root(arg));
+    }
+    iterator result;
+    TreeNode *node = _M_tree.root();
+    while(true)
+    {
+        int res = CompareType()(arg, node->data());
+        if(res == 0)
+        {
+            node->data() = arg;
+            return result = node;
+        }
+        if(res > 0)
+        {
+            if(_M_tree.left_child(node) == nullptr)
+            {
+                node = _M_tree.append_left(node, arg);
+                break;
+            }
+            node = _M_tree.left_child(node);
+        }
+        else
+        {
+            if(_M_tree.right_child(node) == nullptr)
+            {
+                node = _M_tree.append_right(node, arg);
+                break;
+            }
+            node = _M_tree.right_child(node);
+        }
+    }
+    _F_adjust(node);
+    return result = node;
+}
+
+}; // end namespace rapid
 #endif // AVLTREE_H

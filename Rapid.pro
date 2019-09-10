@@ -15,22 +15,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    Core/AVLTree.cpp \
-    Core/Stack.cpp \
-    Core/BinaryTree.cpp \
-    Core/Conver.cpp \
-    Core/DoubleLinkedList.cpp \
-    Core/Exception.cpp \
-    Core/IO.cpp \
-    Core/Matrix.cpp \
-    Core/SingleLinkedList.cpp \
-    Core/Vector.cpp \
     Core/Memory.cpp\
-    Gui/Application.cpp \
-    Gui/Frame.cpp \
-    Gui/Label.cpp \
-    Gui/Widget.cpp \
+    Core/Conver.cpp \
+    Core/IO.cpp \
     Image/ImageBase.cpp \
+    Test/TestAVLTree.cpp \
+    Test/TestBinaryTree.cpp \
+    Test/TestDoubleLinkedList.cpp \
+    Test/TestMatrix.cpp \
+    Test/TestMemory.cpp \
+    Test/TestSingleLinkedList.cpp \
+    Test/TestStack.cpp \
+    Test/TestVector.cpp \
         main.cpp
 
 HEADERS += \
@@ -44,7 +40,8 @@ HEADERS += \
     Core/Range.h \
     Core/RapidConfig.h \
     Core/SharedPointer.h \
-    Core/TypeTraits \
+    Core/TLNode.h \
+    Core/TypeTraits.h \
     Core/Vector.h \
     Core/Stack.h \
     Core/Conver.h \
@@ -52,9 +49,12 @@ HEADERS += \
     Core/DoubleLinkedList.h \
     Core/Preoperation.h \
     Core/Version.h \
-    Gui/Application.h \
-    Gui/Frame.h \
-    Gui/GuiConfig.h \
-    Gui/Label.h \
-    Gui/Widget.h \
-    Image/ImageBase.h
+    Image/ImageBase.h \
+    Test/TestAVLTree.h \
+    Test/TestBinaryTree.h \
+    Test/TestDoubleLinkedList.h \
+    Test/TestMatrix.h \
+    Test/TestMemory.h \
+    Test/TestSingleLinkedList.h \
+    Test/TestStack.h \
+    Test/TestVector.h

@@ -1,8 +1,9 @@
 #ifndef SINGLELINKEDLIST_H
 #define SINGLELINKEDLIST_H
 
-#include "Core/Memory.h"
+#include "Core/TLNode.h"
 #include "Core/TypeTraits.h"
+#include "Core/Version.h"
 
 namespace rapid
 {
@@ -267,10 +268,73 @@ public:
 
 };
 
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+
+template<typename T>
+void SingleLinkedList<T>::clear()
+{
+    Node *n = _M_head->Next;
+    while(n != nullptr)
+    {
+        Node *temp = n;
+        n = n->Next;
+        delete temp;
+    }
+    _M_size = 0;
+}
+
+template<typename T>
+void SingleLinkedList<T>::reverse()
+{
+//    Stack<Node *> s;
+//    for(Node *n = _M_head->Next; n != nullptr; n = n->Next)
+//    {
+//        s.push(n);
+//    }
+//    _M_head->Next = s.top();
+//    while(!s.empty())
+//    {
+//        Node *top_node = s.top();
+//        top_node->Next = nullptr;
+//        s.pop();
+//        if(s.empty()) break;
+//        Node *top_under_node = s.top();
+//        top_node->Next = top_under_node;
+//    }
+}
+
+template<typename T>
+typename SingleLinkedList<T>::iterator
+    SingleLinkedList<T>::_F_find(ConstReference arg) const
+{
+   for(const_iterator it = begin(); it != end(); ++it)
+   {
+       if((*it) == arg)
+       { return it._F_const_cast(); }
+   }
+   return cend()._F_const_cast();
+}
+
+template<typename T>
+template<typename IteratorType>
+typename SingleLinkedList<T>::iterator
+    SingleLinkedList<T>::insert_after(const_iterator pos, IteratorType b, IteratorType e)
+{
+    iterator r;
+    while(b != e)
+    {
+        r = insert_after(pos, *b);
+        ++b;
+    }
+    return r;
+}
+
 template<typename T>
 using Slist = SingleLinkedList<T>;
 
-
-void test_SingleLinkedList_main();
 };
 #endif // SINGLELINKEDLIST_H

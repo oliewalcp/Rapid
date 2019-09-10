@@ -1,22 +1,23 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include "Core/Memory.h"
+#include "Core/TLNode.h"
 #include "Core/TypeTraits.h"
+#include "Core/Version.h"
 
 namespace rapid
 {
 template<typename T>
 class Stack
 {
-private:
+public:
     using ValueType = T;
     using Pointer = ValueType*;
     using Reference = ValueType&;
     using ConstReference = const ValueType &;
     using RvalueReference = ValueType&&;
     using SizeType = size_type;
-
+private:
     struct Node
     {
         Node *Next;
@@ -43,31 +44,39 @@ private:
         s._M_top = temp;
         s._M_size = st;
     }
-    inline Node* _F_construct_node(ConstReference arg, Node *next = nullptr)
+    Node* _F_construct_node(ConstReference arg, Node *next = nullptr)
     { return new Node(arg, next); }
 
-    inline void _F_add_size(SizeType arg)
+    void _F_add_size(SizeType arg)
     { _M_size += arg; }
 public:
     Stack() : _M_size(0), _M_top(nullptr) { }
-    Stack(const Stack &arg);
+    Stack(const Stack &arg) : _M_size(0), _M_top(nullptr)
+    {
+        Node *n = arg._M_top;
+        while(n != nullptr)
+        {
+            push(n->Data->const_ref_content());
+            n = n->Next;
+        }
+    }
 
     ~Stack()
     { clear(); }
 
-    inline SizeType size()
+    SizeType size() const
     { return _M_size; }
 
-    inline bool empty()
+    bool empty() const
     { return size() == 0; }
 
-    inline void push(ConstReference arg)
+    void push(ConstReference arg)
     { _F_push(arg); }
 
-    inline void push(RvalueReference arg)
+    void push(RvalueReference arg)
     { _F_push(forward<ValueType>(arg)); }
 
-    inline ValueType top()
+    ValueType top() const
     { return _M_top != nullptr ? _M_top->Data->content() : NodeBase<ValueType>().content(); }
 
     void pop()
@@ -90,7 +99,6 @@ public:
     { _F_exchange(forward<Stack>(s)); }
 };
 
-void test_Stack_main();
 };
 
 #endif // STACK_H

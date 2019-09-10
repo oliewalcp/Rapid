@@ -2,7 +2,6 @@
 #define ATOMIC_H
 
 #include "Core/TypeTraits.h"
-#include "Core/Memory.h"
 #include <iostream>
 
 namespace rapid
@@ -105,6 +104,6 @@ public:
     { return os << sync_value_compare_and_swap(&a._M_data, 0, a._M_data); }
 };
 
-}
+};
 
 #endif // ATOMIC_H

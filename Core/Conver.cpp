@@ -1,8 +1,4 @@
-#ifndef CONVER_CPP
-#define CONVER_CPP
-
 #include "Conver.h"
-#include "Core/Memory.h"
 
 unsigned char rapid::hex_to_int(const char arg)
 {
@@ -48,6 +44,7 @@ void rapid::gb2312_to_zone_bit_code(unsigned char *result, const char *code)
 
 #ifdef __WIN32
 #include <windows.h>
+#include "Core/Memory.h"
 
 rapid::size_type rapid::utf8_len(const char *ansi)
 {
@@ -56,7 +53,8 @@ rapid::size_type rapid::utf8_len(const char *ansi)
     size_type len = static_cast<size_type>(MultiByteToWideChar(CP_UTF8, 0, ansi, -1, nullptr, 0));
     return len;
 }
-wchar_t* rapid::to_utf8(const char *ansi)
+
+wchar_t *rapid::to_utf8(const char *ansi)
 {
     if(ansi == nullptr) return nullptr;
     size_type len = static_cast<size_type>(MultiByteToWideChar(CP_UTF8, 0, ansi, -1, nullptr, 0));
@@ -66,7 +64,7 @@ wchar_t* rapid::to_utf8(const char *ansi)
     return wstr;
 }
 
-char* rapid::to_ansi(const char *utf8)
+char *rapid::to_ansi(const char *utf8)
 {
     wchar_t *wstr = to_utf8(utf8);
     unsigned long long len = static_cast<unsigned long long>(WideCharToMultiByte(CP_ACP, 0, wstr, -1, nullptr, 0, nullptr, nullptr));
@@ -76,6 +74,5 @@ char* rapid::to_ansi(const char *utf8)
     if(wstr) delete[] wstr;
     return str;
 }
-#endif
 
-#endif // end CONVER_CPP
+#endif

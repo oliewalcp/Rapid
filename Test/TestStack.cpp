@@ -1,7 +1,5 @@
-#include "Core/Stack.h"
-#include "TestCase.h"
-
-using namespace rapid;
+#include "TestStack.h"
+#include <iostream>
 
 void rapid::test_Stack_main()
 {

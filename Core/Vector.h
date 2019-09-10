@@ -1,9 +1,11 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include "Core/Version.h"
-#include "Core/Memory.h"
+#include "Core/TLNode.h"
 #include "Core/TypeTraits.h"
+#include "Core/Version.h"
+#include "Core/Exception.h"
+#include "Core/Memory.h"
 
 namespace rapid
 {
@@ -26,13 +28,24 @@ protected:
     SizeType _M_size;
     SizeType _M_capacity;
     SizeType _M_growth;
-    NodeBase<T> *_M_data;
+    NodeBase<ValueType> *_M_data;
 
     void _F_initialize(SizeType s);
     void _F_copy_data(Vector<T> &arg);
     void _F_insert(const iterator &it, ConstReference arg);
-    void _F_erase(const iterator &it);
-    void _F_growth();
+    void _F_erase(const iterator &it)
+    {
+        if(it == end()) return;
+        mem_forward(_M_data[it._M_current_index + 1].address(), (size() - it._M_current_index) * sizeof(ValueType), sizeof(ValueType));
+        _F_add_size(-1);
+    }
+    void _F_growth()
+    {
+        if(_M_growth < 1)
+        { _F_initialize(capacity() * 2); }
+        else
+        { _F_initialize(capacity() + _M_growth); }
+    }
     void _F_add_size(SizeType s)
     { _M_size += s;}
 public:
@@ -203,11 +216,12 @@ public:
         { return _M_current_index != arg._M_current_index; }
     };
 
-    Vector(SizeType size = 1) : _M_size(0), _M_growth(-1), _M_data(nullptr)
+    Vector(SizeType size = 1) : _M_size(0), _M_growth(static_cast<SizeType>(-1)), _M_data(nullptr)
     { _F_initialize(size); }
     Vector(Vector<T> &v) : _M_size(v.size()), _M_capacity(v.capacity()), _M_growth(v._M_growth), _M_data(nullptr)
     { _F_copy_data(v); }
-    virtual ~Vector();
+    ~Vector()
+    { clear(); }
 
     void push_back(ConstReference arg)
     { _F_insert(end(), arg); }
@@ -223,7 +237,13 @@ public:
     void pop_front()
     { _F_erase(begin()); }
 
-    void clear();
+    void clear()
+    {
+        if(_M_data != nullptr)
+        { delete[] _M_data; }
+        _M_data = nullptr;
+        _M_size = 0;
+    }
 
     Vector<T>& operator=(const Vector<T> &v)
     { _F_copy_data(v); }
@@ -234,17 +254,15 @@ public:
     { return iterator(0, _M_size, _M_data[0].address()); }
     iterator end()
     { return iterator(_M_size, _M_size, _M_data[0].address()); }
-//    const iterator begin()
-//    { return iterator(0, _Size - 1, _Data[0].address()); }
 
     reverse_iterator rbegin()
     { return reverse_iterator(_M_size - 1, _M_size, _M_data[0].address()); }
     reverse_iterator rend()
     { return reverse_iterator(-1, _M_size, _M_data[0].address()); }
 
-    Reference back()
+    Reference back() const
     { return _M_data[size() - 1].ref_content(); }
-    Reference front()
+    Reference front() const
     { return _M_data[0].ref_content(); }
 
     void insert(const iterator &it, ConstReference arg)
@@ -261,15 +279,21 @@ public:
     void erase(iterator && it)
     { _F_erase(forward<iterator>(it)); }
 
-    ConstReference at(const SizeType index);
+    ConstReference at(const SizeType index)
+    {
+        if(index < 0 || index >= size())
+        { throw IndexOutOfArrayException("exception: index out of array !"); }
+        else
+        { return (*this)[index]; }
+    }
 
     void resize(SizeType s);
 
-    SizeType size()
+    SizeType size() const
     { return _M_size; }
-    SizeType capacity()
+    SizeType capacity() const
     { return _M_capacity; }
-    bool empty()
+    bool empty() const
     { return size() == 0; }
     void set_growth(SizeType s)
     { _M_growth = s; }
@@ -277,7 +301,75 @@ public:
     iterator find(ValueType arg);
 };
 
-void test_Vector_main();
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+template<typename T>
+void Vector<T>::_F_initialize(SizeType s)
+{
+    NodeBase<ValueType> *temp = _M_data;
+    _M_data = new NodeBase<ValueType>[s];
+    if(temp != nullptr)
+    {
+        mem_copy(_M_data, temp, size() > s ? s : size() * sizeof(ValueType));
+        delete[] temp;
+    }
+    _M_capacity = s;
+}
+
+template<typename T>
+void Vector<T>::_F_copy_data(Vector<T> &v)
+{
+    clear();
+    if(capacity() > 0)
+    {
+        _M_data = new NodeBase<ValueType>[capacity()];
+        mem_copy(_M_data[0].address(), v._M_data[0].address(), _M_size * sizeof(ValueType));
+    }
+}
+
+template<typename T>
+void Vector<T>::_F_insert(const iterator &it, ConstReference arg)
+{
+    if(size() >= capacity())
+    { _F_growth(); }
+    if(it == end())
+    { _M_data[size()].construct(arg); }
+    else
+    {
+        mem_backward(_M_data[it._M_current_index].address(), (size() - it._M_current_index) * sizeof(ValueType), sizeof(ValueType));
+        _M_data[it._M_current_index].construct(arg);
+    }
+    _F_add_size(1);
+}
+
+template<typename T>
+void Vector<T>::resize(SizeType s)
+{
+    if(s > capacity())
+    { _F_initialize(s); }
+    else if(s > size())
+    { mem_clear(_M_data[0].address() + size(), (s - size()) * sizeof(ValueType)); }
+    else
+    {
+        mem_clear(_M_data[0].address() + s, (size() - s) * sizeof(ValueType));
+        _M_size = s;
+    }
+}
+
+template<typename T>
+typename Vector<T>::iterator Vector<T>::find(ValueType arg)
+{
+    for(SizeType i = 0; i < size(); i++)
+    {
+        if(_M_data[i].content() == arg)
+            return iterator(i, size() - 1, _M_data[0].address());
+    }
+    return end();
+}
+
 };
 
 #endif // VECTOR_H

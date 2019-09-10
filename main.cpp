@@ -1,4 +1,4 @@
-#include "Core/AVLTree.h"
+#include "Test/TestBinaryTree.h"
 using namespace rapid;
 
 int main()

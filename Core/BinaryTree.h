@@ -1,8 +1,10 @@
 #ifndef BINARYTREE_H
 #define BINARYTREE_H
 
-#include "Core/Memory.h"
 #include "Core/TypeTraits.h"
+#include "Core/Version.h"
+#include "Core/TLNode.h"
+#include "Core/Stack.h"
 
 namespace rapid
 {
@@ -18,10 +20,6 @@ public:
     using SizeType = size_type;
 
 private:
-    template<typename T>
-    static constexpr T max(const T &t1, const T &t2)
-    { return t1 > t2 ? t1 : t2; }
-
     template<typename DataNodeType>
     struct BTreeNode
     {
@@ -50,7 +48,8 @@ private:
             }
             if(_M_right != nullptr)
             {
-                _M_depth = max(_M_right->_M_depth + 1, _M_depth);
+                SizeType r = _M_right->_M_depth + 1;
+                _M_depth = r > _M_depth ? r : _M_depth;
             }
             if(_M_parent != nullptr)
             { _M_parent->update_depth(); }
@@ -157,7 +156,7 @@ private:
         FormerIterator operator++()
         {
             FormerIterator it = *this;
-            _M_current = former_next(_M_current);
+            _M_current = BinaryTree<_DataType>::former_next(_M_current);
             return it;
         }
         FormerIterator operator++(int)
@@ -1093,10 +1092,395 @@ public:
     { return node == nullptr ? 0 : (right_child(node) == nullptr ? 0 : (right_child(node)->child_size() + 1)); }
 
 };
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+//-----------------------impl-----------------------//
+template<typename _DataType>
+void BinaryTree<_DataType>::_F_copy(const BinaryTree &tree)
+{
+    clear();
+    if(tree.empty())
+    { return; }
+    Stack<TreeNode*> src, dst;
+    for(auto it = tree.fbegin(); it != tree.fend(); ++it)
+    {
+        TreeNode *new_node = nullptr;
+        if(src.size() == 0)
+        {
+            new_node = append_root(*it);
+        }
+        if(src.size() > 0)
+        {
+            while(parent(it._M_current) != src.top())
+            {
+                src.pop();
+                dst.pop();
+            }
+            if(left_child(src.top()) == it._M_current)
+            {
+                new_node = append_left(dst.top(), *it);
+            }
+            else if(right_child(src.top()) == it._M_current)
+            {
+                new_node = append_right(dst.top(), *it);
+            }
+        }
+        src.push(const_cast<TreeNode*>(it._M_current));
+        dst.push(new_node);
+    }
+}
 
-template<typename T>
-void print_tree(const BinaryTree<T> &tree);
-void test_BinaryTree_main();
+template<typename _DataType>
+typename BinaryTree<_DataType>::TreeNode*
+    BinaryTree<_DataType>::right_rotate(TreeNode *node)
+{
+    TreeNode *left_node = left_child(node);
+    if(left_node == nullptr) return nullptr;
+    TreeNode *original_parent = parent(node);
+    TreeNode *left_node_right_child = right_child(left_node);
+    if(original_parent != nullptr)
+    {
+        if(right_child(original_parent) == node)
+        {
+            original_parent->_M_right = left_node;
+        }
+        else
+        {
+            original_parent->_M_left = left_node;
+        }
+    }
+    node->_M_parent = nullptr;
+    left_node->_M_parent = nullptr;
+
+    SizeType left_node_right_child_size = left_node_right_child == nullptr ? 0 : (left_node_right_child->child_size() + 1);
+
+    node->add_child_number(- (left_node->child_size() + 1));
+    node->add_child_number(left_node_right_child_size);
+
+    left_node->add_child_number(-left_node_right_child_size);
+    left_node->add_child_number(node->child_size() + 1);
+
+    node->_M_parent = left_node;
+    node->_M_left = left_node_right_child;
+    left_node->_M_right = node;
+    left_node->_M_parent = original_parent;
+    if(left_node_right_child != nullptr)
+    { left_node_right_child->_M_parent = node; }
+
+    if(node == root())
+    { _M_root = left_node; }
+
+    node->update_depth();
+    return left_node;
+}
+
+template<typename _DataType>
+typename BinaryTree<_DataType>::TreeNode*
+    BinaryTree<_DataType>::left_rotate(TreeNode *node)
+{
+    TreeNode *right_node = right_child(node);
+    if(right_node == nullptr) return nullptr;
+    TreeNode *original_parent = parent(node);
+    TreeNode *right_node_left_child = left_child(right_node);
+    if(original_parent != nullptr)
+    {
+        if(right_child(original_parent) == node)
+        {
+            original_parent->_M_right = right_node;
+        }
+        else
+        {
+            original_parent->_M_left = right_node;
+        }
+    }
+    node->_M_parent = nullptr;
+    right_node->_M_parent = nullptr;
+
+    SizeType left_node_right_child_size = right_node_left_child == nullptr ? 0 : (right_node_left_child->child_size() + 1);
+
+    node->add_child_number(- (right_node->child_size() + 1));
+    node->add_child_number(left_node_right_child_size);
+
+    right_node->add_child_number(-left_node_right_child_size);
+    right_node->add_child_number(node->child_size() + 1);
+
+    node->_M_parent = right_node;
+    node->_M_right = right_node_left_child;
+    right_node->_M_left = node;
+    right_node->_M_parent = original_parent;
+    if(right_node_left_child != nullptr)
+    { right_node_left_child->_M_parent = node; }
+
+    if(node == root())
+    { _M_root = right_node; }
+
+    node->update_depth();
+    return right_node;
+}
+
+//---------------------***************---------------------//
+template<typename _DataType>
+typename BinaryTree<_DataType>::TreeNode*
+    BinaryTree<_DataType>::left_child_under(TreeNode *node)
+{
+    using BT = BinaryTree<_DataType>;
+    while(node != nullptr && BT::left_child(node) != nullptr)
+    {
+        node = BT::left_child(node);
+    }
+    return node;
+}
+template<typename _DataType>
+typename BinaryTree<_DataType>::TreeNode*
+    BinaryTree<_DataType>::right_child_under(TreeNode *node)
+{
+    using BT = BinaryTree<_DataType>;
+    while(node != nullptr && BT::right_child(node) != nullptr)
+    {
+        node = BT::right_child(node);
+    }
+    return node;
+}
+template<typename _DataType>
+typename BinaryTree<_DataType>::TreeNode*
+    BinaryTree<_DataType>::left_leaves(TreeNode *node)
+{
+    using BT = BinaryTree<_DataType>;
+    node = left_child_under(node);
+    while(BT::right_child(node) != nullptr)
+    {
+        node = left_child_under(BT::right_child(node));
+    }
+    return node;
+}
+template<typename _DataType>
+typename BinaryTree<_DataType>::TreeNode*
+    BinaryTree<_DataType>::right_leaves(TreeNode *node)
+{
+    using BT = BinaryTree<_DataType>;
+    node = right_child_under(node);
+    while(BT::left_child(node) != nullptr)
+    {
+        node = right_child_under(BT::left_child(node));
+    }
+    return node;
+}
+
+template<typename _DataType>
+typename BinaryTree<_DataType>::TreeNode*
+    BinaryTree<_DataType>::former_next(TreeNode *current)
+{
+    using namespace rapid;
+    using BT = BinaryTree<_DataType>;
+    using Node = typename BT::TreeNode;
+    if(BT::left_child(current) != nullptr)
+    {
+        return BT::left_child(current);
+    }
+    if(BT::right_child(current) != nullptr)
+    {
+        return BT::right_child(current);
+    }
+    Node *temp = current;
+    current = BT::parent(current);
+    while(current != nullptr && (BT::right_child(current) == temp || BT::right_child(current) == nullptr))
+    {
+        temp = current;
+        current = BT::parent(current);
+    }
+    return BT::right_child(current);
+}
+template<typename _DataType>
+typename BinaryTree<_DataType>::TreeNode*
+    BinaryTree<_DataType>::middle_next(TreeNode *current)
+{
+    using namespace rapid;
+    using BT = BinaryTree<_DataType>;
+    using Node = typename BT::TreeNode;
+    if(BT::right_child(current) != nullptr)
+    {
+        return left_child_under(BT::right_child(current));
+    }
+    if(current != BT::right_child(BT::parent(current)))
+    {
+        return BT::parent(current);
+    }
+    Node *temp = current;
+    current = BT::parent(current);
+    while(current != nullptr && BT::right_child(current) == temp)
+    {
+        temp = current;
+        current = BT::parent(current);
+    }
+    return current;
+}
+
+template<typename _DataType>
+typename BinaryTree<_DataType>::TreeNode*
+    BinaryTree<_DataType>::after_next(TreeNode *current)
+{
+    using namespace rapid;
+    using BT = BinaryTree<_DataType>;
+    if(current == BT::left_child(BT::parent(current)))
+    {
+        if(BT::right_child(BT::parent(current)) == nullptr)
+        {
+            return BT::parent(current);
+        }
+        return left_leaves(BT::right_child(BT::parent(current)));
+    }
+    if(current == BT::right_child(BT::parent(current)))
+    {
+        return BT::parent(current);
+    }
+    return nullptr;
+}
+
+template<typename _DataType>
+typename BinaryTree<_DataType>::TreeNode*
+    BinaryTree<_DataType>::former_previous(TreeNode *current)
+{
+    using namespace rapid;
+    using BT = BinaryTree<_DataType>;
+    if(current == BT::left_child(BT::parent(current)))
+    {
+        return BT::parent(current);
+    }
+    if(current == BT::right_child(BT::parent(current)))
+    {
+        current = BT::parent(current);
+        if(BT::left_child(current) != nullptr)
+        {
+            return right_leaves(BT::left_child(current));
+        }
+        return current;
+    }
+    return nullptr;
+}
+template<typename _DataType>
+typename BinaryTree<_DataType>::TreeNode*
+    BinaryTree<_DataType>::middle_previous(TreeNode *current)
+{
+    using namespace rapid;
+    using BT = BinaryTree<_DataType>;
+    if(BT::left_child(current) != nullptr)
+    {
+        return right_child_under(BT::left_child(current));
+    }
+    if(current == BT::right_child(BT::parent(current)))
+    {
+        return BT::parent(current);
+    }
+    while(current != nullptr && current == BT::left_child(BT::parent(current)))
+    {
+        current = BT::parent(current);
+    }
+    return BT::parent(current);
+}
+
+template<typename _DataType>
+typename BinaryTree<_DataType>::TreeNode*
+    BinaryTree<_DataType>::after_previous(TreeNode *current)
+{
+    using namespace rapid;
+    using BT = BinaryTree<_DataType>;
+    if(BT::right_child(current) != nullptr)
+    {
+        return BT::right_child(current);
+    }
+    if(BT::right_child(BT::parent(current)) == current)
+    {
+        current = BT::parent(current);
+        while(current != nullptr && BT::left_child(current) == nullptr)
+        {
+            current = BT::parent(current);
+        }
+        return BT::left_child(current);
+    }
+    if(BT::left_child(current) != nullptr)
+    {
+        return BT::left_child(current);
+    }
+    while(current != nullptr && BT::left_child(BT::parent(current)) == current)
+    {
+        current = BT::parent(current);
+    }
+    current = BT::parent(current);
+    while(current != nullptr && BT::left_child(current) == nullptr)
+    {
+        current = BT::parent(current);
+    }
+    return BT::left_child(current);
+}
+//---------------------***************---------------------//
+//---------------------------------------------------------//
+template<typename _DataType>
+typename BinaryTree<_DataType>::TreeNode*
+    BinaryTree<_DataType>::erase(TreeNode *node)
+{
+    if(node == nullptr) return nullptr;
+
+    TreeNode *left = left_child(node);
+    TreeNode *right = right_child(node);
+    if(right->depth() > left->depth())
+    {
+        if(left == nullptr)
+        {
+            TreeNode *node_parent = parent(node);
+            if(node_parent == nullptr)
+            {
+                return _M_root = right;
+            }
+            if(left_child(node_parent) == node)
+            {
+                return node_parent->set_left(right);
+            }
+            return node_parent->set_right(right);
+        }
+        // get min
+        TreeNode *reserve = left_child_under(right);
+        TreeNode *reserve_parent = parent(reserve);
+        TreeNode *temp = right_child(reserve);
+        reserve_parent->set_left(temp);
+        if(temp == nullptr)
+        {
+            temp = reserve_parent;
+        }
+        node->swap(reserve);
+        delete reserve;
+        return temp;
+    }
+    else
+    {
+        if(right == nullptr)
+        {
+            TreeNode *node_parent = parent(node);
+            if(node_parent == nullptr)
+            {
+                return _M_root = left;
+            }
+            if(left_child(node_parent) == node)
+            {
+                return node_parent->set_left(left);
+            }
+            return node_parent->set_right(left);
+        }
+        // get max
+        TreeNode *reserve = right_child_under(left);
+        TreeNode *reserve_parent = parent(reserve);
+        TreeNode *temp = left_child(reserve);
+        reserve_parent->set_right(temp);
+        if(temp == nullptr)
+        {
+            temp = reserve_parent;
+        }
+        node->swap(reserve);
+        delete reserve;
+        return temp;
+    }
+}
 
 }
 #endif // BINARYTREE_H

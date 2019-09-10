@@ -1,18 +1,17 @@
-#include "TestCase.h"
-#include "Core/SingleLinkedList.h"
-using namespace rapid;
+#include "TestSingleLinkedList.h"
+#include <iostream>
 
 void rapid::test_SingleLinkedList_main()
 {
     std::cout << "************debug singleLinkedList begin************" << std::endl;
     Slist<int> s;
-    s.push_back(10);
-    s.push_back(20);
-    s.push_back(30);
-    s.push_back(40);
-    s.push_back(50);
-    s.push_back(60);
-    s.push_back(70);
+    s.push_front(10);
+    s.push_front(20);
+    s.push_front(30);
+    s.push_front(40);
+    s.push_front(50);
+    s.push_front(60);
+    s.push_front(70);
     s.push_front(0);
     for(int i : s)
     {
@@ -20,11 +19,11 @@ void rapid::test_SingleLinkedList_main()
     }
     std::cout << "total size: " << s.size() << std::endl;
     std::cout << "---------------------" << std::endl;
-    s.pop_back();
+    s.pop_front();
     auto it = s.begin();
     it++;
-    s.erase(++it);
-    s.erase(s.find(70));
+    s.erase_after(++it);
+    s.erase_after(s.find(70));
     std::cout << "total size: " << s.size() << std::endl;
     s.pop_front();
     Slist<int> ss(s);
@@ -33,5 +32,12 @@ void rapid::test_SingleLinkedList_main()
         std::cout << i << std::endl;
     }
     std::cout << "total size: " << ss.size() << std::endl;
+    std::cout << "---------reverse------------" << std::endl;
+    ss.reverse();
+    for(int i : ss)
+    {
+        std::cout << i << std::endl;
+    }
     std::cout << "************debug singleLinkedList end************" << std::endl;
 }
+

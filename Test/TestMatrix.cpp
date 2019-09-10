@@ -1,13 +1,11 @@
-#include "TestCase.h"
-#include "Core/Matrix.h"
+#include "TestMatrix.h"
 #include "Core/Exception.h"
-using namespace rapid;
-
+#include <iostream>
 #include <iomanip>
 using SizeType = long;
 
 template<typename T>
-void print_matrix(rapid::Matrix<T> &m)
+static void print_matrix(rapid::Matrix<T> &m)
 {
     std::cout << std::setiosflags(std::ios::left);
     for(SizeType i = 0; i < m.row(); i++)
@@ -37,10 +35,9 @@ void rapid::test_Matrix_main()
     Matrix<int> m3(m1);
     try
     {
-        Matrix<int> *m4 = Matrix<int>::multiply(m2, m3);
-        un_use(m4);
+        [[maybe_unused]] Matrix<int> *m4 = Matrix<int>::multiply(m2, m3);
     }
-    catch(Exception e)
+    catch(Exception &e)
     {
         std::cout << e.what() << std::endl;
     }

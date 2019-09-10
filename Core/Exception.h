@@ -12,8 +12,9 @@ protected:
     char *_M_reason;
 public:
     Exception(const char *r = nullptr) : _M_reason(remove_const(r)) { }
-    virtual ~Exception();
-    virtual const char* what();
+    ~Exception() { }
+    const char* what()
+    { return _M_reason; }
 };
 
 #define RegistException(e) \
@@ -21,8 +22,6 @@ public:
     { \
     public: \
         e(const char *r = nullptr) : Exception(r) { } \
-        virtual ~e(); \
-        virtual const char* what(); \
     }
 
 RegistException(IndexOutOfArrayException);

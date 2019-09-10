@@ -1,14 +1,13 @@
-#include "TestCase.h"
+#include "TestVector.h"
 #include "Core/Exception.h"
-#include "Core/Vector.h"
-
-using namespace rapid;
+#include <iostream>
 
 template<typename T>
 static void print_vector(rapid::Vector<T> &v)
 {
     for(T value : v)
-        std::cout << value << std::endl;
+        std::cout << value << " ";
+    std::cout << std::endl;
 }
 void rapid::test_Vector_main()
 {
@@ -48,7 +47,7 @@ void rapid::test_Vector_main()
         std::cout << "the element at index 3 is: " << vec.at(3) << std::endl;
         std::cout << "the element at index 10 is: " << vec.at(10) << std::endl;
     }
-    catch (IndexOutOfArrayException e)
+    catch (IndexOutOfArrayException &e)
     {
         std::cout << e.what() << std::endl;
     }

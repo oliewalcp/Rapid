@@ -1,15 +1,14 @@
-#include "TestCase.h"
-#include "Core/Memory.h"
-#include "Core/Range.h"
+#include "TestMemory.h"
+#include <iostream>
 
-using namespace rapid;
 template<typename T>
 static void print(const T *arg, const int size)
 {
-    for(int i : rapid::Range<T>(0, size))
+    for(int i = 0; i < size; ++i)
     {
-        std::cout << arg[i] << std::endl;
+        std::cout << arg[i] << " ";
     }
+    std::cout << std::endl;
 }
 
 void rapid::test_Memory_main()
