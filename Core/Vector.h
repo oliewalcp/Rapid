@@ -15,8 +15,8 @@ class Vector
 public:
     class iterator;
     class reverse_iterator;
-    typedef const iterator const_iterator;
-    typedef const reverse_iterator const_reverse_iterator;
+    class const_iterator;
+    class const_reverse_iterator;
 protected:
     using ValueType = T;
     using Pointer = ValueType*;
@@ -31,8 +31,10 @@ protected:
     NodeBase<ValueType> *_M_data;
 
     void _F_initialize(SizeType s);
-    void _F_copy_data(Vector<T> &arg);
-    void _F_insert(const iterator &it, ConstReference arg);
+    void _F_copy_data(const Vector &arg);
+    template<typename ... Args>
+    void _F_insert(const iterator &it, const Args & ... arg);
+    iterator _F_find(ConstReference arg) const;
     void _F_erase(const iterator &it)
     {
         if(it == end()) return;
@@ -128,15 +130,111 @@ public:
             _F_previous();
             return it;
         }
-        ValueType operator*() const
+        Reference operator*()
         { return _M_data[_M_current_index]; }
 
-        ValueType* operator->() const
-        { return &_M_data[_M_current_index]; }
+        Pointer operator->()
+        { return _M_data[_M_current_index].address(); }
 
         bool operator==(const iterator& arg) const
         { return _M_current_index == arg._M_current_index; }
         bool operator!=(const iterator& arg) const
+        { return _M_current_index != arg._M_current_index; }
+    };
+
+    class const_iterator
+    {
+    private:
+        SizeType _M_current_index;
+        SizeType _M_max_index;// not contained
+        const ValueType *_M_data;
+
+        friend class Vector;
+
+        inline void _F_init(const const_iterator &it)
+        {
+            _M_current_index = it._M_current_index;
+            _M_max_index = it._M_max_index;
+            _M_data = it._M_data;
+        }
+        void _F_next()
+        {
+            if(_M_current_index >= 0 && _M_current_index < _M_max_index)
+            { _M_current_index++; }
+            else
+            { _M_current_index = _M_max_index; }
+        }
+        void _F_previous()
+        {
+            if(_M_current_index >= 0 && _M_current_index < _M_max_index)
+            { _M_current_index--; }
+            else
+            { _M_current_index = _M_max_index; }
+        }
+        iterator _F_const_cast()
+        { return iterator(_M_current_index, _M_max_index, const_cast<ValueType *>(_M_data)); }
+
+        const_iterator(const SizeType n, const SizeType max, const ValueType *start)
+            : _M_current_index(n), _M_max_index(max), _M_data(start)
+        { }
+    public:
+        const_iterator()
+            : _M_current_index(SizeType(-1)), _M_max_index(SizeType(-1)), _M_data(nullptr) { }
+        const_iterator(const const_iterator &it)
+        { _F_init(it); }
+        const_iterator(const_iterator && it)
+        { _F_init(forward<const_iterator>(it)); }
+
+        const_iterator operator=(const const_iterator &it)
+        {
+            _F_init(it);
+            return *this;
+        }
+        const_iterator operator-(const SizeType s)
+        {
+            _M_current_index -= s;
+            if(_M_current_index < 0 || _M_current_index > _M_max_index)
+            { _M_current_index = _M_max_index + 1; }
+            return *this;
+        }
+        const_iterator operator+(const SizeType s)
+        {
+            _M_current_index += s;
+            if(_M_current_index < 0 || _M_current_index > _M_max_index)
+            { _M_current_index = _M_max_index + 1; }
+            return *this;
+        }
+        const_iterator operator++()
+        {
+            _F_next();
+            return *this;
+        }
+        const_iterator operator++(int)
+        {
+            const_iterator it = *this;
+            _F_next();
+            return it;
+        }
+        const_iterator operator--()
+        {
+            _F_previous();
+            return *this;
+        }
+        const_iterator operator--(int)
+        {
+            const_iterator it = *this;
+            _F_previous();
+            return it;
+        }
+        Reference operator*() const
+        { return _M_data[_M_current_index]; }
+
+        Pointer operator->() const
+        { return _M_data[_M_current_index].address(); }
+
+        bool operator==(const const_iterator& arg) const
+        { return _M_current_index == arg._M_current_index; }
+        bool operator!=(const const_iterator& arg) const
         { return _M_current_index != arg._M_current_index; }
     };
 
@@ -204,10 +302,10 @@ public:
             _F_previous();
             return it;
         }
-        ValueType operator*() const
+        Reference operator*()
         { return _M_data[_M_current_index]; }
 
-        ValueType* operator->() const
+        Pointer operator->()
         { return &_M_data[_M_current_index]; }
 
         bool operator==(const iterator& arg) const
@@ -216,9 +314,87 @@ public:
         { return _M_current_index != arg._M_current_index; }
     };
 
-    Vector(SizeType size = 1) : _M_size(0), _M_growth(static_cast<SizeType>(-1)), _M_data(nullptr)
+    class const_reverse_iterator
+    {
+    private:
+        SizeType _M_current_index;
+        SizeType _M_max_index;
+        const ValueType *_M_data;
+
+        friend class Vector;
+
+        inline void _F_init(const iterator &it)
+        {
+            _M_current_index = it._M_current_index;
+            _M_max_index = it._M_max_index;
+            _M_data = it._M_data;
+        }
+        void _F_next()
+        {
+            if(_M_current_index >= 0 && _M_current_index < _M_max_index)
+            { _M_current_index--; }
+            else
+            { _M_current_index = _M_max_index; }
+        }
+        void _F_previous()
+        {
+            if(_M_current_index >= 0 && _M_current_index < _M_max_index)
+            { _M_current_index++; }
+            else
+            { _M_current_index = _M_max_index; }
+        }
+
+        const_reverse_iterator(const SizeType n, const SizeType max = 0, const ValueType *start = nullptr)
+            : _M_current_index(n), _M_max_index(max), _M_data(start) { }
+    public:
+        const_reverse_iterator() : _M_current_index(SizeType(-1)), _M_max_index(SizeType(-1)), _M_data(nullptr) { }
+        const_reverse_iterator(const const_reverse_iterator &it) { _F_init(it); }
+        const_reverse_iterator(const_reverse_iterator && it) { _F_init(forward<const_reverse_iterator>(it)); }
+
+        const_reverse_iterator operator=(const const_reverse_iterator &it)
+        {
+            _F_init(it);
+            return *this;
+        }
+        const_reverse_iterator operator++()
+        {
+            _F_next();
+            return *this;
+        }
+        const_reverse_iterator operator++(int)
+        {
+            const_reverse_iterator it = *this;
+            _F_next();
+            return it;
+        }
+        const_reverse_iterator operator--()
+        {
+            _F_previous();
+            return *this;
+        }
+        const_reverse_iterator operator--(int)
+        {
+            const_reverse_iterator it = *this;
+            _F_previous();
+            return it;
+        }
+        Reference operator*() const
+        { return _M_data[_M_current_index]; }
+
+        Pointer operator->() const
+        { return &_M_data[_M_current_index]; }
+
+        bool operator==(const iterator& arg) const
+        { return _M_current_index == arg._M_current_index; }
+        bool operator!=(const iterator& arg) const
+        { return _M_current_index != arg._M_current_index; }
+    };
+
+    Vector(SizeType size = 1)
+        : _M_size(0), _M_growth(static_cast<SizeType>(-1)), _M_data(nullptr)
     { _F_initialize(size); }
-    Vector(Vector<T> &v) : _M_size(v.size()), _M_capacity(v.capacity()), _M_growth(v._M_growth), _M_data(nullptr)
+    Vector(const Vector &v)
+        : _M_size(v.size()), _M_capacity(v.capacity()), _M_growth(v._M_growth), _M_data(nullptr)
     { _F_copy_data(v); }
     ~Vector()
     { clear(); }
@@ -245,20 +421,36 @@ public:
         _M_size = 0;
     }
 
-    Vector<T>& operator=(const Vector<T> &v)
+    Vector& operator=(const Vector &v)
     { _F_copy_data(v); }
-    ConstReference operator[](const SizeType index)
-    { return _M_data[index].const_ref_content(); }
+    Reference operator[](const SizeType index)
+    { return _M_data[index].ref_content(); }
 
     iterator begin()
     { return iterator(0, _M_size, _M_data[0].address()); }
     iterator end()
     { return iterator(_M_size, _M_size, _M_data[0].address()); }
+    const_iterator begin() const
+    { return const_iterator(0, _M_size, _M_data[0].address()); }
+    const_iterator end() const
+    { return const_iterator(_M_size, _M_size, _M_data[0].address()); }
+    const_iterator cbegin() const
+    { return const_iterator(0, _M_size, _M_data[0].address()); }
+    const_iterator cend() const
+    { return const_iterator(_M_size, _M_size, _M_data[0].address()); }
 
     reverse_iterator rbegin()
     { return reverse_iterator(_M_size - 1, _M_size, _M_data[0].address()); }
     reverse_iterator rend()
     { return reverse_iterator(-1, _M_size, _M_data[0].address()); }
+    const_reverse_iterator rbegin() const
+    { return const_reverse_iterator(_M_size - 1, _M_size, _M_data[0].address()); }
+    const_reverse_iterator rend() const
+    { return const_reverse_iterator(-1, _M_size, _M_data[0].address()); }
+    const_reverse_iterator crbegin() const
+    { return const_reverse_iterator(_M_size - 1, _M_size, _M_data[0].address()); }
+    const_reverse_iterator crend() const
+    { return const_reverse_iterator(-1, _M_size, _M_data[0].address()); }
 
     Reference back() const
     { return _M_data[size() - 1].ref_content(); }
@@ -279,7 +471,7 @@ public:
     void erase(iterator && it)
     { _F_erase(forward<iterator>(it)); }
 
-    ConstReference at(const SizeType index)
+    Reference at(const SizeType index)
     {
         if(index < 0 || index >= size())
         { throw IndexOutOfArrayException("exception: index out of array !"); }
@@ -298,7 +490,36 @@ public:
     void set_growth(SizeType s)
     { _M_growth = s; }
 
-    iterator find(ValueType arg);
+    iterator find(Reference arg) const
+    { return _F_find(arg); }
+    iterator find(RvalueReference arg) const
+    { return _F_find(forward<ValueType>(arg)); }
+
+    template<typename ... Args>
+    iterator emplace_front(const Args & ... args)
+    { return _F_insert(begin(), args...); }
+    template<typename ... Args>
+    iterator emplace_front(Args && ... args)
+    { return _F_insert(begin(), forward<ValueType>(args)...); }
+    template<typename ... Args>
+    iterator emplace_back(const Args & ... args)
+    { return _F_insert(end(), args...); }
+    template<typename ... Args>
+    iterator emplace_back(Args && ... args)
+    { return _F_insert(end(), forward<ValueType>(args)...); }
+
+    template<typename ... Args>
+    iterator emplace(const_iterator it, const Args & ... args)
+    { return _F_insert(it._F_const_cast(), args...); }
+    template<typename ... Args>
+    iterator emplace(iterator it, const Args & ... args)
+    { return _F_insert(it, args...); }
+    template<typename ... Args>
+    iterator emplace(const_iterator it, Args && ... args)
+    { return _F_insert(it._F_const_cast(), forward<Args>(args)...); }
+    template<typename ... Args>
+    iterator emplace(iterator it, Args && ... args)
+    { return _F_insert(it, forward<Args>(args)...); }
 };
 
 //-----------------------impl-----------------------//
@@ -320,7 +541,7 @@ void Vector<T>::_F_initialize(SizeType s)
 }
 
 template<typename T>
-void Vector<T>::_F_copy_data(Vector<T> &v)
+void Vector<T>::_F_copy_data(const Vector &v)
 {
     clear();
     if(capacity() > 0)
@@ -331,16 +552,17 @@ void Vector<T>::_F_copy_data(Vector<T> &v)
 }
 
 template<typename T>
-void Vector<T>::_F_insert(const iterator &it, ConstReference arg)
+template<typename ... Args>
+void Vector<T>::_F_insert(const iterator &it, const Args & ... args)
 {
     if(size() >= capacity())
     { _F_growth(); }
     if(it == end())
-    { _M_data[size()].construct(arg); }
+    { _M_data[size()].construct(args...); }
     else
     {
         mem_backward(_M_data[it._M_current_index].address(), (size() - it._M_current_index) * sizeof(ValueType), sizeof(ValueType));
-        _M_data[it._M_current_index].construct(arg);
+        _M_data[it._M_current_index].construct(args...);
     }
     _F_add_size(1);
 }
@@ -360,14 +582,14 @@ void Vector<T>::resize(SizeType s)
 }
 
 template<typename T>
-typename Vector<T>::iterator Vector<T>::find(ValueType arg)
+typename Vector<T>::iterator Vector<T>::_F_find(ConstReference arg) const
 {
     for(SizeType i = 0; i < size(); i++)
     {
         if(_M_data[i].content() == arg)
             return iterator(i, size() - 1, _M_data[0].address());
     }
-    return end();
+    return end()._F_const_cast();
 }
 
 };

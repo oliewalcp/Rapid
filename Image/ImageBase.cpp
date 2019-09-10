@@ -120,7 +120,11 @@ void rapid::BMP::parse(const char *filename)
     _DataContent = &result[__data_begin_position()];
 }
 
-void rapid::BMP::parse(Matrix<rapid::RGB> *m)
+void rapid::BMP::parse(
+#ifdef cpp17
+        [[maybe_unused]]
+#endif
+Matrix<rapid::RGB> *m)
 {
 
 }
@@ -128,6 +132,9 @@ void rapid::BMP::parse(Matrix<rapid::RGB> *m)
 void rapid::BMP::to_matrix(Matrix<RGB> *m)
 {
     if(m == nullptr || _DataContent == nullptr) return;
+#ifdef cpp17
+        [[maybe_unused]]
+#endif
     unsigned char skip = 0;
     unsigned char pixel_byte = static_cast<unsigned char>(color_bit() / 8);
     // there is no color table

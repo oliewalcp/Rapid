@@ -1,6 +1,8 @@
 #ifndef TLNODE_H
 #define TLNODE_H
 
+#include "Core/Version.h"
+
 namespace rapid
 {
 
