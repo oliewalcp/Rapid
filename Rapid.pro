@@ -39,8 +39,10 @@ HEADERS += \
     Core/Memory.h \
     Core/Range.h \
     Core/RapidConfig.h \
+    Core/RedBlackTree.h \
     Core/SharedPointer.h \
     Core/TLNode.h \
+    Core/Tree.h \
     Core/TypeTraits.h \
     Core/Vector.h \
     Core/Stack.h \

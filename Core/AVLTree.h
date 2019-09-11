@@ -2,23 +2,15 @@
 #define AVLTREE_H
 
 #include "BinaryTree.h"
+#include "Tree.h"
 #include <initializer_list>
 
 namespace rapid
 {
 
-template<typename T>
-struct Compare
-{
-    int operator()(const T &arg1, const T &arg2) const
-    {
-        if(arg1 < arg2) return 1;
-        if(arg2 < arg1) return -1;
-        return 0;
-    }
-};
-
-template<typename _DataType, typename _CompareType = Compare<_DataType>>
+template<typename _DataType,
+         typename _CompareType = Compare<_DataType>,
+         size_type _BalanceFactor = 2>
 class AVLTree
 {
 private:
@@ -36,6 +28,8 @@ public:
 
     using iterator = typename TreeType::iterator;
     using const_iterator = typename TreeType::const_iterator;
+    using reverse_iterator = typename TreeType::reverse_iterator;
+    using const_reverse_iterator = typename TreeType::const_reverse_iterator;
 
 private:
     BinaryTree<DataType> _M_tree;
@@ -71,6 +65,19 @@ public:
     { return _M_tree.cbegin(); }
     const_iterator cend() const
     { return _M_tree.cend(); }
+
+    reverse_iterator rbegin()
+    { return _M_tree.rbegin(); }
+    reverse_iterator rend()
+    { return _M_tree.rend(); }
+    const_reverse_iterator rbegin() const
+    { return _M_tree.rbegin(); }
+    const_reverse_iterator rend() const
+    { return _M_tree.rend(); }
+    const_reverse_iterator crbegin() const
+    { return _M_tree.crbegin(); }
+    const_reverse_iterator crend() const
+    { return _M_tree.crend(); }
 
     typename TreeType::fiterator fbegin()
     { return _M_tree.fbegin(); }
@@ -122,15 +129,15 @@ public:
 //-----------------------impl-----------------------//
 //-----------------------impl-----------------------//
 //-----------------------impl-----------------------//
-template<typename _DataType, typename _CompareType>
-    void AVLTree<_DataType, _CompareType>::_F_adjust(TreeNode *node)
+template<typename _DataType, typename _CompareType, size_type _BalanceFactor>
+    void AVLTree<_DataType, _CompareType, _BalanceFactor>::_F_adjust(TreeNode *node)
 {
     TreeNode *visit = node;
     while(visit != nullptr)
     {
         SizeType left_dep = _M_tree.depth(_M_tree.left_child(visit));
         SizeType right_dep = _M_tree.depth(_M_tree.right_child(visit));
-        if(left_dep > right_dep && left_dep - right_dep > 1)
+        if(left_dep > right_dep && left_dep - right_dep >= _BalanceFactor)
         {
             TreeNode *temp = _M_tree.left_child(visit);
             if(_M_tree.depth(_M_tree.left_child(temp)) < _M_tree.depth(_M_tree.right_child(temp)))
@@ -139,7 +146,7 @@ template<typename _DataType, typename _CompareType>
             }
             visit = _M_tree.right_rotate(visit);
         }
-        else if(right_dep > left_dep && right_dep - left_dep > 1)
+        else if(right_dep > left_dep && right_dep - left_dep >= _BalanceFactor)
         {
             TreeNode *temp = _M_tree.right_child(visit);
             if(_M_tree.depth(_M_tree.right_child(temp)) < _M_tree.depth(_M_tree.left_child(temp)))
@@ -152,9 +159,9 @@ template<typename _DataType, typename _CompareType>
     }
 }
 
-template<typename _DataType, typename _CompareType>
-typename AVLTree<_DataType, _CompareType>::iterator
-    AVLTree<_DataType, _CompareType>::_F_find(ConstReference arg) const
+template<typename _DataType, typename _CompareType, size_type _BalanceFactor>
+typename AVLTree<_DataType, _CompareType, _BalanceFactor>::iterator
+    AVLTree<_DataType, _CompareType, _BalanceFactor>::_F_find(ConstReference arg) const
 {
     TreeNode *node = _M_tree.root();
     iterator result;
@@ -177,15 +184,15 @@ typename AVLTree<_DataType, _CompareType>::iterator
     return result;
 }
 
-template<typename _DataType, typename _CompareType>
-typename AVLTree<_DataType, _CompareType>::iterator
-    AVLTree<_DataType, _CompareType>::_F_insert(ConstReference arg)
+template<typename _DataType, typename _CompareType, size_type _BalanceFactor>
+typename AVLTree<_DataType, _CompareType, _BalanceFactor>::iterator
+    AVLTree<_DataType, _CompareType, _BalanceFactor>::_F_insert(ConstReference arg)
 {
+    iterator result;
     if(empty())
     {
-        return iterator(_M_tree.append_root(arg));
+        return result = _M_tree.append_root(arg);
     }
-    iterator result;
     TreeNode *node = _M_tree.root();
     while(true)
     {

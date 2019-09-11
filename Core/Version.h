@@ -29,7 +29,7 @@
 
 namespace rapid
 {
-    using size_type = unsigned long;
+    using size_type = unsigned long long;
 }
 
 

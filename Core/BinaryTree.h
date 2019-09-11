@@ -9,7 +9,118 @@
 namespace rapid
 {
 
-template<typename _DataType>
+template<typename DataNodeType>
+struct BTreeNode;
+
+template<typename _DataType, typename _Node = BTreeNode<_DataType>>
+class BinaryTree;
+
+template<typename DataNodeType>
+struct BTreeNode
+{
+private:
+    using ValueType = DataNodeType;
+    using SizeType = size_type;
+    using ConstReference = const ValueType &;
+
+    NodeBase<ValueType> *_M_data;
+    BTreeNode *_M_left = nullptr;
+    BTreeNode *_M_right = nullptr;
+    BTreeNode *_M_parent = nullptr;
+    SizeType _M_child_number = 0;
+    SizeType _M_depth = 1;
+
+    friend class BinaryTree<ValueType, BTreeNode<ValueType>>;
+
+    ~BTreeNode()
+    { delete _M_data; }
+public:
+    void add_child_number(SizeType size)
+    {
+        _M_child_number += size;
+        if(_M_parent != nullptr)
+        { _M_parent->add_child_number(size); }
+    }
+    void update_depth()
+    {
+        _M_depth = 1;
+        if(_M_left != nullptr)
+        {
+            _M_depth = _M_left->_M_depth + 1;
+        }
+        if(_M_right != nullptr)
+        {
+            SizeType r = _M_right->_M_depth + 1;
+            _M_depth = r > _M_depth ? r : _M_depth;
+        }
+        if(_M_parent != nullptr)
+        { _M_parent->update_depth(); }
+    }
+
+    BTreeNode* append_left(ConstReference data)
+    { return set_left(new BTreeNode<ValueType>(data, _M_left, nullptr)); }
+    BTreeNode* append_right(ConstReference data)
+    { return set_right(new BTreeNode<ValueType>(data, _M_right, nullptr)); }
+
+    BTreeNode* set_parent(BTreeNode *node)
+    { return _M_parent = node; }
+    BTreeNode* set_left(BTreeNode *node)
+    {
+        add_child_number(- (_M_left == nullptr ? 0 : _M_left->_M_child_number + 1));
+        if(node != nullptr)
+        {
+            node->set_parent(this);
+            add_child_number(node->_M_child_number + 1);
+        }
+        _M_left = node;
+        update_depth();
+        return _M_left;
+    }
+    BTreeNode* set_right(BTreeNode *node)
+    {
+        add_child_number(- (_M_right == nullptr ? 0 : _M_right->_M_child_number + 1));
+        if(node != nullptr)
+        {
+            node->set_parent(this);
+            add_child_number(node->_M_child_number + 1);
+        }
+        _M_right = node;
+        update_depth();
+        return _M_right;
+    }
+    // [node] is not nullptr
+    void swap(BTreeNode *node)
+    {
+        NodeBase<ValueType> *temp_data = node->_M_data;
+        node->_M_data = _M_data;
+        _M_data = temp_data;
+    }
+    BTreeNode(const ValueType &data, BTreeNode *left = nullptr,
+              BTreeNode *right = nullptr,
+#ifdef cpp17
+              [[maybe_unused]]
+#endif
+    BTreeNode *parent = nullptr)
+        : _M_data(new NodeBase<DataNodeType>(data))
+    {
+        set_left(left);
+        set_right(right);
+    }
+    ValueType& data() const
+    { return _M_data->ref_content(); }
+    SizeType child_size() const
+    { return _M_child_number; }
+    SizeType depth() const
+    { return _M_depth; }
+    BTreeNode* left() const
+    { return _M_left; }
+    BTreeNode* right() const
+    { return _M_right; }
+    BTreeNode* parent() const
+    { return _M_parent; }
+};
+
+template<typename _DataType, typename _Node>
 class BinaryTree
 {
 public:
@@ -18,105 +129,8 @@ public:
     using RvalueReference = DataType &&;
     using ConstReference = const DataType &;
     using SizeType = size_type;
-
-private:
-    template<typename DataNodeType>
-    struct BTreeNode
-    {
-    private:
-        NodeBase<DataNodeType> *_M_data;
-        BTreeNode *_M_left = nullptr;
-        BTreeNode *_M_right = nullptr;
-        BTreeNode *_M_parent = nullptr;
-        SizeType _M_child_number = 0;
-        SizeType _M_depth = 1;
-
-        friend class BinaryTree;
-
-        void add_child_number(SizeType size)
-        {
-            _M_child_number += size;
-            if(_M_parent != nullptr)
-            { _M_parent->add_child_number(size); }
-        }
-        void update_depth()
-        {
-            _M_depth = 1;
-            if(_M_left != nullptr)
-            {
-                _M_depth = _M_left->_M_depth + 1;
-            }
-            if(_M_right != nullptr)
-            {
-                SizeType r = _M_right->_M_depth + 1;
-                _M_depth = r > _M_depth ? r : _M_depth;
-            }
-            if(_M_parent != nullptr)
-            { _M_parent->update_depth(); }
-        }
-
-        BTreeNode* append_left(ConstReference data)
-        { return set_left(new BTreeNode<DataNodeType>(data, _M_left, nullptr)); }
-        BTreeNode* append_right(ConstReference data)
-        { return set_right(new BTreeNode<DataNodeType>(data, _M_right, nullptr)); }
-
-        BTreeNode* set_parent(BTreeNode *node)
-        { return _M_parent = node; }
-        BTreeNode* set_left(BTreeNode *node)
-        {
-            add_child_number(- (_M_left == nullptr ? 0 : _M_left->_M_child_number + 1));
-            if(node != nullptr)
-            {
-                node->set_parent(this);
-                add_child_number(node->_M_child_number + 1);
-            }
-            _M_left = node;
-            update_depth();
-            return _M_left;
-        }
-        BTreeNode* set_right(BTreeNode *node)
-        {
-            add_child_number(- (_M_right == nullptr ? 0 : _M_right->_M_child_number + 1));
-            if(node != nullptr)
-            {
-                node->set_parent(this);
-                add_child_number(node->_M_child_number + 1);
-            }
-            _M_right = node;
-            update_depth();
-            return _M_right;
-        }
-        // [node] is not nullptr
-        void swap(BTreeNode *node)
-        {
-            NodeBase<DataNodeType> *temp_data = node->_M_data;
-            node->_M_data = _M_data;
-            _M_data = temp_data;
-        }
-        ~BTreeNode()
-        { delete _M_data; }
-    public:
-        BTreeNode(const DataNodeType &data, BTreeNode *left = nullptr,
-                  BTreeNode *right = nullptr,
-#ifdef cpp17
-                  [[maybe_unused]]
-#endif
-        BTreeNode *parent = nullptr)
-            : _M_data(new NodeBase<DataNodeType>(data))
-        {
-            set_left(left);
-            set_right(right);
-        }
-        DataNodeType& data() const
-        { return _M_data->ref_content(); }
-        SizeType child_size() const
-        { return _M_child_number; }
-        SizeType depth() const
-        { return _M_depth; }
-    };
-
 public:
-    using TreeNode = BTreeNode<DataType>;
+    using TreeNode = _Node;
 
     static TreeNode* left_child_under(TreeNode *node);
     static TreeNode* right_child_under(TreeNode *node);
@@ -1032,18 +1046,18 @@ public:
     static void release(TreeNode *node)
     {
         if(node == nullptr) return;
-        release(node->_M_left);
-        release(node->_M_right);
+        release(left_child(node));
+        release(right_child(node));
         delete node;
     }
     static SizeType depth(TreeNode *node)
     { return node == nullptr ? 0 : node->depth(); }
     static TreeNode* left_child(const TreeNode *node)
-    { return node == nullptr ? nullptr : node->_M_left; }
+    { return node == nullptr ? nullptr : node->left(); }
     static TreeNode* right_child(const TreeNode *node)
-    { return node == nullptr ? nullptr : node->_M_right; }
+    { return node == nullptr ? nullptr : node->right(); }
     static TreeNode* parent(const TreeNode *node)
-    { return node == nullptr ? nullptr : node->_M_parent; }
+    { return node == nullptr ? nullptr : node->parent(); }
     static TreeNode* set_left(TreeNode *node, TreeNode *child)
     {
         if(node == nullptr) return nullptr;
@@ -1097,8 +1111,8 @@ public:
 //-----------------------impl-----------------------//
 //-----------------------impl-----------------------//
 //-----------------------impl-----------------------//
-template<typename _DataType>
-void BinaryTree<_DataType>::_F_copy(const BinaryTree &tree)
+template<typename _DataType, typename _Node>
+void BinaryTree<_DataType, _Node>::_F_copy(const BinaryTree &tree)
 {
     clear();
     if(tree.empty())
@@ -1132,9 +1146,9 @@ void BinaryTree<_DataType>::_F_copy(const BinaryTree &tree)
     }
 }
 
-template<typename _DataType>
-typename BinaryTree<_DataType>::TreeNode*
-    BinaryTree<_DataType>::right_rotate(TreeNode *node)
+template<typename _DataType, typename _Node>
+typename BinaryTree<_DataType, _Node>::TreeNode*
+    BinaryTree<_DataType, _Node>::right_rotate(TreeNode *node)
 {
     TreeNode *left_node = left_child(node);
     if(left_node == nullptr) return nullptr;
@@ -1176,9 +1190,9 @@ typename BinaryTree<_DataType>::TreeNode*
     return left_node;
 }
 
-template<typename _DataType>
-typename BinaryTree<_DataType>::TreeNode*
-    BinaryTree<_DataType>::left_rotate(TreeNode *node)
+template<typename _DataType, typename _Node>
+typename BinaryTree<_DataType, _Node>::TreeNode*
+    BinaryTree<_DataType, _Node>::left_rotate(TreeNode *node)
 {
     TreeNode *right_node = right_child(node);
     if(right_node == nullptr) return nullptr;
@@ -1221,9 +1235,9 @@ typename BinaryTree<_DataType>::TreeNode*
 }
 
 //---------------------***************---------------------//
-template<typename _DataType>
-typename BinaryTree<_DataType>::TreeNode*
-    BinaryTree<_DataType>::left_child_under(TreeNode *node)
+template<typename _DataType, typename _Node>
+typename BinaryTree<_DataType, _Node>::TreeNode*
+    BinaryTree<_DataType, _Node>::left_child_under(TreeNode *node)
 {
     using BT = BinaryTree<_DataType>;
     while(node != nullptr && BT::left_child(node) != nullptr)
@@ -1232,9 +1246,9 @@ typename BinaryTree<_DataType>::TreeNode*
     }
     return node;
 }
-template<typename _DataType>
-typename BinaryTree<_DataType>::TreeNode*
-    BinaryTree<_DataType>::right_child_under(TreeNode *node)
+template<typename _DataType, typename _Node>
+typename BinaryTree<_DataType, _Node>::TreeNode*
+    BinaryTree<_DataType, _Node>::right_child_under(TreeNode *node)
 {
     using BT = BinaryTree<_DataType>;
     while(node != nullptr && BT::right_child(node) != nullptr)
@@ -1243,9 +1257,9 @@ typename BinaryTree<_DataType>::TreeNode*
     }
     return node;
 }
-template<typename _DataType>
-typename BinaryTree<_DataType>::TreeNode*
-    BinaryTree<_DataType>::left_leaves(TreeNode *node)
+template<typename _DataType, typename _Node>
+typename BinaryTree<_DataType, _Node>::TreeNode*
+    BinaryTree<_DataType, _Node>::left_leaves(TreeNode *node)
 {
     using BT = BinaryTree<_DataType>;
     node = left_child_under(node);
@@ -1255,9 +1269,9 @@ typename BinaryTree<_DataType>::TreeNode*
     }
     return node;
 }
-template<typename _DataType>
-typename BinaryTree<_DataType>::TreeNode*
-    BinaryTree<_DataType>::right_leaves(TreeNode *node)
+template<typename _DataType, typename _Node>
+typename BinaryTree<_DataType, _Node>::TreeNode*
+    BinaryTree<_DataType, _Node>::right_leaves(TreeNode *node)
 {
     using BT = BinaryTree<_DataType>;
     node = right_child_under(node);
@@ -1268,9 +1282,9 @@ typename BinaryTree<_DataType>::TreeNode*
     return node;
 }
 
-template<typename _DataType>
-typename BinaryTree<_DataType>::TreeNode*
-    BinaryTree<_DataType>::former_next(TreeNode *current)
+template<typename _DataType, typename _Node>
+typename BinaryTree<_DataType, _Node>::TreeNode*
+    BinaryTree<_DataType, _Node>::former_next(TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
@@ -1292,9 +1306,9 @@ typename BinaryTree<_DataType>::TreeNode*
     }
     return BT::right_child(current);
 }
-template<typename _DataType>
-typename BinaryTree<_DataType>::TreeNode*
-    BinaryTree<_DataType>::middle_next(TreeNode *current)
+template<typename _DataType, typename _Node>
+typename BinaryTree<_DataType, _Node>::TreeNode*
+    BinaryTree<_DataType, _Node>::middle_next(TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
@@ -1317,9 +1331,9 @@ typename BinaryTree<_DataType>::TreeNode*
     return current;
 }
 
-template<typename _DataType>
-typename BinaryTree<_DataType>::TreeNode*
-    BinaryTree<_DataType>::after_next(TreeNode *current)
+template<typename _DataType, typename _Node>
+typename BinaryTree<_DataType, _Node>::TreeNode*
+    BinaryTree<_DataType, _Node>::after_next(TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
@@ -1338,9 +1352,9 @@ typename BinaryTree<_DataType>::TreeNode*
     return nullptr;
 }
 
-template<typename _DataType>
-typename BinaryTree<_DataType>::TreeNode*
-    BinaryTree<_DataType>::former_previous(TreeNode *current)
+template<typename _DataType, typename _Node>
+typename BinaryTree<_DataType, _Node>::TreeNode*
+    BinaryTree<_DataType, _Node>::former_previous(TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
@@ -1359,9 +1373,9 @@ typename BinaryTree<_DataType>::TreeNode*
     }
     return nullptr;
 }
-template<typename _DataType>
-typename BinaryTree<_DataType>::TreeNode*
-    BinaryTree<_DataType>::middle_previous(TreeNode *current)
+template<typename _DataType, typename _Node>
+typename BinaryTree<_DataType, _Node>::TreeNode*
+    BinaryTree<_DataType, _Node>::middle_previous(TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
@@ -1380,9 +1394,9 @@ typename BinaryTree<_DataType>::TreeNode*
     return BT::parent(current);
 }
 
-template<typename _DataType>
-typename BinaryTree<_DataType>::TreeNode*
-    BinaryTree<_DataType>::after_previous(TreeNode *current)
+template<typename _DataType, typename _Node>
+typename BinaryTree<_DataType, _Node>::TreeNode*
+    BinaryTree<_DataType, _Node>::after_previous(TreeNode *current)
 {
     using namespace rapid;
     using BT = BinaryTree<_DataType>;
@@ -1416,9 +1430,9 @@ typename BinaryTree<_DataType>::TreeNode*
 }
 //---------------------***************---------------------//
 //---------------------------------------------------------//
-template<typename _DataType>
-typename BinaryTree<_DataType>::TreeNode*
-    BinaryTree<_DataType>::erase(TreeNode *node)
+template<typename _DataType, typename _Node>
+typename BinaryTree<_DataType, _Node>::TreeNode*
+    BinaryTree<_DataType, _Node>::erase(TreeNode *node)
 {
     if(node == nullptr) return nullptr;
 

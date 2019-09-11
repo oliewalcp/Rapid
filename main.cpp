@@ -1,8 +1,8 @@
-#include "Test/TestAVLTree.h"
+#include "Core/RedBlackTree.h"
 using namespace rapid;
 
 int main()
 {
-    test_AVLTree_main();
+
     return 0;
 }
