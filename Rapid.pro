@@ -22,8 +22,10 @@ SOURCES += \
     Test/TestAVLTree.cpp \
     Test/TestBinaryTree.cpp \
     Test/TestDoubleLinkedList.cpp \
+    Test/TestMap.cpp \
     Test/TestMatrix.cpp \
     Test/TestMemory.cpp \
+    Test/TestSet.cpp \
     Test/TestSingleLinkedList.cpp \
     Test/TestStack.cpp \
     Test/TestVector.cpp \
@@ -35,11 +37,13 @@ HEADERS += \
     Core/BinaryTree.h \
     Core/Exception.h \
     Core/IO.h \
+    Core/Map.h \
     Core/Matrix.h \
     Core/Memory.h \
     Core/Range.h \
     Core/RapidConfig.h \
     Core/RedBlackTree.h \
+    Core/Set.h \
     Core/SharedPointer.h \
     Core/TLNode.h \
     Core/Tree.h \
@@ -55,8 +59,10 @@ HEADERS += \
     Test/TestAVLTree.h \
     Test/TestBinaryTree.h \
     Test/TestDoubleLinkedList.h \
+    Test/TestMap.h \
     Test/TestMatrix.h \
     Test/TestMemory.h \
+    Test/TestSet.h \
     Test/TestSingleLinkedList.h \
     Test/TestStack.h \
     Test/TestVector.h

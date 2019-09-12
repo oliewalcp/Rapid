@@ -9,13 +9,13 @@ namespace rapid
 {
 
 template<typename _DataType,
-         typename _CompareType = Compare<_DataType>,
+         typename _Compare = Compare<_DataType>,
          size_type _BalanceFactor = 2>
 class AVLTree
 {
 private:
     using DataType = _DataType;
-    using CompareType = _CompareType;
+    using CompareType = _Compare;
     using TreeType = BinaryTree<DataType>;
     using Self = AVLTree;
     using TreeNode = typename BinaryTree<DataType>::TreeNode;
@@ -31,12 +31,21 @@ public:
     using reverse_iterator = typename TreeType::reverse_iterator;
     using const_reverse_iterator = typename TreeType::const_reverse_iterator;
 
+    using fiterator = typename TreeType::fiterator;
+    using const_fiterator = typename TreeType::const_fiterator;
+    using miterator = typename TreeType::miterator;
+    using const_miterator = typename TreeType::const_miterator;
+    using aiterator = typename TreeType::aiterator;
+    using const_aiterator = typename TreeType::const_aiterator;
+
 private:
     BinaryTree<DataType> _M_tree;
 
     void _F_adjust(TreeNode *node);
     iterator _F_insert(ConstReference arg);
-    iterator _F_find(ConstReference arg) const;
+    template<typename _InputType, typename _CompareType>
+    iterator _F_find(const _InputType &arg) const;
+
     void _F_erase(TreeNode *node)
     { _F_adjust(_M_tree.erase(node)); }
 public:
@@ -79,14 +88,31 @@ public:
     const_reverse_iterator crend() const
     { return _M_tree.crend(); }
 
-    typename TreeType::fiterator fbegin()
+    fiterator fbegin()
     { return _M_tree.fbegin(); }
-    typename TreeType::fiterator fend()
+    fiterator fend()
     { return _M_tree.fend(); }
-    typename TreeType::aiterator abegin()
+    const_fiterator fbegin() const
+    { return _M_tree.fbegin(); }
+    const_fiterator fend() const
+    { return _M_tree.fend(); }
+    const_fiterator cfbegin() const
+    { return _M_tree.cfbegin(); }
+    const_fiterator cfend() const
+    { return _M_tree.cfend(); }
+
+    aiterator abegin()
     { return _M_tree.abegin(); }
-    typename TreeType::aiterator aend()
+    aiterator aend()
     { return _M_tree.aend(); }
+    const_aiterator abegin() const
+    { return _M_tree.abegin(); }
+    const_aiterator aend() const
+    { return _M_tree.aend(); }
+    const_aiterator cabegin() const
+    { return _M_tree.cabegin(); }
+    const_aiterator caend() const
+    { return _M_tree.caend(); }
 
     SizeType size() const
     { return _M_tree.size(); }
@@ -96,9 +122,21 @@ public:
     { return _M_tree.depth(); }
 
     iterator find(ConstReference arg) const
-    { return _F_find(arg); }
+    { return _F_find<ValueType, CompareType>(arg); }
     iterator find(RvalueReference arg) const
-    { return _F_find(forward<ValueType>(arg)); }
+    { return _F_find<ValueType, CompareType>(forward<ValueType>(arg)); }
+    template<typename _InputType, typename _CompareType>
+    iterator find(const _InputType &arg) const
+    { return _F_find<_InputType, _CompareType>(arg); }
+    template<typename _InputType, typename _CompareType>
+    iterator find(_InputType &&arg) const
+    { return _F_find<_InputType, _CompareType>(forward<_InputType>(arg)); }
+
+    template<typename _InputType, typename _CompareType>
+    iterator find_and_insert(const _InputType &input);
+
+    iterator find_and_insert(ConstReference arg)
+    { return find_and_insert<ValueType, CompareType>(arg); }
 
     iterator insert(std::initializer_list<ValueType> arg_list)
     {
@@ -129,8 +167,8 @@ public:
 //-----------------------impl-----------------------//
 //-----------------------impl-----------------------//
 //-----------------------impl-----------------------//
-template<typename _DataType, typename _CompareType, size_type _BalanceFactor>
-    void AVLTree<_DataType, _CompareType, _BalanceFactor>::_F_adjust(TreeNode *node)
+template<typename _DataType, typename _Compare, size_type _BalanceFactor>
+    void AVLTree<_DataType, _Compare, _BalanceFactor>::_F_adjust(TreeNode *node)
 {
     TreeNode *visit = node;
     while(visit != nullptr)
@@ -159,15 +197,59 @@ template<typename _DataType, typename _CompareType, size_type _BalanceFactor>
     }
 }
 
-template<typename _DataType, typename _CompareType, size_type _BalanceFactor>
-typename AVLTree<_DataType, _CompareType, _BalanceFactor>::iterator
-    AVLTree<_DataType, _CompareType, _BalanceFactor>::_F_find(ConstReference arg) const
+template<typename _DataType, typename _Compare, size_type _BalanceFactor>
+template<typename _InputType, typename _CompareType>
+typename AVLTree<_DataType, _Compare, _BalanceFactor>::iterator
+    AVLTree<_DataType, _Compare, _BalanceFactor>::find_and_insert(const _InputType &input)
+{
+    iterator result;
+    if(empty())
+    {
+        return result = _M_tree.append_root(input);
+    }
+    TreeNode *node = _M_tree.root();
+    while(true)
+    {
+        int res = _CompareType()(input, node->data());
+        if(res == 0)
+        {
+            return result = node;
+        }
+        if(res > 0)
+        {
+            if(_M_tree.left_child(node) == nullptr)
+            {
+                node = _M_tree.append_left(node, input);
+                break;
+            }
+            node = _M_tree.left_child(node);
+        }
+        else
+        {
+            if(_M_tree.right_child(node) == nullptr)
+            {
+                node = _M_tree.append_right(node, input);
+                break;
+            }
+            node = _M_tree.right_child(node);
+        }
+    }
+    _F_adjust(node);
+    return result = node;
+}
+
+
+
+template<typename _DataType, typename _Compare, size_type _BalanceFactor>
+template<typename _InputType, typename _CompareType>
+typename AVLTree<_DataType, _Compare, _BalanceFactor>::iterator
+    AVLTree<_DataType, _Compare, _BalanceFactor>::_F_find(const _InputType &arg) const
 {
     TreeNode *node = _M_tree.root();
     iterator result;
-    while(true)
+    while(node != nullptr)
     {
-        int res = CompareType()(arg, node->data());
+        int res = _CompareType()(arg, node->data());
         if(res == 0)
         {
             return result = node;
@@ -184,46 +266,53 @@ typename AVLTree<_DataType, _CompareType, _BalanceFactor>::iterator
     return result;
 }
 
-template<typename _DataType, typename _CompareType, size_type _BalanceFactor>
-typename AVLTree<_DataType, _CompareType, _BalanceFactor>::iterator
-    AVLTree<_DataType, _CompareType, _BalanceFactor>::_F_insert(ConstReference arg)
+
+
+template<typename _DataType, typename _Compare, size_type _BalanceFactor>
+typename AVLTree<_DataType, _Compare, _BalanceFactor>::iterator
+    AVLTree<_DataType, _Compare, _BalanceFactor>::_F_insert(ConstReference arg)
 {
-    iterator result;
-    if(empty())
-    {
-        return result = _M_tree.append_root(arg);
-    }
-    TreeNode *node = _M_tree.root();
-    while(true)
-    {
-        int res = CompareType()(arg, node->data());
-        if(res == 0)
-        {
-            node->data() = arg;
-            return result = node;
-        }
-        if(res > 0)
-        {
-            if(_M_tree.left_child(node) == nullptr)
-            {
-                node = _M_tree.append_left(node, arg);
-                break;
-            }
-            node = _M_tree.left_child(node);
-        }
-        else
-        {
-            if(_M_tree.right_child(node) == nullptr)
-            {
-                node = _M_tree.append_right(node, arg);
-                break;
-            }
-            node = _M_tree.right_child(node);
-        }
-    }
-    _F_adjust(node);
-    return result = node;
+    iterator result = find_and_insert(arg);
+    TreeNode *node = _M_tree.tree_node(result);
+    node->data() = arg;
+    return result;
+//    iterator result;
+//    if(empty())
+//    {
+//        return result = _M_tree.append_root(arg);
+//    }
+//    TreeNode *node = _M_tree.root();
+//    while(true)
+//    {
+//        int res = CompareType()(arg, node->data());
+//        if(res == 0)
+//        {
+//            node->data() = arg;
+//            return result = node;
+//        }
+//        if(res > 0)
+//        {
+//            if(_M_tree.left_child(node) == nullptr)
+//            {
+//                node = _M_tree.append_left(node, arg);
+//                break;
+//            }
+//            node = _M_tree.left_child(node);
+//        }
+//        else
+//        {
+//            if(_M_tree.right_child(node) == nullptr)
+//            {
+//                node = _M_tree.append_right(node, arg);
+//                break;
+//            }
+//            node = _M_tree.right_child(node);
+//        }
+//    }
+//    _F_adjust(node);
+    //    return result = node;
 }
+
 
 }; // end namespace rapid
 #endif // AVLTREE_H

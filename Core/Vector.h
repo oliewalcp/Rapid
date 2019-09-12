@@ -6,6 +6,7 @@
 #include "Core/Version.h"
 #include "Core/Exception.h"
 #include "Core/Memory.h"
+#include <initializer_list>
 
 namespace rapid
 {
@@ -17,14 +18,14 @@ public:
     class reverse_iterator;
     class const_iterator;
     class const_reverse_iterator;
-protected:
+
     using ValueType = T;
     using Pointer = ValueType*;
     using Reference = ValueType&;
     using ConstReference = const ValueType &;
     using RvalueReference = ValueType&&;
     using SizeType = size_type;
-
+private:
     SizeType _M_size;
     SizeType _M_capacity;
     SizeType _M_growth;
@@ -396,6 +397,11 @@ public:
     Vector(const Vector &v)
         : _M_size(v.size()), _M_capacity(v.capacity()), _M_growth(v._M_growth), _M_data(nullptr)
     { _F_copy_data(v); }
+    Vector(std::initializer_list<ValueType> arg)
+    {
+        for(auto it = arg.begin(); it != arg.end(); ++it)
+        { push_back(*it); }
+    }
     ~Vector()
     { clear(); }
 

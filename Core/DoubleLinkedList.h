@@ -4,6 +4,7 @@
 #include "Core/TLNode.h"
 #include "Core/TypeTraits.h"
 #include "Core/Version.h"
+#include <initializer_list>
 
 namespace rapid
 {
@@ -128,14 +129,10 @@ public:
         { return _M_current->address(); }
         bool operator==(const iterator &it) const
         { return _M_current == it._M_current; }
-        bool operator==(iterator &&it) const
-        { return _M_current == forward<iterator>(it)._M_current; }
         bool operator!=(const iterator &it) const
         { return _M_current != it._M_current; }
-        bool operator!=(iterator &&it) const
-        { return _M_current != forward<iterator>(it)._M_current; }
         iterator operator=(const iterator &it)
-        { return _M_current = it._M_current; }
+        { return iterator(_M_current = it._M_current); }
     };
 
     class reverse_iterator
@@ -190,14 +187,10 @@ public:
         { return _M_current->address(); }
         bool operator==(const reverse_iterator &it) const
         { return _M_current == it._M_current; }
-        bool operator==(reverse_iterator &&it) const
-        { return _M_current == forward<reverse_iterator>(it)._M_current; }
         bool operator!=(const reverse_iterator &it) const
         { return _M_current != it._M_current; }
-        bool operator!=(reverse_iterator &&it) const
-        { return _M_current != forward<reverse_iterator>(it)._M_current; }
         reverse_iterator operator=(const reverse_iterator &it)
-        { return _M_current = it._M_current; }
+        { return reverse_iterator(_M_current = it._M_current); }
     };
 
     class const_iterator
@@ -262,7 +255,7 @@ public:
         bool operator!=(const const_iterator &it) const
         { return _M_current != it._M_current; }
         const_iterator operator=(const const_iterator &it)
-        { return _M_current = it._M_current; }
+        { return const_iterator(_M_current = it._M_current); }
     };
 
     class const_reverse_iterator
@@ -324,14 +317,10 @@ public:
         { return _M_current->address(); }
         bool operator==(const const_reverse_iterator &it) const
         { return _M_current == it._M_current; }
-        bool operator==(const_reverse_iterator &&it) const
-        { return _M_current == forward<const_reverse_iterator>(it)._M_current; }
         bool operator!=(const const_reverse_iterator &it) const
         { return _M_current != it._M_current; }
-        bool operator!=(const_reverse_iterator &&it) const
-        { return _M_current != forward<const_reverse_iterator>(it)._M_current; }
         const_reverse_iterator operator=(const const_reverse_iterator &it)
-        { return _M_current = it._M_current; }
+        { return const_reverse_iterator(_M_current = it._M_current); }
     };
 
     DoubleLinkedList() { }
@@ -340,6 +329,11 @@ public:
     template<typename IteratorType>
     DoubleLinkedList(const IteratorType &b, const IteratorType &e)
     { insert<IteratorType>(cend(), b, e); }
+    DoubleLinkedList(std::initializer_list<ValueType> arg)
+    {
+        for(auto it = arg.begin(); it != arg.end(); ++it)
+        { push_back(*it); }
+    }
     ~DoubleLinkedList()
     { clear(); }
 
