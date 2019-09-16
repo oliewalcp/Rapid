@@ -1,4 +1,4 @@
-QT -= gui
+QT += gui core widgets
 
 CONFIG += c++17 console
 CONFIG -= app_bundle
@@ -8,6 +8,7 @@ CONFIG -= app_bundle
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
+DEFINES += QT_LIB
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -25,10 +26,12 @@ SOURCES += \
     Test/TestMap.cpp \
     Test/TestMatrix.cpp \
     Test/TestMemory.cpp \
+    Test/TestRedBlackTree.cpp \
     Test/TestSet.cpp \
     Test/TestSingleLinkedList.cpp \
     Test/TestStack.cpp \
     Test/TestVector.cpp \
+    Test/TreeTool.cpp \
         main.cpp
 
 HEADERS += \
@@ -62,7 +65,9 @@ HEADERS += \
     Test/TestMap.h \
     Test/TestMatrix.h \
     Test/TestMemory.h \
+    Test/TestRedBlackTree.h \
     Test/TestSet.h \
     Test/TestSingleLinkedList.h \
     Test/TestStack.h \
-    Test/TestVector.h
+    Test/TestVector.h \
+    Test/TreeTool.h

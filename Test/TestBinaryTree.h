@@ -2,6 +2,7 @@
 #define TESTBINARYTREE_H
 
 #include "Core/BinaryTree.h"
+#include "TreeTool.h"
 namespace rapid
 {
 

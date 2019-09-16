@@ -160,6 +160,9 @@ public:
     { erase(find(forward<ValueType>(arg))); }
     void erase(iterator it)
     { _F_erase(_M_tree.tree_node(it)); }
+
+    BinaryTree<DataType> to_ordinary_tree()
+    { return _M_tree; }
 };
 
 //-----------------------impl-----------------------//

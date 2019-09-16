@@ -9,17 +9,10 @@
 namespace rapid
 {
 
-template<typename DataNodeType>
-struct BTreeNode;
-
-template<typename _DataType, typename _Node = BTreeNode<_DataType>>
-class BinaryTree;
-
-template<typename DataNodeType>
+template<typename _DataType>
 struct BTreeNode
 {
-private:
-    using ValueType = DataNodeType;
+    using ValueType = _DataType;
     using SizeType = size_type;
     using ConstReference = const ValueType &;
 
@@ -30,11 +23,8 @@ private:
     SizeType _M_child_number = 0;
     SizeType _M_depth = 1;
 
-    friend class BinaryTree<ValueType, BTreeNode<ValueType>>;
-
     ~BTreeNode()
     { delete _M_data; }
-public:
     void add_child_number(SizeType size)
     {
         _M_child_number += size;
@@ -101,11 +91,13 @@ public:
               [[maybe_unused]]
 #endif
     BTreeNode *parent = nullptr)
-        : _M_data(new NodeBase<DataNodeType>(data))
+        : _M_data(new NodeBase<ValueType>(data))
     {
         set_left(left);
         set_right(right);
     }
+    ValueType& data()
+    { return _M_data->ref_content(); }
     ValueType& data() const
     { return _M_data->ref_content(); }
     SizeType child_size() const
@@ -120,7 +112,7 @@ public:
     { return _M_parent; }
 };
 
-template<typename _DataType, typename _Node>
+template<typename _DataType, typename _Node = BTreeNode<_DataType>>
 class BinaryTree
 {
 public:
@@ -128,6 +120,7 @@ public:
     using Reference = DataType &;
     using RvalueReference = DataType &&;
     using ConstReference = const DataType &;
+    using Pointer = DataType *;
     using SizeType = size_type;
 public:
     using TreeNode = _Node;
@@ -196,9 +189,9 @@ private:
             _M_current = node;
             return *this;
         }
-        DataType operator*()
+        Reference operator*()
         { return _M_current->data(); }
-        DataType* operator->()
+        Pointer operator->()
         { return &_M_current->data(); }
         bool operator==(const FormerIterator &it) const
         { return _M_current == it._M_current; }
@@ -255,9 +248,9 @@ private:
             _M_current = node;
             return *this;
         }
-        DataType operator*() const
+        Reference operator*() const
         { return _M_current->data(); }
-        DataType* operator->() const
+        Pointer operator->() const
         { return &_M_current->data(); }
         bool operator==(const ConstFormerIterator &it) const
         { return _M_current == it._M_current; }
@@ -310,9 +303,9 @@ private:
             _M_current = node;
             return *this;
         }
-        DataType operator*()
+        Reference operator*()
         { return _M_current->data(); }
-        DataType* operator->()
+        Pointer operator->()
         { return &_M_current->data(); }
         bool operator==(const MiddleIterator &it) const
         { return _M_current == it._M_current; }
@@ -369,9 +362,9 @@ private:
             _M_current = node;
             return *this;
         }
-        DataType operator*() const
+        Reference operator*() const
         { return _M_current->data(); }
-        DataType* operator->() const
+        Pointer operator->() const
         { return &_M_current->data(); }
         bool operator==(const ConstMiddleIterator &it) const
         { return _M_current == it._M_current; }
@@ -428,9 +421,9 @@ private:
             _M_current = node;
             return *this;
         }
-        DataType operator*()
+        Reference operator*()
         { return _M_current->data(); }
-        DataType* operator->()
+        Pointer operator->()
         { return &_M_current->data(); }
         bool operator==(const AfterIterator &it) const
         { return _M_current == it._M_current; }
@@ -487,9 +480,9 @@ private:
             _M_current = node;
             return *this;
         }
-        DataType operator*() const
+        Reference operator*() const
         { return _M_current->data(); }
-        DataType* operator->() const
+        Pointer operator->() const
         { return &_M_current->data(); }
         bool operator==(const ConstAfterIterator &it) const
         { return _M_current == it._M_current; }
@@ -617,9 +610,9 @@ private:
             _M_current = node;
             return *this;
         }
-        DataType operator*()
+        Reference operator*()
         { return _M_current->data(); }
-        DataType* operator->()
+        Pointer operator->()
         { return &_M_current->data(); }
         bool operator==(const ReverseFormerIterator &it) const
         { return _M_current == it._M_current; }
@@ -679,9 +672,9 @@ private:
             _M_current = node;
             return *this;
         }
-        DataType operator*() const
+        Reference operator*() const
         { return _M_current->data(); }
-        DataType* operator->() const
+        Pointer operator->() const
         { return &_M_current->data(); }
         bool operator==(const ConstReverseFormerIterator &it) const
         { return _M_current == it._M_current; }
@@ -738,9 +731,9 @@ private:
             _M_current = node;
             return *this;
         }
-        DataType operator*()
+        Reference operator*()
         { return _M_current->data(); }
-        DataType* operator->()
+        Pointer operator->()
         { return &_M_current->data(); }
         bool operator==(const ReverseMiddleIterator &it) const
         { return _M_current == it._M_current; }
@@ -797,9 +790,9 @@ private:
             _M_current = node;
             return *this;
         }
-        DataType operator*() const
+        Reference operator*() const
         { return _M_current->data(); }
-        DataType* operator->() const
+        Pointer operator->() const
         { return &_M_current->data(); }
         bool operator==(const ConstReverseMiddleIterator &it) const
         { return _M_current == it._M_current; }
@@ -856,9 +849,9 @@ private:
             _M_current = node;
             return *this;
         }
-        DataType operator*()
+        Reference operator*()
         { return _M_current->data(); }
-        DataType* operator->()
+        Pointer operator->()
         { return &_M_current->data(); }
         bool operator==(const ReverseAfterIterator &it) const
         { return _M_current == it._M_current; }
@@ -915,9 +908,9 @@ private:
             _M_current = node;
             return *this;
         }
-        DataType operator*() const
+        Reference operator*() const
         { return _M_current->data(); }
-        DataType* operator->() const
+        Pointer operator->() const
         { return &_M_current->data(); }
         bool operator==(const ConstReverseAfterIterator &it) const
         { return _M_current == it._M_current; }

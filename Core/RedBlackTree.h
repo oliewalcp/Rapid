@@ -8,13 +8,9 @@
 namespace rapid
 {
 
-template<typename _DataType, typename _Compare = Compare<_DataType>>
-class RedBlackTree;
-
 template<typename DataType>
 struct RBDataNode
 {
-private:
     enum class Color : bool
     {
         RED = false,
@@ -23,9 +19,6 @@ private:
     NodeBase<DataType> *_M_data;
     Color _M_color;
 
-    friend class RedBlackTree<DataType>;
-
-public:
     using ValueType = DataType;
     using Reference = ValueType &;
     using ConstReference = const ValueType &;
@@ -39,6 +32,8 @@ public:
 
     Reference data()
     { return _M_data->ref_content(); }
+    Reference data() const
+    { return _M_data->ref_content(); }
     Color& color()
     { return _M_color; }
 
@@ -46,7 +41,7 @@ public:
     { return data() < arg.data(); }
 };
 
-template<typename _DataType, typename _Compare>
+template<typename _DataType, typename _Compare = Compare<_DataType>>
 class RedBlackTree
 {
 public:
@@ -54,12 +49,14 @@ public:
     using Reference = ValueType &;
     using ConstReference = const ValueType &;
     using RvalueReference = ValueType &&;
+    using Pointer = ValueType *;
     using Self = RedBlackTree;
     using SizeType = size_type;
 private:
     using DataNode = RBDataNode<ValueType>;
-    using TreeNode = BTreeNode<DataNode>;
-    using TreeType = BinaryTree<ValueType, TreeNode>;
+    using TreeType = BinaryTree<DataNode>;
+//    using TreeNode = BTreeNode<DataNode>;
+    using TreeNode = typename TreeType::TreeNode;
     using CompareType = _Compare;
 
     using FormerIteratorImpl = typename TreeType::fiterator;
@@ -122,10 +119,10 @@ public:
         }
         iterator operator=(const iterator &it)
         { return _M_it = it._M_it; }
-        ValueType operator*()
-        { return _M_it->data().data(); }
-        ValueType* operator->()
-        { return &_M_it->data().data(); }
+        Reference operator*()
+        { return _M_it->data(); }
+        Pointer operator->()
+        { return &_M_it->data(); }
         bool operator==(const iterator &it) const
         { return _M_it == it._M_it; }
         bool operator!=(const iterator &it) const
@@ -170,10 +167,10 @@ public:
         }
         const_iterator operator=(const const_iterator &it)
         { return _M_it = it._M_it; }
-        ValueType operator*() const
-        { return _M_it->data().data(); }
-        ValueType* operator->() const
-        { return &_M_it->data().data(); }
+        Reference operator*() const
+        { return _M_it->data(); }
+        Pointer operator->() const
+        { return &_M_it->data(); }
         bool operator==(const const_iterator &it) const
         { return _M_it == it._M_it; }
         bool operator!=(const const_iterator &it) const
@@ -218,10 +215,10 @@ public:
         }
         reverse_iterator operator=(const reverse_iterator &it)
         { return _M_it = it._M_it; }
-        ValueType operator*()
-        { return _M_it->data().data(); }
-        ValueType* operator->()
-        { return &_M_it->data().data(); }
+        Reference operator*()
+        { return _M_it->data(); }
+        Pointer operator->()
+        { return &_M_it->data(); }
         bool operator==(const reverse_iterator &it) const
         { return _M_it == it._M_it; }
         bool operator!=(const reverse_iterator &it) const
@@ -266,10 +263,10 @@ public:
         }
         const_reverse_iterator operator=(const const_reverse_iterator &it)
         { return _M_it = it._M_it; }
-        ValueType operator*()
-        { return _M_it->data().data(); }
-        ValueType* operator->()
-        { return &_M_it->data().data(); }
+        Reference operator*() const
+        { return _M_it->data(); }
+        Pointer operator->() const
+        { return &_M_it->data(); }
         bool operator==(const const_reverse_iterator &it) const
         { return _M_it == it._M_it; }
         bool operator!=(const const_reverse_iterator &it) const
@@ -315,10 +312,10 @@ public:
         }
         fiterator operator=(const fiterator &it)
         { return _M_it = it._M_it; }
-        ValueType operator*()
-        { return _M_it->data().data(); }
-        ValueType* operator->()
-        { return &_M_it->data().data(); }
+        Reference operator*()
+        { return _M_it->data(); }
+        Pointer operator->()
+        { return &_M_it->data(); }
         bool operator==(const fiterator &it) const
         { return _M_it == it._M_it; }
         bool operator!=(const fiterator &it) const
@@ -363,10 +360,10 @@ public:
         }
         aiterator operator=(const aiterator &it)
         { return _M_it = it._M_it; }
-        ValueType operator*()
-        { return _M_it->data().data(); }
-        ValueType* operator->()
-        { return &_M_it->data().data(); }
+        Reference operator*()
+        { return _M_it->data(); }
+        Pointer operator->()
+        { return &_M_it->data(); }
         bool operator==(const aiterator &it) const
         { return _M_it == it._M_it; }
         bool operator!=(const aiterator &it) const
@@ -411,10 +408,10 @@ public:
         }
         const_aiterator operator=(const const_aiterator &it)
         { return _M_it = it._M_it; }
-        ValueType operator*()
-        { return _M_it->data().data(); }
-        ValueType* operator->()
-        { return &_M_it->data().data(); }
+        Reference operator*() const
+        { return _M_it->data(); }
+        Pointer operator->() const
+        { return &_M_it->data(); }
         bool operator==(const const_aiterator &it) const
         { return _M_it == it._M_it; }
         bool operator!=(const const_aiterator &it) const
@@ -459,10 +456,10 @@ public:
         }
         const_fiterator operator=(const const_fiterator &it)
         { return _M_it = it._M_it; }
-        ValueType operator*()
-        { return _M_it->data().data(); }
-        ValueType* operator->()
-        { return &_M_it->data().data(); }
+        Reference operator*() const
+        { return _M_it->data(); }
+        Pointer operator->() const
+        { return &_M_it->data(); }
         bool operator==(const const_fiterator &it) const
         { return _M_it == it._M_it; }
         bool operator!=(const const_fiterator &it) const
@@ -488,7 +485,7 @@ private:
 
     DataNode _F_construct_node(ConstReference arg)
     { return DataNode(arg); }
-    Reference _F_node_data(TreeNode *node)
+    Reference _F_node_data(TreeNode *node) const
     { return node->data().data(); }
     typename DataNode::Color& _F_node_color(TreeNode *node)
     { return node->data().color(); }
@@ -594,6 +591,32 @@ public:
     const_reverse_iterator crend() const
     { return _M_tree.crend(); }
 
+    aiterator abegin()
+    { return _M_tree.abegin(); }
+    aiterator aend()
+    { return _M_tree.aend(); }
+    const_aiterator abegin() const
+    { return _M_tree.abegin(); }
+    const_aiterator aend() const
+    { return _M_tree.aend(); }
+    const_aiterator cabegin() const
+    { return _M_tree.cabegin(); }
+    const_aiterator caend() const
+    { return _M_tree.caend(); }
+
+    fiterator fbegin()
+    { return _M_tree.fbegin(); }
+    fiterator fend()
+    { return _M_tree.fend(); }
+    const_fiterator fbegin() const
+    { return _M_tree.fbegin(); }
+    const_fiterator fend() const
+    { return _M_tree.fend(); }
+    const_fiterator cfbegin() const
+    { return _M_tree.cfbegin(); }
+    const_fiterator cfend() const
+    { return _M_tree.cfend(); }
+
 };
 
 template<typename _DataType, typename _Compare>
@@ -690,7 +713,10 @@ typename RedBlackTree<_DataType, _Compare>::iterator
     IteratorImpl result;
     if(empty())
     {
-        return iterator(result = _M_tree.append_root(input));
+        using Color = typename DataNode::Color;
+        TreeNode *node = _M_tree.append_root(input);
+        _F_node_color(node) = Color::BLACK;
+        return iterator(result = node);
     }
     TreeNode *node = _M_tree.root();
     while(true)
@@ -752,7 +778,7 @@ void RedBlackTree<_DataType, _Compare>::_F_insert_adjust(TreeNode *node)
                 node = grand_parent;
                 continue;
             }
-            if(_M_tree.right_child(parent) == node)
+            if(_M_tree.left_child(parent) == node)
             {
                 _F_node_color(parent) = Color::BLACK;
                 _F_node_color(grand_parent) = Color::RED;
@@ -782,6 +808,7 @@ void RedBlackTree<_DataType, _Compare>::_F_insert_adjust(TreeNode *node)
         }
         break;
     }
+    _F_node_color(_M_tree.root()) = Color::BLACK;
 }
 
 template<typename _DataType, typename _Compare>

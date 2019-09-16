@@ -25,6 +25,10 @@ void rapid::test_AVLTree_main()
         std::cout << *it << " ";
     }
     std::cout << std::endl;
+    MainWindow<int> mw1(avl.to_ordinary_tree(), [](const BTreeNode<int> *node){
+        return std::to_string(node->data());
+    });
+    mw1.show();
     std::cout << "---------------erase-------------" << std::endl;
     avl.erase(100);
     std::cout << "former iterator" << std::endl;
@@ -66,4 +70,5 @@ void rapid::test_AVLTree_main()
     }
     std::cout << std::endl;
     std::cout << "------------end------------" << std::endl;
+    app->exec();
 }
