@@ -503,6 +503,9 @@ public:
     { return const_fiterator(_M_tree.cfbegin()); }
     const_fiterator cfend() const
     { return const_fiterator(_M_tree.cfend()); }
+
+    typename TreeType::TreeType to_ordinary_tree()
+    { return _M_tree.to_ordinary_tree(); }
 };
 
 

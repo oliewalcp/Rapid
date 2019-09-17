@@ -2,7 +2,6 @@
 #define TESTAVLTREE_H
 
 #include "Core/AVLTree.h"
-#include "TreeTool.h"
 
 namespace rapid
 {

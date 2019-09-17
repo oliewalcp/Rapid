@@ -13,7 +13,7 @@ template<typename _DataType,
          size_type _BalanceFactor = 2>
 class AVLTree
 {
-private:
+public:
     using DataType = _DataType;
     using CompareType = _Compare;
     using TreeType = BinaryTree<DataType>;
@@ -161,7 +161,7 @@ public:
     void erase(iterator it)
     { _F_erase(_M_tree.tree_node(it)); }
 
-    BinaryTree<DataType> to_ordinary_tree()
+    TreeType to_ordinary_tree() const
     { return _M_tree; }
 };
 

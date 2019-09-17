@@ -52,13 +52,13 @@ public:
     using Pointer = ValueType *;
     using Self = RedBlackTree;
     using SizeType = size_type;
-private:
+
     using DataNode = RBDataNode<ValueType>;
     using TreeType = BinaryTree<DataNode>;
-//    using TreeNode = BTreeNode<DataNode>;
     using TreeNode = typename TreeType::TreeNode;
     using CompareType = _Compare;
 
+private:
     using FormerIteratorImpl = typename TreeType::fiterator;
     using ConstFormerIteratorImpl = typename TreeType::const_fiterator;
     using MiddleIteratorImpl = typename TreeType::miterator;
@@ -469,6 +469,13 @@ public:
 private:
     TreeType _M_tree;
 
+    void _F_exchange_color(TreeNode *node1, TreeNode *node2)
+    {
+        using Color = typename DataNode::Color;
+        Color c = _F_node_color(node1);
+        _F_node_color(node1) = _F_node_color(node2);
+        _F_node_color(node2) = c;
+    }
     // implement other's
     // param[node]: node to be added
     void _F_insert_adjust(TreeNode *node);
@@ -617,6 +624,8 @@ public:
     const_fiterator cfend() const
     { return _M_tree.cfend(); }
 
+    TreeType to_ordinary_tree() const
+    { return _M_tree; }
 };
 
 template<typename _DataType, typename _Compare>
@@ -780,30 +789,33 @@ void RedBlackTree<_DataType, _Compare>::_F_insert_adjust(TreeNode *node)
             }
             if(_M_tree.left_child(parent) == node)
             {
-                _F_node_color(parent) = Color::BLACK;
-                _F_node_color(grand_parent) = Color::RED;
                 if(_M_tree.left_child(grand_parent) == parent)
                 {
+                    _F_exchange_color(parent, grand_parent);
                     _M_tree.right_rotate(grand_parent);
+                    break;
                 }
                 else
                 {
-                    _M_tree.left_rotate(grand_parent);
+                    _M_tree.right_rotate(parent);
+                    node = parent;
+                    continue;
                 }
-                break;
             }
             else
             {
                 if(_M_tree.left_child(grand_parent) == parent)
                 {
                     _M_tree.left_rotate(parent);
+                    node = parent;
+                    continue;
                 }
                 else
                 {
-                    _M_tree.right_rotate(parent);
+                    _F_exchange_color(parent, grand_parent);
+                    _M_tree.left_rotate(grand_parent);
+                    continue;
                 }
-                node = parent;
-                continue;
             }
         }
         break;

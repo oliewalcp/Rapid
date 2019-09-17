@@ -6,8 +6,8 @@
 namespace rapid
 {
 
-template<typename T, unsigned long size>
-constexpr unsigned long get_array_length(const T (&)[size])
+template<typename T, size_type size>
+constexpr size_type get_array_length(const T (&)[size])
 { return size; }
 
 #if __cplusplus >= 201703L

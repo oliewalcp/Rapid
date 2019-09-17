@@ -991,6 +991,11 @@ public:
     ~BinaryTree()
     { clear(); }
 
+    BinaryTree& operator=(const BinaryTree &tree)
+    {
+        _F_copy(tree);
+        return *this;
+    }
     TreeNode* root() const
     { return _M_root; }
     TreeNode* append_root(ConstReference data)

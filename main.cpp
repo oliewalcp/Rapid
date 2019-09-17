@@ -1,7 +1,9 @@
-//#include "Test/TestRedBlackTree.h"
-#include "Test/TestAVLTree.h"
+#include "Test/TestRedBlackTree.h"
+
+#ifdef QT_LIB
+#include "Test/TreeTool.h"
 using namespace rapid;
-#include <iostream>
+#endif
 
 #ifdef cpp17
 #if __has_include(<QApplication>)
@@ -15,7 +17,9 @@ int main(int argc, char *argv[])
     app = new QApplication(argc, argv);
 #endif
 
-    test_AVLTree_main();
+//    test_AVLTree_main();
+//    test_RedBlackTree_main();
+    test_TreeTool_main();
 
 #ifdef EN_WIDGET
     delete app;
