@@ -2,7 +2,6 @@
 #define TESTREDBLACKTREE_H
 
 #include "Core/RedBlackTree.h"
-#include "TreeTool.h"
 
 namespace rapid
 {

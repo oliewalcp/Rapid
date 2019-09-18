@@ -1,4 +1,4 @@
-#include "Test/TestRedBlackTree.h"
+#include "Test/TestMap.h"
 
 #ifdef QT_LIB
 #include "Test/TreeTool.h"
@@ -17,9 +17,7 @@ int main(int argc, char *argv[])
     app = new QApplication(argc, argv);
 #endif
 
-//    test_AVLTree_main();
-//    test_RedBlackTree_main();
-    test_TreeTool_main();
+    test_AVLMap_main();
 
 #ifdef EN_WIDGET
     delete app;

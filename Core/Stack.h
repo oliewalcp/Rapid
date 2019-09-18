@@ -4,6 +4,7 @@
 #include "Core/TLNode.h"
 #include "Core/TypeTraits.h"
 #include "Core/Version.h"
+#include <initializer_list>
 
 namespace rapid
 {
@@ -27,8 +28,8 @@ private:
         ~Node() { delete Data; }
     };
 
-    SizeType _M_size;
-    Node *_M_top;
+    SizeType _M_size = 0;
+    Node *_M_top = nullptr;
 
     void _F_push(ConstReference arg)
     {
@@ -50,8 +51,8 @@ private:
     void _F_add_size(SizeType arg)
     { _M_size += arg; }
 public:
-    Stack() : _M_size(0), _M_top(nullptr) { }
-    Stack(const Stack &arg) : _M_size(0), _M_top(nullptr)
+    Stack() { }
+    Stack(const Stack &arg)
     {
         Node *n = arg._M_top;
         while(n != nullptr)
@@ -60,6 +61,13 @@ public:
             n = n->Next;
         }
     }
+    Stack(std::initializer_list<ValueType> arg_list)
+    {
+        for(auto it = arg_list.begin(); it != arg_list.end(); ++it)
+        { push(*it); }
+    }
+    Stack(Stack &&arg)
+    { _F_exchange(forward<Stack>(arg)); }
 
     ~Stack()
     { clear(); }

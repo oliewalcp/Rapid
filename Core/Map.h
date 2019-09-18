@@ -50,7 +50,6 @@ struct NodeCompare
 };
 
 template<typename _Key, typename _Value,
-         typename _Compare,
          typename _TreeType>
 class MapBase
 {
@@ -58,7 +57,6 @@ public:
     using KeyType = _Key;
     using ValueType = _Value;
     using DataType = Pair<KeyType, ValueType>;
-    using CompareType = _Compare;
     using SizeType = size_type;
 
 private:
@@ -509,12 +507,12 @@ public:
     ValueType& operator[](const KeyType &key)
     {
         IteratorImpl it = _M_tree.template find_and_insert<KeyType, NodeCompare>(key);
-        return it->data().Second;
+        return it->data().data().Second;
     }
     ValueType& operator[](KeyType &&key)
     {
         IteratorImpl it = _M_tree.template find_and_insert<KeyType, NodeCompare>(forward<KeyType>(key));
-        return it->data().Second;
+        return it->data().data().Second;
     }
 
     iterator begin()
@@ -572,11 +570,11 @@ public:
 
 template<typename _Key, typename _Value,
          typename _Compare = Compare<_Key>>
-using Map = MapBase<_Key, _Value, _Compare, RedBlackTree<Pair<_Key, _Value>>>;
+using Map = MapBase<_Key, _Value, RedBlackTree<Pair<_Key, _Value>, _Compare>>;
 
 template<typename _Key, typename _Value,
          typename _Compare = Compare<_Key>>
-using AVLMap = MapBase<_Key, _Value, _Compare, AVLTree<Pair<_Key, _Value>>>;
+using AVLMap = MapBase<_Key, _Value, AVLTree<Pair<_Key, _Value>, _Compare>>;
 
 };
 

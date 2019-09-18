@@ -4,7 +4,7 @@
 #include "Core/TypeTraits.h"
 #include "Core/Version.h"
 #include "Core/TLNode.h"
-#include "Core/Stack.h"
+//#include "Core/Stack.h"
 
 namespace rapid
 {
@@ -982,6 +982,8 @@ private:
 
     void _F_copy(const BinaryTree &tree);
 
+    void _F_copy_tree(TreeNode *src, TreeNode *dst);
+
 public:
     BinaryTree() { }
     BinaryTree(const BinaryTree &tree)
@@ -1109,41 +1111,60 @@ public:
 //-----------------------impl-----------------------//
 //-----------------------impl-----------------------//
 //-----------------------impl-----------------------//
+
+template<typename _DataType, typename _Node>
+void BinaryTree<_DataType, _Node>::_F_copy_tree(TreeNode *src, TreeNode *dst)
+{
+    if(left_child(dst) != nullptr)
+    {
+        append_left(src, left_child(dst)->data());
+        _F_copy_tree(left_child(src), left_child(dst));
+    }
+    if(right_child(dst) != nullptr)
+    {
+        append_right(src, right_child(dst)->data());
+        _F_copy_tree(right_child(src), right_child(dst));
+    }
+}
+
 template<typename _DataType, typename _Node>
 void BinaryTree<_DataType, _Node>::_F_copy(const BinaryTree &tree)
 {
     clear();
     if(tree.empty())
     { return; }
-    Stack<TreeNode*> src, dst;
-    for(auto it = tree.fbegin(); it != tree.fend(); ++it)
-    {
-        TreeNode *new_node = nullptr;
-        if(src.size() == 0)
-        {
-            new_node = append_root(*it);
-        }
-        if(src.size() > 0)
-        {
-            while(parent(it._M_current) != src.top())
-            {
-                src.pop();
-                dst.pop();
-            }
-            if(left_child(src.top()) == it._M_current)
-            {
-                new_node = append_left(dst.top(), *it);
-            }
-            else if(right_child(src.top()) == it._M_current)
-            {
-                new_node = append_right(dst.top(), *it);
-            }
-        }
-        src.push(const_cast<TreeNode*>(it._M_current));
-        dst.push(new_node);
-    }
+    TreeNode *root = const_cast<TreeNode *>(tree.root());
+    append_root(root->data());
+    _F_copy_tree(_M_root, root);
+    //  the follow way has no problem
+//    Stack<TreeNode*> src, dst;
+//    for(auto it = tree.fbegin(); it != tree.fend(); ++it)
+//    {
+//        TreeNode *new_node = nullptr;
+//        if(src.size() == 0)
+//        {
+//            new_node = append_root(*it);
+//        }
+//        if(src.size() > 0)
+//        {
+//            while(parent(it._M_current) != src.top())
+//            {
+//                src.pop();
+//                dst.pop();
+//            }
+//            if(left_child(src.top()) == it._M_current)
+//            {
+//                new_node = append_left(dst.top(), *it);
+//            }
+//            else if(right_child(src.top()) == it._M_current)
+//            {
+//                new_node = append_right(dst.top(), *it);
+//            }
+//        }
+//        src.push(const_cast<TreeNode*>(it._M_current));
+//        dst.push(new_node);
+//    }
 }
-
 template<typename _DataType, typename _Node>
 typename BinaryTree<_DataType, _Node>::TreeNode*
     BinaryTree<_DataType, _Node>::right_rotate(TreeNode *node)

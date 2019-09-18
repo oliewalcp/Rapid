@@ -6,6 +6,7 @@
 namespace rapid
 {
 
+void test_AVLMap_main();
 void test_Map_main();
 
 }

@@ -1,5 +1,6 @@
 #include "TestBinaryTree.h"
 #include "Core/DoubleLinkedList.h"
+#include "Test/TreeTool.h"
 #include <iostream>
 
 void rapid::test_BinaryTree_main()
@@ -37,6 +38,13 @@ void rapid::test_BinaryTree_main()
     std::cout << "depth: ----->  " << bt.depth() << std::endl;
     std::cout << std::endl << "----------------------------" << std::endl;
     BinaryTree<int> bt2(bt);
+#ifdef QT_LIB
+    MainWindow<int, BinaryTree<int>> mw1(bt2,
+                        [](const BTreeNode<int> *node) { return std::to_string(node->data()); },
+                        [](const BTreeNode<int> *) { return 1; }
+    );
+    mw1.show();
+#endif
     std::cout << "size = " << bt2.size() << std::endl;
     std::cout << "middle: " << std::endl;
     for(int i : bt2)
@@ -118,5 +126,8 @@ void rapid::test_BinaryTree_main()
         std::cout << *it << " ";
     }
     std::cout << std::endl;
+#ifdef QT_LIB
+    app->exec();
+#endif
 }
 

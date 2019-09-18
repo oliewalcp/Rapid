@@ -472,9 +472,15 @@ private:
     void _F_exchange_color(TreeNode *node1, TreeNode *node2)
     {
         using Color = typename DataNode::Color;
-        Color c = _F_node_color(node1);
-        _F_node_color(node1) = _F_node_color(node2);
-        _F_node_color(node2) = c;
+        Color c = node1->data()._M_color;
+        node1->data()._M_color = node2->data()._M_color;
+        node2->data()._M_color = c;
+    }
+    void _F_exchange_data(TreeNode *node1, TreeNode *node2)
+    {
+        auto temp = node1->data()._M_data;
+        node1->data()._M_data = node2->data()._M_data;
+        node2->data()._M_data = temp;
     }
     // implement other's
     // param[node]: node to be added
@@ -517,9 +523,9 @@ public:
     RedBlackTree() { }
 
     RedBlackTree(const Self &tree)
-        : _M_tree(TreeType(tree._M_tree)) { }
+        : _M_tree(tree._M_tree) { }
     RedBlackTree(Self &&tree)
-        : _M_tree(TreeType(forward<Self>(tree)._M_tree)) { }
+        : _M_tree(forward<Self>(tree)._M_tree) { }
     RedBlackTree(std::initializer_list<ValueType> arg_list)
     { insert(arg_list); }
 
@@ -636,42 +642,6 @@ typename RedBlackTree<_DataType, _Compare>::iterator
     TreeNode *node = _M_tree.tree_node(result._M_it);
     _F_node_data(node) = arg;
     return result;
-//    iterator result;
-//    DataNode dn = _F_construct_node(arg);
-//    if(empty())
-//    {
-//        return result = _M_tree.append_root(dn);
-//    }
-//    TreeNode *node = _M_tree.root();
-//    while(true)
-//    {
-//        int res = CompareType()(arg, _F_node_data(node));
-//        if(res == 0)
-//        {
-//            _F_node_data(node) = arg;
-//            return result = node;
-//        }
-//        if(res > 0)
-//        {
-//            if(_M_tree.left_child(node) == nullptr)
-//            {
-//                node = _M_tree.append_left(node, dn);
-//                break;
-//            }
-//            node = _M_tree.left_child(node);
-//        }
-//        else
-//        {
-//            if(_M_tree.right_child(node) == nullptr)
-//            {
-//                node = _M_tree.append_right(node, dn);
-//                break;
-//            }
-//            node = _M_tree.right_child(node);
-//        }
-//    }
-//    _F_insert_adjust(node);
-//    return result = node;
 }
 
 template<typename _DataType, typename _Compare>
@@ -705,13 +675,39 @@ template<typename _DataType, typename _Compare>
 void RedBlackTree<_DataType, _Compare>::_F_erase(TreeNode *node)
 {
     using Color = typename DataNode::Color;
-    TreeNode *replace_node = _M_tree.left_child_under(_M_tree.right_child(node));
-    node->swap(replace_node);
-    if(_F_node_color(replace_node) != Color::RED)
+    while(node != nullptr)
     {
-        _F_erase_adjust(replace_node);
+        TreeNode *left_node = _M_tree.left_child(node);
+        TreeNode *right_node = _M_tree.right_child(node);
+        TreeNode *replace_node;
+        if(node->child_size() == 0)
+        {
+            if(_M_tree.root() == node)
+            {
+                _M_tree.clear();
+            }
+            else
+            {
+                if(_F_node_color(node) == Color::BLACK)
+                {
+                    _F_erase_adjust(node);
+                }
+                _F_release_node(node);
+            }
+            break;
+        }
+        else if(left_node == nullptr || right_node == nullptr)
+        {
+            replace_node = left_node == nullptr ? right_node : left_node;
+        }
+        else
+        {
+            // find the subsequent node
+            replace_node = _M_tree.left_child_under(_M_tree.right_child(node));
+        }
+        _F_exchange_data(replace_node, node);
+        node = replace_node;
     }
-    _F_release_node(replace_node);
 }
 
 template<typename _DataType, typename _Compare>
@@ -830,88 +826,68 @@ void RedBlackTree<_DataType, _Compare>::_F_erase_adjust(TreeNode *node)
     while(node != nullptr)
     {
         TreeNode *parent = _M_tree.parent(node);
-        TreeNode *brother = nullptr;
-        if(node == _M_tree.left_child(parent))
+        TreeNode *brother, *far_nephew, *near_nephew;
+        if(_M_tree.left_child(parent) == node)
         {
             brother = _M_tree.right_child(parent);
+            far_nephew = _M_tree.right_child(brother);
+            near_nephew = _M_tree.left_child(brother);
         }
         else
         {
             brother = _M_tree.left_child(parent);
+            far_nephew = _M_tree.left_child(brother);
+            near_nephew = _M_tree.right_child(brother);
         }
-        if(_M_tree.left_child(parent) == node)
+        if(brother != nullptr && _F_node_color(brother) == Color::RED)
         {
-            if(_F_node_color(brother) == Color::RED)
+            _F_node_color(brother) = Color::BLACK;
+            _F_node_color(parent) = Color::RED;
+            if(_M_tree.left_child(parent) == node)
             {
-                _F_node_color(brother) = Color::BLACK;
-                _F_node_color(parent) = Color::RED;
                 _M_tree.left_rotate(parent);
-                continue;
             }
             else
             {
-                TreeNode *br = _M_tree.right_child(brother);
-                TreeNode *bl = _M_tree.left_child(brother);
-                if(_F_node_color(br) == Color::RED)
-                {
-                    _F_node_color(brother) = _F_node_color(parent);
-                    _F_node_color(parent) = Color::BLACK;
-                    _F_node_color(br) = Color::BLACK;
-                    _M_tree.left_rotate(parent);
-                    break;
-                }
-                if(_F_node_color(bl) == Color::RED)
-                {
-                    _F_node_color(brother) = Color::RED;
-                    _F_node_color(bl) = Color::BLACK;
-                    _M_tree.right_rotate(brother);
-                    continue;
-                }
-                else
-                {
-                    _F_node_color(brother) = Color::RED;
-                    node = parent;
-                    continue;
-                }
+                _M_tree.right_rotate(parent);
+            }
+        }
+        else if((far_nephew == nullptr || _F_node_color(far_nephew) == Color::BLACK) &&
+                (near_nephew == nullptr || _F_node_color(near_nephew) == Color::BLACK))
+        {
+            if(brother != nullptr)
+            {
+                _F_node_color(brother) = Color::RED;
+            }
+            node = parent;
+        }
+        else if(far_nephew == nullptr || _F_node_color(far_nephew) == Color::BLACK)
+        {
+            _F_exchange_color(brother, near_nephew);
+            if(_M_tree.left_child(parent) == node)
+            {
+                _M_tree.right_rotate(brother);
+            }
+            else
+            {
+                _M_tree.left_rotate(brother);
             }
         }
         else
         {
-            if(_F_node_color(brother) == Color::RED)
+            _F_node_color(brother) = _F_node_color(parent);
+            _F_node_color(parent) = Color::BLACK;
+            _F_node_color(far_nephew) = Color::BLACK;
+            if(_M_tree.left_child(parent) == node)
             {
-                _F_node_color(brother) = Color::BLACK;
-                _F_node_color(parent) = Color::RED;
-                _M_tree.right_rotate(parent);
-                continue;
+                _M_tree.left_rotate(parent);
             }
             else
             {
-                TreeNode *br = _M_tree.right_child(brother);
-                TreeNode *bl = _M_tree.left_child(brother);
-                if(_F_node_color(bl) == Color::RED)
-                {
-                    _F_node_color(brother) = _F_node_color(parent);
-                    _F_node_color(parent) = Color::BLACK;
-                    _F_node_color(bl) = Color::BLACK;
-                    _M_tree.right_rotate(parent);
-                    break;
-                }
-                if(_F_node_color(br) == Color::RED)
-                {
-                    _F_node_color(brother) = Color::RED;
-                    _F_node_color(br) = Color::BLACK;
-                    _M_tree.left_rotate(brother);
-                    continue;
-                }
-                else
-                {
-                    _F_node_color(brother) = Color::RED;
-                    node = parent;
-                    continue;
-                }
+                _M_tree.right_rotate(parent);
             }
+            break;
         }
-        break;
     }
 }
 

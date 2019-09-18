@@ -75,6 +75,13 @@ void rapid::test_AVLTree_main()
     std::cout << std::endl;
     std::cout << "------------end------------" << std::endl;
 #ifdef QT_LIB
+    MainWindow<int, AVLTree<int>> mw2(avl.to_ordinary_tree(),
+                        [](const BTreeNode<int> *node) { return std::to_string(node->data()); },
+                        [](const BTreeNode<int> *) { return 1; }
+    );
+    mw2.show();
+#endif
+#ifdef QT_LIB
     app->exec();
 #endif
 }

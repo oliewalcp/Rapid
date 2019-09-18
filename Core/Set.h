@@ -8,13 +8,11 @@ namespace rapid
 {
 
 template<typename _Value,
-         typename _Compare,
          typename _TreeType>
 class SetBase
 {
 public:
     using ValueType = _Value;
-    using CompareType = _Compare;
     using SizeType = size_type;
 
 private:
@@ -511,11 +509,11 @@ public:
 
 template<typename _Value,
          typename _Compare = Compare<_Value>>
-using Set = SetBase<_Value, _Compare, RedBlackTree<_Value>>;
+using Set = SetBase<_Value, RedBlackTree<_Value, _Compare>>;
 
 template<typename _Value,
          typename _Compare = Compare<_Value>>
-using AVLSet = SetBase<_Value, _Compare, AVLTree<_Value>>;
+using AVLSet = SetBase<_Value, AVLTree<_Value, _Compare>>;
 
 }
 
