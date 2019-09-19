@@ -1,4 +1,5 @@
 #include "Test/TestMap.h"
+#include <forward_list>
 
 #ifdef QT_LIB
 #include "Test/TreeTool.h"
