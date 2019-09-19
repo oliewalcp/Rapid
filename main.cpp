@@ -17,7 +17,8 @@ int main(int argc, char *argv[])
     app = new QApplication(argc, argv);
 #endif
 
-    test_AVLMap_main();
+//    test_AVLMap_main();
+    test_Map_main();
 
 #ifdef EN_WIDGET
     delete app;

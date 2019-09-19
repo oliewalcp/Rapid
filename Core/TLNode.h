@@ -15,11 +15,11 @@ public:
     NodeBase() { }
 
     template<typename ... Args>
-    NodeBase(Args ... args)
+    NodeBase(const Args &... args)
     { construct(args...); }
 
     template<typename ... Args>
-    void construct(Args ... args)
+    void construct(const Args &... args)
     { ::new(address()) T(args...); }
 
     T* address()

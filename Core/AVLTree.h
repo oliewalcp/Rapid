@@ -132,11 +132,8 @@ public:
     iterator find(_InputType &&arg) const
     { return _F_find<_InputType, _CompareType>(forward<_InputType>(arg)); }
 
-    template<typename _InputType, typename _CompareType>
+    template<typename _InputType = ValueType, typename _CompareType = CompareType>
     iterator find_and_insert(const _InputType &input);
-
-    iterator find_and_insert(ConstReference arg)
-    { return find_and_insert<ValueType, CompareType>(arg); }
 
     iterator insert(std::initializer_list<ValueType> arg_list)
     {
@@ -279,41 +276,6 @@ typename AVLTree<_DataType, _Compare, _BalanceFactor>::iterator
     TreeNode *node = _M_tree.tree_node(result);
     node->data() = arg;
     return result;
-//    iterator result;
-//    if(empty())
-//    {
-//        return result = _M_tree.append_root(arg);
-//    }
-//    TreeNode *node = _M_tree.root();
-//    while(true)
-//    {
-//        int res = CompareType()(arg, node->data());
-//        if(res == 0)
-//        {
-//            node->data() = arg;
-//            return result = node;
-//        }
-//        if(res > 0)
-//        {
-//            if(_M_tree.left_child(node) == nullptr)
-//            {
-//                node = _M_tree.append_left(node, arg);
-//                break;
-//            }
-//            node = _M_tree.left_child(node);
-//        }
-//        else
-//        {
-//            if(_M_tree.right_child(node) == nullptr)
-//            {
-//                node = _M_tree.append_right(node, arg);
-//                break;
-//            }
-//            node = _M_tree.right_child(node);
-//        }
-//    }
-//    _F_adjust(node);
-    //    return result = node;
 }
 
 

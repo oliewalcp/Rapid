@@ -46,11 +46,17 @@ struct BTreeNode
         if(_M_parent != nullptr)
         { _M_parent->update_depth(); }
     }
+    template<typename ... Args>
+    BTreeNode* append_left(const Args & ... args)
+    { return set_left(new BTreeNode<ValueType>(_M_left, nullptr, args...)); }
+    template<typename ... Args>
+    BTreeNode* append_right(const Args & ... args)
+    { return set_right(new BTreeNode<ValueType>(_M_right, nullptr, args...)); }
 
-    BTreeNode* append_left(ConstReference data)
-    { return set_left(new BTreeNode<ValueType>(data, _M_left, nullptr)); }
-    BTreeNode* append_right(ConstReference data)
-    { return set_right(new BTreeNode<ValueType>(data, _M_right, nullptr)); }
+//    BTreeNode* append_left(ConstReference data)
+//    { return set_left(new BTreeNode<ValueType>(_M_left, nullptr, data)); }
+//    BTreeNode* append_right(ConstReference data)
+//    { return set_right(new BTreeNode<ValueType>(_M_right, nullptr, data)); }
 
     BTreeNode* set_parent(BTreeNode *node)
     { return _M_parent = node; }
@@ -85,13 +91,9 @@ struct BTreeNode
         node->_M_data = _M_data;
         _M_data = temp_data;
     }
-    BTreeNode(const ValueType &data, BTreeNode *left = nullptr,
-              BTreeNode *right = nullptr,
-#ifdef cpp17
-              [[maybe_unused]]
-#endif
-    BTreeNode *parent = nullptr)
-        : _M_data(new NodeBase<ValueType>(data))
+    template<typename ... Args>
+    BTreeNode(BTreeNode *left, BTreeNode *right, const Args & ... args)
+        : _M_data(new NodeBase<ValueType>(args...))
     {
         set_left(left);
         set_right(right);
@@ -984,6 +986,10 @@ private:
 
     void _F_copy_tree(TreeNode *src, TreeNode *dst);
 
+    template<typename ... Args>
+    TreeNode* _F_construct_node(TreeNode *left, TreeNode *right, const Args & ... args)
+    { return new TreeNode(left, right, args...); }
+
 public:
     BinaryTree() { }
     BinaryTree(const BinaryTree &tree)
@@ -1000,10 +1006,13 @@ public:
     }
     TreeNode* root() const
     { return _M_root; }
-    TreeNode* append_root(ConstReference data)
-    { return _M_root = new TreeNode(data, _M_root); }
-    TreeNode* append_root(RvalueReference data)
-    { return _M_root = new TreeNode(forward<DataType>(data), _M_root); }
+    template<typename ... Args>
+    TreeNode* append_root(const Args & ... args)
+    { return _M_root = _F_construct_node(_M_root, nullptr, args...); }
+    template<typename ... Args>
+    TreeNode* append_root(Args && ... args)
+    { return _M_root = _F_construct_node(_M_root, nullptr, forward<Args>(args)...); }
+
     SizeType size() const
     { return _M_root == nullptr ? 0 : (_M_root->child_size() + 1); }
     bool empty() const
@@ -1070,14 +1079,19 @@ public:
         release(right_child(node));
         return node->set_right(child);
     }
-    static TreeNode* append_left(TreeNode *node, ConstReference data)
-    { return node == nullptr ? nullptr : node->append_left(data); }
-    static TreeNode* append_left(TreeNode *node, RvalueReference data)
-    { return node == nullptr ? nullptr : node->append_left(forward<DataType>(data)); }
-    static TreeNode* append_right(TreeNode *node, ConstReference data)
-    { return node == nullptr ? nullptr : node->append_right(data); }
-    static TreeNode* append_right(TreeNode *node, RvalueReference data)
-    { return node == nullptr ? nullptr : node->append_right(forward<DataType>(data)); }
+    template<typename ... Args>
+    static TreeNode* append_left(TreeNode *node, const Args & ... args)
+    { return node == nullptr ? nullptr : node->append_left(args...); }
+    template<typename ... Args>
+    static TreeNode* append_left(TreeNode *node, Args && ... args)
+    { return node == nullptr ? nullptr : node->append_left(forward<Args>(args)...); }
+    template<typename ... Args>
+    static TreeNode* append_right(TreeNode *node, const Args & ... args)
+    { return node == nullptr ? nullptr : node->append_right(args...); }
+    template<typename ... Args>
+    static TreeNode* append_right(TreeNode *node, Args && ... args)
+    { return node == nullptr ? nullptr : node->append_right(forward<Args>(args)...); }
+
     static void remove(TreeNode *node)
     { release(node); }
     static void remove_left(TreeNode *node)

@@ -3,6 +3,7 @@
 
 #include "AVLTree.h"
 #include "RedBlackTree.h"
+#include <iostream>
 
 namespace rapid
 {
@@ -15,21 +16,32 @@ struct Pair
     Pair() { }
     Pair(const _First &f) : First(f) { }
     Pair(_First &&f) : First(forward<_First>(f)) { }
-    Pair(const _First &f, const _Second &s)
-        : First(f), Second(s) { }
-    Pair(const _First &f, _Second &&s)
-        : First(f), Second(forward<_Second>(s)) { }
-    Pair(_First &&f, const _Second &s)
-        : First(forward<_Second>(f)), Second(s) { }
-    Pair(_First &&f, _Second &&s)
-        : First(forward<_Second>(f)), Second(forward<_Second>(s)) { }
     Pair(const Pair &p)
         : First(p.First), Second(p.Second) { }
     Pair(Pair &&p)
         : First(forward<Pair>(p).First), Second(forward<Pair>(p).Second) { }
 
+    template<typename ... Args>
+    Pair(const _First &f, const Args & ... args)
+        : First(f), Second(args...) { }
+    template<typename ... Args>
+    Pair(const _First &f, Args && ... args)
+        : First(f), Second(forward<Args>(args)...) { }
+    template<typename ... Args>
+    Pair(_First &&f, const Args & ... args)
+        : First(forward<_First>(f)), Second(args...) { }
+    template<typename ... Args>
+    Pair(_First &&f, Args && ... args)
+        : First(forward<_First>(f)), Second(forward<Args>(args)...) { }
+
     bool operator<(const Pair &f) const
     { return First < f.First; }
+    Pair& operator=(const Pair &p)
+    {
+        First = p.First;
+        Second = p.Second;
+        return *this;
+    }
 };
 
 template<typename _First, typename _Second>
@@ -58,16 +70,10 @@ public:
     using ValueType = _Value;
     using DataType = Pair<KeyType, ValueType>;
     using SizeType = size_type;
+    using CompareType = NodeCompare<KeyType, ValueType>;
 
 private:
     using TreeType = _TreeType;
-
-    using FormerIteratorImpl = typename TreeType::fiterator;
-    using ConstFormerIteratorImpl = typename TreeType::const_fiterator;
-    using MiddleIteratorImpl = typename TreeType::miterator;
-    using ConstMiddleIteratorImpl = typename TreeType::const_miterator;
-    using AfterIteratorImpl = typename TreeType::aiterator;
-    using ConstAfterIteratorImpl = typename TreeType::const_aiterator;
 
     using IteratorImpl = typename TreeType::iterator;
     using ConstIteratorImpl = typename TreeType::const_iterator;
@@ -79,9 +85,6 @@ public:
     class const_iterator;
     class reverse_iterator;
     class const_reverse_iterator;
-
-    using miterator = iterator;
-    using const_miterator = const_iterator;
 
     class iterator
     {
@@ -122,10 +125,10 @@ public:
         }
         iterator operator=(const iterator &it)
         { return _M_it = it._M_it; }
-        DataType operator*()
-        { return _M_it->data().data(); }
+        DataType& operator*()
+        { return *_M_it; }
         DataType* operator->()
-        { return &_M_it->data().data(); }
+        { return _M_it.operator->(); }
         bool operator==(const iterator &it) const
         { return _M_it == it._M_it; }
         bool operator!=(const iterator &it) const
@@ -170,10 +173,10 @@ public:
         }
         const_iterator operator=(const const_iterator &it)
         { return _M_it = it._M_it; }
-        DataType operator*() const
-        { return _M_it->data().data(); }
+        DataType& operator*() const
+        { return *_M_it; }
         DataType* operator->() const
-        { return &_M_it->data().data(); }
+        { return _M_it.operator->(); }
         bool operator==(const const_iterator &it) const
         { return _M_it == it._M_it; }
         bool operator!=(const const_iterator &it) const
@@ -218,10 +221,10 @@ public:
         }
         reverse_iterator operator=(const reverse_iterator &it)
         { return _M_it = it._M_it; }
-        DataType operator*()
-        { return _M_it->data().data(); }
+        DataType& operator*()
+        { return *_M_it; }
         DataType* operator->()
-        { return &_M_it->data().data(); }
+        { return _M_it.operator->(); }
         bool operator==(const reverse_iterator &it) const
         { return _M_it == it._M_it; }
         bool operator!=(const reverse_iterator &it) const
@@ -266,206 +269,13 @@ public:
         }
         const_reverse_iterator operator=(const const_reverse_iterator &it)
         { return _M_it = it._M_it; }
-        DataType operator*()
-        { return _M_it->data().data(); }
-        DataType* operator->()
-        { return &_M_it->data().data(); }
+        DataType& operator*() const
+        { return *_M_it; }
+        DataType* operator->() const
+        { return _M_it.operator->(); }
         bool operator==(const const_reverse_iterator &it) const
         { return _M_it == it._M_it; }
         bool operator!=(const const_reverse_iterator &it) const
-        { return _M_it != it._M_it; }
-    };
-
-    class fiterator
-    {
-    private:
-        FormerIteratorImpl _M_it;
-
-        friend class MapBase;
-
-        fiterator(FormerIteratorImpl it) : _M_it(it) { }
-    public:
-        fiterator() { }
-        fiterator(const fiterator &it)
-            : _M_it(it._M_it) { }
-        fiterator(fiterator &&it)
-            : _M_it(forward<fiterator>(it)._M_it) { }
-
-        fiterator operator++()
-        {
-            fiterator it = *this;
-            ++_M_it;
-            return it;
-        }
-        fiterator operator++(int)
-        {
-            ++_M_it;
-            return *this;
-        }
-        fiterator operator--()
-        {
-            fiterator it = *this;
-            --_M_it;
-            return it;
-        }
-        fiterator operator--(int)
-        {
-            --_M_it;
-            return *this;
-        }
-        fiterator operator=(const fiterator &it)
-        { return _M_it = it._M_it; }
-        DataType operator*()
-        { return _M_it->data().data(); }
-        DataType* operator->()
-        { return &_M_it->data().data(); }
-        bool operator==(const fiterator &it) const
-        { return _M_it == it._M_it; }
-        bool operator!=(const fiterator &it) const
-        { return _M_it != it._M_it; }
-    };
-    class aiterator
-    {
-    private:
-        AfterIteratorImpl _M_it;
-
-        friend class MapBase;
-
-        aiterator(AfterIteratorImpl it) : _M_it(it) { }
-    public:
-        aiterator() { }
-        aiterator(const aiterator &it)
-            : _M_it(it._M_it) { }
-        aiterator(aiterator &&it)
-            : _M_it(forward<aiterator>(it)._M_it) { }
-
-        aiterator operator++()
-        {
-            aiterator it = *this;
-            ++_M_it;
-            return it;
-        }
-        aiterator operator++(int)
-        {
-            ++_M_it;
-            return *this;
-        }
-        aiterator operator--()
-        {
-            aiterator it = *this;
-            --_M_it;
-            return it;
-        }
-        aiterator operator--(int)
-        {
-            --_M_it;
-            return *this;
-        }
-        aiterator operator=(const aiterator &it)
-        { return _M_it = it._M_it; }
-        DataType operator*()
-        { return _M_it->data().data(); }
-        DataType* operator->()
-        { return &_M_it->data().data(); }
-        bool operator==(const aiterator &it) const
-        { return _M_it == it._M_it; }
-        bool operator!=(const aiterator &it) const
-        { return _M_it != it._M_it; }
-    };
-    class const_aiterator
-    {
-    private:
-        ConstAfterIteratorImpl _M_it;
-
-        friend class MapBase;
-
-        const_aiterator(ConstAfterIteratorImpl it) : _M_it(it) { }
-    public:
-        const_aiterator() { }
-        const_aiterator(const const_aiterator &it)
-            : _M_it(it._M_it) { }
-        const_aiterator(const_aiterator &&it)
-            : _M_it(forward<const_aiterator>(it)._M_it) { }
-
-        const_aiterator operator++()
-        {
-            const_aiterator it = *this;
-            ++_M_it;
-            return it;
-        }
-        const_aiterator operator++(int)
-        {
-            ++_M_it;
-            return *this;
-        }
-        const_aiterator operator--()
-        {
-            const_aiterator it = *this;
-            --_M_it;
-            return it;
-        }
-        const_aiterator operator--(int)
-        {
-            --_M_it;
-            return *this;
-        }
-        const_aiterator operator=(const const_aiterator &it)
-        { return _M_it = it._M_it; }
-        DataType operator*()
-        { return _M_it->data().data(); }
-        DataType* operator->()
-        { return &_M_it->data().data(); }
-        bool operator==(const const_aiterator &it) const
-        { return _M_it == it._M_it; }
-        bool operator!=(const const_aiterator &it) const
-        { return _M_it != it._M_it; }
-    };
-    class const_fiterator
-    {
-    private:
-        ConstFormerIteratorImpl _M_it;
-
-        friend class MapBase;
-
-        const_fiterator(ConstFormerIteratorImpl it) : _M_it(it) { }
-    public:
-        const_fiterator() { }
-        const_fiterator(const const_fiterator &it)
-            : _M_it(it._M_it) { }
-        const_fiterator(const_fiterator &&it)
-            : _M_it(forward<const_fiterator>(it)._M_it) { }
-
-        const_fiterator operator++()
-        {
-            const_fiterator it = *this;
-            ++_M_it;
-            return it;
-        }
-        const_fiterator operator++(int)
-        {
-            ++_M_it;
-            return *this;
-        }
-        const_fiterator operator--()
-        {
-            const_fiterator it = *this;
-            --_M_it;
-            return it;
-        }
-        const_fiterator operator--(int)
-        {
-            --_M_it;
-            return *this;
-        }
-        const_fiterator operator=(const const_fiterator &it)
-        { return _M_it = it._M_it; }
-        DataType operator*()
-        { return _M_it->data().data(); }
-        DataType* operator->()
-        { return &_M_it->data().data(); }
-        bool operator==(const const_fiterator &it) const
-        { return _M_it == it._M_it; }
-        bool operator!=(const const_fiterator &it) const
         { return _M_it != it._M_it; }
     };
 
@@ -485,34 +295,60 @@ public:
     iterator insert(const DataType &data)
     { return _M_tree.insert(data); }
     iterator insert(DataType &&data)
-    { return _M_tree.insert(forward<DataType>(data)); }
+    { return _M_tree.insert(data); }
 
-    iterator insert(const KeyType &key, const ValueType &value)
-    { return _M_tree.insert(DataType(key, value)); }
-    iterator insert(KeyType &&key, const ValueType &value)
-    { return _M_tree.insert(DataType(forward<KeyType>(key), value)); }
-    iterator insert(const KeyType &key, ValueType &&value)
-    { return _M_tree.insert(DataType(key, forward<KeyType>(value))); }
-    iterator insert(KeyType &&key, ValueType &&value)
-    { return _M_tree.insert(DataType(forward<KeyType>(key), forward<KeyType>(value))); }
+//    iterator insert(const KeyType &key, const ValueType &value)
+//    { return insert(DataType(key, value)); }
+//    iterator insert(KeyType &&key, const ValueType &value)
+//    { return insert(DataType(forward<KeyType>(key), value)); }
+//    iterator insert(const KeyType &key, ValueType &&value)
+//    { return insert(DataType(key, forward<ValueType>(value))); }
+//    iterator insert(KeyType &&key, ValueType &&value)
+//    { return insert(DataType(forward<KeyType>(key), forward<ValueType>(value))); }
+
+    template<typename ... Args>
+    iterator insert(KeyType &&key, Args && ... value)
+    { return insert(DataType(forward<KeyType>(key), forward<Args>(value)...)); }
+    template<typename ... Args>
+    iterator insert(KeyType &&key, const Args & ... value)
+    { return insert(DataType(forward<KeyType>(key), value...)); }
+    template<typename ... Args>
+    iterator insert(const KeyType &key, Args && ... value)
+    { return insert(DataType(key, forward<Args>(value)...)); }
+    template<typename ... Args>
+    iterator insert(const KeyType &key, const Args & ... value)
+    { return insert(DataType(key, value...)); }
+
+    template<typename ... Args>
+    iterator emplace(const KeyType &key, const Args & ... args)
+    { return insert(DataType(key, args...)); }
+    template<typename ... Args>
+    iterator emplace(const KeyType &key, Args && ... args)
+    { return insert(DataType(key, forward<Args>(args)...)); }
+    template<typename ... Args>
+    iterator emplace(KeyType &&key, const Args & ... args)
+    { return insert(DataType(forward<KeyType>(key), args...)); }
+    template<typename ... Args>
+    iterator emplace(KeyType &&key, Args && ... args)
+    { return insert(DataType(forward<KeyType>(key), forward<Args>(args)...)); }
 
     void erase(iterator it)
     { _M_tree.erase(*it); }
 
     iterator find(const KeyType &key) const
-    { return iterator(_M_tree.template find<KeyType, NodeCompare>(key)); }
+    { return iterator(_M_tree.template find<KeyType, CompareType>(key)); }
     iterator find(KeyType &&key) const
-    { return iterator(_M_tree.template find<KeyType, NodeCompare>(forward<KeyType>(key))); }
+    { return iterator(_M_tree.template find<KeyType, CompareType>(forward<KeyType>(key))); }
 
     ValueType& operator[](const KeyType &key)
     {
-        IteratorImpl it = _M_tree.template find_and_insert<KeyType, NodeCompare>(key);
-        return it->data().data().Second;
+        IteratorImpl it = _M_tree.template find_and_insert<KeyType, CompareType>(key);
+        return it->Second;
     }
     ValueType& operator[](KeyType &&key)
     {
-        IteratorImpl it = _M_tree.template find_and_insert<KeyType, NodeCompare>(forward<KeyType>(key));
-        return it->data().data().Second;
+        IteratorImpl it = _M_tree.template find_and_insert(forward<KeyType>(key));
+        return it->Second;
     }
 
     iterator begin()
@@ -541,39 +377,16 @@ public:
     const_reverse_iterator crend() const
     { return const_reverse_iterator(_M_tree.crend()); }
 
-    aiterator abegin()
-    { return aiterator(_M_tree.abegin()); }
-    aiterator aend()
-    { return aiterator(_M_tree.aend()); }
-    const_aiterator abegin() const
-    { return const_aiterator(_M_tree.abegin()); }
-    const_aiterator aend() const
-    { return const_aiterator(_M_tree.aend()); }
-    const_aiterator cabegin() const
-    { return const_aiterator(_M_tree.cabegin()); }
-    const_aiterator caend() const
-    { return const_aiterator(_M_tree.caend()); }
-
-    fiterator fbegin()
-    { return fiterator(_M_tree.fbegin()); }
-    fiterator fend()
-    { return fiterator(_M_tree.fend()); }
-    const_fiterator fbegin() const
-    { return const_fiterator(_M_tree.fbegin()); }
-    const_fiterator fend() const
-    { return const_fiterator(_M_tree.fend()); }
-    const_fiterator cfbegin() const
-    { return const_fiterator(_M_tree.cfbegin()); }
-    const_fiterator cfend() const
-    { return const_fiterator(_M_tree.cfend()); }
 };
 
-template<typename _Key, typename _Value,
-         typename _Compare = Compare<_Key>>
+template<typename _Key,
+         typename _Value,
+         typename _Compare = Compare<Pair<_Key, _Value>>>
 using Map = MapBase<_Key, _Value, RedBlackTree<Pair<_Key, _Value>, _Compare>>;
 
-template<typename _Key, typename _Value,
-         typename _Compare = Compare<_Key>>
+template<typename _Key,
+         typename _Value,
+         typename _Compare = Compare<Pair<_Key, _Value>>>
 using AVLMap = MapBase<_Key, _Value, AVLTree<Pair<_Key, _Value>, _Compare>>;
 
 };
