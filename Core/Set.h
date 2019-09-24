@@ -53,25 +53,25 @@ public:
 
         iterator operator++()
         {
-            iterator it = *this;
             ++_M_it;
-            return it;
+            return *this;
         }
         iterator operator++(int)
         {
+            iterator it = *this;
             ++_M_it;
-            return *this;
+            return it;
         }
         iterator operator--()
+        {
+            --_M_it;
+            return *this;
+        }
+        iterator operator--(int)
         {
             iterator it = *this;
             --_M_it;
             return it;
-        }
-        iterator operator--(int)
-        {
-            --_M_it;
-            return *this;
         }
         iterator operator=(const iterator &it)
         { return _M_it = it._M_it; }
@@ -101,25 +101,25 @@ public:
 
         const_iterator operator++()
         {
-            const_iterator it = *this;
             ++_M_it;
-            return it;
+            return *this;
         }
         const_iterator operator++(int)
         {
+            const_iterator it = *this;
             ++_M_it;
-            return *this;
+            return it;
         }
         const_iterator operator--()
+        {
+            --_M_it;
+            return *this;
+        }
+        const_iterator operator--(int)
         {
             const_iterator it = *this;
             --_M_it;
             return it;
-        }
-        const_iterator operator--(int)
-        {
-            --_M_it;
-            return *this;
         }
         const_iterator operator=(const const_iterator &it)
         { return _M_it = it._M_it; }
@@ -149,25 +149,25 @@ public:
 
         reverse_iterator operator++()
         {
-            reverse_iterator it = *this;
             ++_M_it;
-            return it;
+            return *this;
         }
         reverse_iterator operator++(int)
         {
+            reverse_iterator it = *this;
             ++_M_it;
-            return *this;
+            return it;
         }
         reverse_iterator operator--()
+        {
+            --_M_it;
+            return *this;
+        }
+        reverse_iterator operator--(int)
         {
             reverse_iterator it = *this;
             --_M_it;
             return it;
-        }
-        reverse_iterator operator--(int)
-        {
-            --_M_it;
-            return *this;
         }
         reverse_iterator operator=(const reverse_iterator &it)
         { return _M_it = it._M_it; }
@@ -197,25 +197,25 @@ public:
 
         const_reverse_iterator operator++()
         {
-            const_reverse_iterator it = *this;
             ++_M_it;
-            return it;
+            return *this;
         }
         const_reverse_iterator operator++(int)
         {
+            const_reverse_iterator it = *this;
             ++_M_it;
-            return *this;
+            return it;
         }
         const_reverse_iterator operator--()
+        {
+            --_M_it;
+            return *this;
+        }
+        const_reverse_iterator operator--(int)
         {
             const_reverse_iterator it = *this;
             --_M_it;
             return it;
-        }
-        const_reverse_iterator operator--(int)
-        {
-            --_M_it;
-            return *this;
         }
         const_reverse_iterator operator=(const const_reverse_iterator &it)
         { return _M_it = it._M_it; }
@@ -246,25 +246,25 @@ public:
 
         fiterator operator++()
         {
-            fiterator it = *this;
             ++_M_it;
-            return it;
+            return *this;
         }
         fiterator operator++(int)
         {
+            fiterator it = *this;
             ++_M_it;
-            return *this;
+            return it;
         }
         fiterator operator--()
+        {
+            --_M_it;
+            return *this;
+        }
+        fiterator operator--(int)
         {
             fiterator it = *this;
             --_M_it;
             return it;
-        }
-        fiterator operator--(int)
-        {
-            --_M_it;
-            return *this;
         }
         fiterator operator=(const fiterator &it)
         { return _M_it = it._M_it; }
@@ -294,25 +294,25 @@ public:
 
         aiterator operator++()
         {
-            aiterator it = *this;
             ++_M_it;
-            return it;
+            return *this;
         }
         aiterator operator++(int)
         {
+            aiterator it = *this;
             ++_M_it;
-            return *this;
+            return it;
         }
         aiterator operator--()
+        {
+            --_M_it;
+            return *this;
+        }
+        aiterator operator--(int)
         {
             aiterator it = *this;
             --_M_it;
             return it;
-        }
-        aiterator operator--(int)
-        {
-            --_M_it;
-            return *this;
         }
         aiterator operator=(const aiterator &it)
         { return _M_it = it._M_it; }
@@ -342,25 +342,25 @@ public:
 
         const_aiterator operator++()
         {
-            const_aiterator it = *this;
             ++_M_it;
-            return it;
+            return *this;
         }
         const_aiterator operator++(int)
         {
+            const_aiterator it = *this;
             ++_M_it;
-            return *this;
+            return it;
         }
         const_aiterator operator--()
+        {
+            --_M_it;
+            return *this;
+        }
+        const_aiterator operator--(int)
         {
             const_aiterator it = *this;
             --_M_it;
             return it;
-        }
-        const_aiterator operator--(int)
-        {
-            --_M_it;
-            return *this;
         }
         const_aiterator operator=(const const_aiterator &it)
         { return _M_it = it._M_it; }
@@ -390,25 +390,25 @@ public:
 
         const_fiterator operator++()
         {
-            const_fiterator it = *this;
             ++_M_it;
-            return it;
+            return *this;
         }
         const_fiterator operator++(int)
         {
+            const_fiterator it = *this;
             ++_M_it;
-            return *this;
+            return it;
         }
         const_fiterator operator--()
+        {
+            --_M_it;
+            return *this;
+        }
+        const_fiterator operator--(int)
         {
             const_fiterator it = *this;
             --_M_it;
             return it;
-        }
-        const_fiterator operator--(int)
-        {
-            --_M_it;
-            return *this;
         }
         const_fiterator operator=(const const_fiterator &it)
         { return _M_it = it._M_it; }

@@ -164,25 +164,25 @@ private:
 
         FormerIterator operator++()
         {
+            _M_current = former_next(_M_current);
+            return *this;
+        }
+        FormerIterator operator++(int)
+        {
             FormerIterator it = *this;
             _M_current = BinaryTree<_DataType>::former_next(_M_current);
             return it;
         }
-        FormerIterator operator++(int)
+        FormerIterator operator--()
         {
-            _M_current = former_next(_M_current);
+            _M_current = former_previous(_M_current);
             return *this;
         }
-        FormerIterator operator--()
+        FormerIterator operator--(int)
         {
             FormerIterator it = *this;
             _M_current = former_previous(_M_current);
             return it;
-        }
-        FormerIterator operator--(int)
-        {
-            _M_current = former_previous(_M_current);
-            return *this;
         }
         FormerIterator operator=(const FormerIterator &it)
         { return _M_current = it._M_current; }
@@ -223,25 +223,25 @@ private:
 
         ConstFormerIterator operator++()
         {
-            ConstFormerIterator it = *this;
             _M_current = former_next(const_cast<TreeNode*>(_M_current));
-            return it;
+            return *this;
         }
         ConstFormerIterator operator++(int)
         {
+            ConstFormerIterator it = *this;
             _M_current = former_next(const_cast<TreeNode*>(_M_current));
-            return *this;
+            return it;
         }
         ConstFormerIterator operator--()
+        {
+            _M_current = former_previous(const_cast<TreeNode*>(_M_current));
+            return *this;
+        }
+        ConstFormerIterator operator--(int)
         {
             ConstFormerIterator it = *this;
             _M_current = former_previous(const_cast<TreeNode*>(_M_current));
             return it;
-        }
-        ConstFormerIterator operator--(int)
-        {
-            _M_current = former_previous(const_cast<TreeNode*>(_M_current));
-            return *this;
         }
         ConstFormerIterator operator=(const ConstFormerIterator &it)
         { return _M_current = it._M_current; }
@@ -278,25 +278,25 @@ private:
 
         MiddleIterator operator++()
         {
-            MiddleIterator it = *this;
             _M_current = middle_next(_M_current);
-            return it;
+            return *this;
         }
         MiddleIterator operator++(int)
         {
+            MiddleIterator it = *this;
             _M_current = middle_next(_M_current);
-            return *this;
+            return it;
         }
         MiddleIterator operator--()
+        {
+            _M_current = middle_previous(_M_current);
+            return *this;
+        }
+        MiddleIterator operator--(int)
         {
             MiddleIterator it = *this;
             _M_current = middle_previous(_M_current);
             return it;
-        }
-        MiddleIterator operator--(int)
-        {
-            _M_current = middle_previous(_M_current);
-            return *this;
         }
         MiddleIterator operator=(const MiddleIterator &it)
         { return _M_current = it._M_current; }
@@ -337,25 +337,25 @@ private:
 
         ConstMiddleIterator operator++()
         {
-            ConstMiddleIterator it = *this;
             _M_current = middle_next(const_cast<TreeNode*>(_M_current));
-            return it;
+            return *this;
         }
         ConstMiddleIterator operator++(int)
         {
+            ConstMiddleIterator it = *this;
             _M_current = middle_next(const_cast<TreeNode*>(_M_current));
-            return *this;
+            return it;
         }
         ConstMiddleIterator operator--()
+        {
+            _M_current = middle_previous(const_cast<TreeNode*>(_M_current));
+            return *this;
+        }
+        ConstMiddleIterator operator--(int)
         {
             ConstMiddleIterator it = *this;
             _M_current = middle_previous(const_cast<TreeNode*>(_M_current));
             return it;
-        }
-        ConstMiddleIterator operator--(int)
-        {
-            _M_current = middle_previous(const_cast<TreeNode*>(_M_current));
-            return *this;
         }
         ConstMiddleIterator operator=(const ConstMiddleIterator &it)
         { return _M_current = it._M_current; }
@@ -396,25 +396,25 @@ private:
 
         AfterIterator operator++()
         {
-            AfterIterator it = *this;
             _M_current = after_next(_M_current);
-            return it;
+            return *this;
         }
         AfterIterator operator++(int)
         {
+            AfterIterator it = *this;
             _M_current = after_next(_M_current);
-            return *this;
+            return it;
         }
         AfterIterator operator--()
+        {
+            _M_current = after_previous(_M_current);
+            return *this;
+        }
+        AfterIterator operator--(int)
         {
             AfterIterator it = *this;
             _M_current = after_previous(_M_current);
             return it;
-        }
-        AfterIterator operator--(int)
-        {
-            _M_current = after_previous(_M_current);
-            return *this;
         }
         AfterIterator operator=(const AfterIterator &it)
         { return _M_current = it._M_current; }
@@ -455,25 +455,25 @@ private:
 
         ConstAfterIterator operator++()
         {
-            ConstAfterIterator it = *this;
             _M_current = after_next(const_cast<TreeNode*>(_M_current));
-            return it;
+            return *this;
         }
         ConstAfterIterator operator++(int)
         {
+            ConstAfterIterator it = *this;
             _M_current = after_next(const_cast<TreeNode*>(_M_current));
-            return *this;
+            return it;
         }
         ConstAfterIterator operator--()
+        {
+            _M_current = after_previous(const_cast<TreeNode*>(_M_current));
+            return *this;
+        }
+        ConstAfterIterator operator--(int)
         {
             ConstAfterIterator it = *this;
             _M_current = after_previous(const_cast<TreeNode*>(_M_current));
             return it;
-        }
-        ConstAfterIterator operator--(int)
-        {
-            _M_current = after_previous(const_cast<TreeNode*>(_M_current));
-            return *this;
         }
         ConstAfterIterator operator=(const ConstAfterIterator &it)
         { return _M_current = it._M_current; }
@@ -585,25 +585,25 @@ private:
 
         ReverseFormerIterator operator++()
         {
-            ReverseFormerIterator it = *this;
             _M_current = former_previous(_M_current);
-            return it;
+            return *this;
         }
         ReverseFormerIterator operator++(int)
         {
+            ReverseFormerIterator it = *this;
             _M_current = former_previous(_M_current);
-            return *this;
+            return it;
         }
         ReverseFormerIterator operator--()
+        {
+            _M_current = former_next(_M_current);
+            return *this;
+        }
+        ReverseFormerIterator operator--(int)
         {
             ReverseFormerIterator it = *this;
             _M_current = former_next(_M_current);
             return it;
-        }
-        ReverseFormerIterator operator--(int)
-        {
-            _M_current = former_next(_M_current);
-            return *this;
         }
         ReverseFormerIterator operator=(const ReverseFormerIterator &it)
         { return _M_current = it._M_current; }
@@ -647,25 +647,25 @@ private:
 
         ConstReverseFormerIterator operator++()
         {
-            ConstReverseFormerIterator it = *this;
             _M_current = former_previous(const_cast<TreeNode*>(_M_current));
-            return it;
+            return *this;
         }
         ConstReverseFormerIterator operator++(int)
         {
+            ConstReverseFormerIterator it = *this;
             _M_current = former_previous(const_cast<TreeNode*>(_M_current));
-            return *this;
+            return it;
         }
         ConstReverseFormerIterator operator--()
+        {
+            _M_current = former_next(const_cast<TreeNode*>(_M_current));
+            return *this;
+        }
+        ConstReverseFormerIterator operator--(int)
         {
             ConstReverseFormerIterator it = *this;
             _M_current = former_next(const_cast<TreeNode*>(_M_current));
             return it;
-        }
-        ConstReverseFormerIterator operator--(int)
-        {
-            _M_current = former_next(const_cast<TreeNode*>(_M_current));
-            return *this;
         }
         ConstReverseFormerIterator operator=(const ConstReverseFormerIterator &it)
         { return _M_current = it._M_current; }
@@ -706,25 +706,25 @@ private:
 
         ReverseMiddleIterator operator++()
         {
-            ReverseMiddleIterator it = *this;
             _M_current = middle_previous(_M_current);
-            return it;
+            return *this;
         }
         ReverseMiddleIterator operator++(int)
         {
+            ReverseMiddleIterator it = *this;
             _M_current = middle_previous(_M_current);
-            return *this;
+            return it;
         }
         ReverseMiddleIterator operator--()
+        {
+            _M_current = middle_next(_M_current);
+            return *this;
+        }
+        ReverseMiddleIterator operator--(int)
         {
             ReverseMiddleIterator it = *this;
             _M_current = middle_next(_M_current);
             return it;
-        }
-        ReverseMiddleIterator operator--(int)
-        {
-            _M_current = middle_next(_M_current);
-            return *this;
         }
         ReverseMiddleIterator operator=(const ReverseMiddleIterator &it)
         { return _M_current = it._M_current; }
@@ -765,25 +765,25 @@ private:
 
         ConstReverseMiddleIterator operator++()
         {
-            ConstReverseMiddleIterator it = *this;
             _M_current = middle_previous(const_cast<TreeNode*>(_M_current));
-            return it;
+            return *this;
         }
         ConstReverseMiddleIterator operator++(int)
         {
+            ConstReverseMiddleIterator it = *this;
             _M_current = middle_previous(const_cast<TreeNode*>(_M_current));
-            return *this;
+            return it;
         }
         ConstReverseMiddleIterator operator--()
+        {
+            _M_current = middle_next(const_cast<TreeNode*>(_M_current));
+            return *this;
+        }
+        ConstReverseMiddleIterator operator--(int)
         {
             ConstReverseMiddleIterator it = *this;
             _M_current = middle_next(const_cast<TreeNode*>(_M_current));
             return it;
-        }
-        ConstReverseMiddleIterator operator--(int)
-        {
-            _M_current = middle_next(const_cast<TreeNode*>(_M_current));
-            return *this;
         }
         ConstReverseMiddleIterator operator=(const ConstReverseMiddleIterator &it)
         { return _M_current = it._M_current; }
@@ -824,25 +824,25 @@ private:
 
         ReverseAfterIterator operator++()
         {
-            ReverseAfterIterator it = *this;
             _M_current = after_previous(_M_current);
-            return it;
+            return *this;
         }
         ReverseAfterIterator operator++(int)
         {
+            ReverseAfterIterator it = *this;
             _M_current = after_previous(_M_current);
-            return *this;
+            return it;
         }
         ReverseAfterIterator operator--()
+        {
+            _M_current = after_next(_M_current);
+            return *this;
+        }
+        ReverseAfterIterator operator--(int)
         {
             ReverseAfterIterator it = *this;
             _M_current = after_next(_M_current);
             return it;
-        }
-        ReverseAfterIterator operator--(int)
-        {
-            _M_current = after_next(_M_current);
-            return *this;
         }
         ReverseAfterIterator operator=(const ReverseAfterIterator &it)
         { return _M_current = it._M_current; }
@@ -883,25 +883,25 @@ private:
 
         ConstReverseAfterIterator operator++()
         {
-            ConstReverseAfterIterator it = *this;
             _M_current = after_previous(const_cast<TreeNode*>(_M_current));
-            return it;
+            return *this;
         }
         ConstReverseAfterIterator operator++(int)
         {
+            ConstReverseAfterIterator it = *this;
             _M_current = after_previous(const_cast<TreeNode*>(_M_current));
-            return *this;
+            return it;
         }
         ConstReverseAfterIterator operator--()
+        {
+            _M_current = after_next(const_cast<TreeNode*>(_M_current));
+            return *this;
+        }
+        ConstReverseAfterIterator operator--(int)
         {
             ConstReverseAfterIterator it = *this;
             _M_current = after_next(const_cast<TreeNode*>(_M_current));
             return it;
-        }
-        ConstReverseAfterIterator operator--(int)
-        {
-            _M_current = after_next(const_cast<TreeNode*>(_M_current));
-            return *this;
         }
         ConstReverseAfterIterator operator=(const ConstReverseAfterIterator &it)
         { return _M_current = it._M_current; }

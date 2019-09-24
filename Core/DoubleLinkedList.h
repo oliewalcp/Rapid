@@ -56,6 +56,12 @@ private:
         { return Data->ref_content(); }
         Pointer address() const
         { return Data->address(); }
+        void swap(Node *node)
+        {
+            NodeBase<ValueType> *temp = Data;
+            Data = node->Data;
+            node->Data = temp;
+        }
     };
 
     Node *_M_head = nullptr;
@@ -102,25 +108,25 @@ public:
 
         iterator operator++()
         {
-            iterator it = *this;
             _F_next();
-            return it;
+            return *this;
         }
         iterator operator++(int)
         {
+            iterator it = *this;
             _F_next();
-            return *this;
+            return it;
         }
         iterator operator--()
+        {
+            _F_previous();
+            return *this;
+        }
+        iterator operator--(int)
         {
             iterator it = *this;
             _F_previous();
             return it;
-        }
-        iterator operator--(int)
-        {
-            _F_previous();
-            return *this;
         }
         Reference operator*() const
         { return _M_current->data(); }
@@ -158,25 +164,25 @@ public:
 
         reverse_iterator operator++()
         {
-            reverse_iterator it = *this;
             _F_next();
-            return it;
+            return *this;
         }
         reverse_iterator operator++(int)
         {
+            reverse_iterator it = *this;
             _F_next();
-            return *this;
+            return it;
         }
         reverse_iterator operator--()
+        {
+            _F_previous();
+            return *this;
+        }
+        reverse_iterator operator--(int)
         {
             reverse_iterator it = *this;
             _F_previous();
             return it;
-        }
-        reverse_iterator operator--(int)
-        {
-            _F_previous();
-            return *this;
         }
         Reference operator*() const
         { return _M_current->data(); }
@@ -220,25 +226,25 @@ public:
 
         const_iterator operator++()
         {
-            const_iterator it = *this;
             _F_next();
-            return it;
+            return *this;
         }
         const_iterator operator++(int)
         {
+            const_iterator it = *this;
             _F_next();
-            return *this;
+            return it;
         }
         const_iterator operator--()
+        {
+            _F_previous();
+            return *this;
+        }
+        const_iterator operator--(int)
         {
             const_iterator it = *this;
             _F_previous();
             return it;
-        }
-        const_iterator operator--(int)
-        {
-            _F_previous();
-            return *this;
         }
         Reference operator*() const
         { return _M_current->data(); }
@@ -283,25 +289,25 @@ public:
 
         const_reverse_iterator operator++()
         {
-            const_reverse_iterator it = *this;
             _F_next();
-            return it;
+            return *this;
         }
         const_reverse_iterator operator++(int)
         {
+            const_reverse_iterator it = *this;
             _F_next();
-            return *this;
+            return it;
         }
         const_reverse_iterator operator--()
+        {
+            _F_previous();
+            return *this;
+        }
+        const_reverse_iterator operator--(int)
         {
             const_reverse_iterator it = *this;
             _F_previous();
             return it;
-        }
-        const_reverse_iterator operator--(int)
-        {
-            _F_previous();
-            return *this;
         }
         Reference operator*() const
         { return _M_current->data(); }
@@ -544,7 +550,41 @@ template<typename T>
 template<typename _Compare>
 void DoubleLinkedList<T>::sort(_Compare c)
 {
-
+    Node *max_pos = nullptr;
+    Node *min_pos = _M_head;
+    for(Node *v = _M_head; v != nullptr; v = v->Next)
+    {
+        Node *current_pos = nullptr;
+        for(Node *b = min_pos; b->Next != max_pos; b = b->Next)
+        {
+            Node *temp = b->Next;
+            if(c(temp->data(), b->data()) > 0)
+            {
+                temp->swap(b);
+                current_pos = temp;
+            }
+        }
+        if(current_pos == nullptr)
+        {
+            break;
+        }
+        max_pos = current_pos;
+        current_pos = nullptr;
+        for(Node *n = max_pos; n != min_pos; n = n->Previous)
+        {
+            Node *temp = n->Previous;
+            if(c(n->data(), temp->data()) > 0)
+            {
+                temp->swap(n);
+                current_pos = n;
+            }
+        }
+        min_pos = min_pos->Next;
+        if(current_pos == nullptr)
+        {
+            break;
+        }
+    }
 }
 
 template<typename T>
