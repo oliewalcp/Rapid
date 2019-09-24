@@ -19,6 +19,7 @@ void zone_bit_code_to_gb2312(char *result, const char *code);
  * param[code]: __in__ 2 byte
  */
 void gb2312_to_zone_bit_code(unsigned char *result, const char *code);
+
 size_type utf8_len(const char* ansi);
 wchar_t *to_utf8(const char* ansi);
 char* to_ansi(const char* utf8);

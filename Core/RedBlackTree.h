@@ -1,7 +1,7 @@
 #ifndef REDBLACKTREE_H
 #define REDBLACKTREE_H
 
-#include "Tree.h"
+#include "Compare.h"
 #include "BinaryTree.h"
 #include <initializer_list>
 

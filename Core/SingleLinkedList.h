@@ -4,6 +4,7 @@
 #include "Core/TLNode.h"
 #include "Core/TypeTraits.h"
 #include "Core/Version.h"
+#include "Core/Compare.h"
 
 namespace rapid
 {
@@ -36,6 +37,12 @@ private:
         { return Data->ref_content(); }
         Pointer address() const
         { return Data->address(); }
+        void swap(Node *node)
+        {
+            NodeBase<ValueType> *temp = Data;
+            Data = node->Data;
+            node->Data = temp;
+        }
     };
     Node *_M_head = new Node();
     SizeType _M_size = 0;
@@ -72,15 +79,13 @@ public:
 
     class iterator
     {
-    private:
+    public:
         Node *_M_current;
 
         const_iterator _F_const_cast()
         { return const_iterator(_M_current); }
 
-        friend class SingleLinkedList;
         iterator(Node *c) : _M_current(c) { }
-    public:
         iterator() : _M_current(nullptr) { }
         iterator(const iterator &it) : _M_current(it._M_current) { }
         iterator(iterator && it) : _M_current(forward<iterator>(it)._M_current) { }
@@ -113,16 +118,13 @@ public:
     };
     class const_iterator
     {
-    private:
+    public:
         const Node *_M_current;
-
-        friend class SingleLinkedList;
 
         iterator _F_const_cast()
         { return iterator(const_cast<Node*>(_M_current)); }
 
         const_iterator(Node *c) : _M_current(c) { }
-    public:
         const_iterator() : _M_current(nullptr) { }
         const_iterator(const const_iterator &it)
             : _M_current(it._M_current) { }
@@ -266,6 +268,10 @@ public:
     iterator emplace_after(iterator it, Args && ... args)
     { return _F_insert_after(it, forward<Args>(args)...); }
 
+    void sort()
+    { sort(Compare<ValueType>()); }
+    template<typename _Compare>
+    void sort(_Compare c);
 };
 
 //-----------------------impl-----------------------//
@@ -331,6 +337,31 @@ typename SingleLinkedList<T>::iterator
         ++b;
     }
     return r;
+}
+
+template<typename T>
+template<typename _Compare>
+void SingleLinkedList<T>::sort(_Compare c)
+{
+    Node *last_pos = nullptr;
+    for(Node *v = _M_head->Next; v != nullptr; v = v->Next)
+    {
+        Node *current_pos = nullptr;
+        for(Node *b = _M_head->Next; b->Next != last_pos; b = b->Next)
+        {
+            Node *temp = b->Next;
+            if(c(temp->data(), b->data()) > 0)
+            {
+                temp->swap(b);
+                current_pos = temp;
+            }
+        }
+        last_pos = current_pos;
+        if(last_pos == nullptr)
+        {
+            break;
+        }
+    }
 }
 
 template<typename T>

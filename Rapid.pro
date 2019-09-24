@@ -10,6 +10,8 @@ CONFIG -= app_bundle
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_LIB
 
+LIBS += -lWS2_32
+
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
@@ -35,9 +37,11 @@ SOURCES += \
         main.cpp
 
 HEADERS += \
+    Algorithm/Sorter.h \
     Core/AVLTree.h \
     Core/Atomic.h \
     Core/BinaryTree.h \
+    Core/Compare.h \
     Core/Exception.h \
     Core/IO.h \
     Core/Map.h \
@@ -49,7 +53,6 @@ HEADERS += \
     Core/Set.h \
     Core/SharedPointer.h \
     Core/TLNode.h \
-    Core/Tree.h \
     Core/TypeTraits.h \
     Core/Vector.h \
     Core/Stack.h \
@@ -59,6 +62,7 @@ HEADERS += \
     Core/Preoperation.h \
     Core/Version.h \
     Image/ImageBase.h \
+    Network/Socket.h \
     Test/TestAVLTree.h \
     Test/TestBinaryTree.h \
     Test/TestDoubleLinkedList.h \

@@ -2,7 +2,7 @@
 #define AVLTREE_H
 
 #include "BinaryTree.h"
-#include "Tree.h"
+#include "Compare.h"
 #include <initializer_list>
 
 namespace rapid

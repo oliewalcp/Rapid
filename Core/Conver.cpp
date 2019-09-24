@@ -42,16 +42,31 @@ void rapid::gb2312_to_zone_bit_code(unsigned char *result, const char *code)
     result[1] += 0xA0;
 }
 
-#ifdef __WIN32
-#include <windows.h>
+#ifdef __linux
+#include <cstring>
+rapid::size_type rapid::utf8_len(const char *ansi)
+{
+    return strlen(ansi);
+}
+
+wchar_t *rapid::to_utf8(const char *ansi)
+{
+    return ansi;
+}
+
+char *rapid::to_ansi(const char *utf8)
+{
+    return utf8;
+}
+#elif defined __WIN32
+#include <stringapiset.h>
 #include "Core/Memory.h"
 
 rapid::size_type rapid::utf8_len(const char *ansi)
 {
     if(ansi == nullptr)
         return 0;
-    size_type len = static_cast<size_type>(MultiByteToWideChar(CP_UTF8, 0, ansi, -1, nullptr, 0));
-    return len;
+    return static_cast<size_type>(MultiByteToWideChar(CP_UTF8, 0, ansi, -1, nullptr, 0));
 }
 
 wchar_t *rapid::to_utf8(const char *ansi)

@@ -4,6 +4,7 @@
 #include "Core/TLNode.h"
 #include "Core/TypeTraits.h"
 #include "Core/Version.h"
+#include "Core/Compare.h"
 #include <initializer_list>
 
 namespace rapid
@@ -77,7 +78,7 @@ private:
 public:
     class iterator
     {
-    protected:
+    public:
         Node *_M_current;
         void _F_next()
         {
@@ -92,9 +93,7 @@ public:
         const_iterator _F_const_cast()
         { return const_iterator(_M_current); }
 
-        friend DoubleLinkedList;
         iterator(Node *n) : _M_current(n) { }
-    public:
         iterator() : _M_current(nullptr) { }
         iterator(const iterator &it)
             : _M_current(it._M_current) { }
@@ -137,7 +136,7 @@ public:
 
     class reverse_iterator
     {
-    protected:
+    public:
         Node *_M_current;
         void _F_next()
         {
@@ -150,9 +149,7 @@ public:
             { _M_current = _M_current->Next; }
         }
 
-        friend DoubleLinkedList;
         reverse_iterator(Node *n) : _M_current(n) { }
-    public:
         reverse_iterator() : _M_current(nullptr) { }
         reverse_iterator(const reverse_iterator &it)
             : _M_current(it._M_current) { }
@@ -195,7 +192,7 @@ public:
 
     class const_iterator
     {
-    private:
+    public:
         const Node *_M_current;
         void _F_next()
         {
@@ -208,12 +205,9 @@ public:
             { _M_current = _M_current->Previous; }
         }
 
-        friend DoubleLinkedList;
-
         iterator _F_const_cast()
         { return iterator(const_cast<Node*>(_M_current)); }
         const_iterator(Node *n) : _M_current(n) { }
-    public:
         const_iterator() : _M_current(nullptr) { }
         const_iterator(const const_iterator &it)
             : _M_current(it._M_current) { }
@@ -260,7 +254,7 @@ public:
 
     class const_reverse_iterator
     {
-    protected:
+    public:
         const Node *_M_current;
         void _F_next()
         {
@@ -276,9 +270,7 @@ public:
         reverse_iterator _F_const_cast()
         { return reverse_iterator(const_cast<Node*>(_M_current)); }
 
-        friend DoubleLinkedList;
         const_reverse_iterator(Node *n) : _M_current(n) { }
-    public:
         const_reverse_iterator() : _M_current(nullptr) { }
         const_reverse_iterator(const const_reverse_iterator &it)
             : _M_current(it._M_current) { }
@@ -438,6 +430,11 @@ public:
     template<typename ... Args>
     iterator emplace(iterator it, Args && ... args)
     { return _F_insert(it, forward<Args...>(args...)); }
+
+    void sort()
+    { sort(Compare<ValueType>()); }
+    template<typename _Compare>
+    void sort(_Compare c);
 };
 //-----------------------impl-----------------------//
 //-----------------------impl-----------------------//
@@ -544,10 +541,18 @@ void DoubleLinkedList<T>::reverse()
 }
 
 template<typename T>
+template<typename _Compare>
+void DoubleLinkedList<T>::sort(_Compare c)
+{
+
+}
+
+template<typename T>
 using Dlist = DoubleLinkedList<T>;
 
 template<typename T>
 using List = DoubleLinkedList<T>;
+
 
 
 };

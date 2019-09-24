@@ -1,10 +1,12 @@
-#include "Test/TestMap.h"
-#include <forward_list>
+#include "Test/TestSingleLinkedList.h"
+#include "Algorithm/Sorter.h"
+#include <algorithm>
 
 #ifdef QT_LIB
 #include "Test/TreeTool.h"
-using namespace rapid;
 #endif
+
+using namespace rapid;
 
 #ifdef cpp17
 #if __has_include(<QApplication>)
@@ -18,8 +20,7 @@ int main(int argc, char *argv[])
     app = new QApplication(argc, argv);
 #endif
 
-//    test_AVLMap_main();
-    test_Map_main();
+    std::sor
 
 #ifdef EN_WIDGET
     delete app;
