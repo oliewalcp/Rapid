@@ -1,9 +1,6 @@
 #ifndef TESTSET_H
 #define TESTSET_H
 
-#include "Core/Set.h"
-#include "TreeTool.h"
-
 namespace rapid
 {
 

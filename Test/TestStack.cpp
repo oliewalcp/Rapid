@@ -1,4 +1,5 @@
 #include "TestStack.h"
+#include "Core/Stack.h"
 #include <iostream>
 
 void rapid::test_Stack_main()

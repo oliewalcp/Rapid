@@ -1,8 +1,6 @@
 #ifndef TESTBINARYTREE_H
 #define TESTBINARYTREE_H
 
-#include "Core/BinaryTree.h"
-#include "TreeTool.h"
 namespace rapid
 {
 

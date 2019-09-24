@@ -1,7 +1,6 @@
 #ifndef TESTAVLTREE_H
 #define TESTAVLTREE_H
 
-#include "Core/AVLTree.h"
 
 namespace rapid
 {

@@ -1,4 +1,5 @@
 #include "TestMemory.h"
+#include "Core/Memory.h"
 #include <iostream>
 
 template<typename T>

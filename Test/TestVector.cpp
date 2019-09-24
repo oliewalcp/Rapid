@@ -1,4 +1,5 @@
 #include "TestVector.h"
+#include "Core/Vector.h"
 #include "Core/Exception.h"
 #include <iostream>
 

@@ -1,4 +1,5 @@
 #include "TestDoubleLinkedList.h"
+#include "Core/DoubleLinkedList.h"
 #include <iostream>
 
 void rapid::test_DoubleLinkedList_main()

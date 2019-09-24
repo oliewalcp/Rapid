@@ -1,4 +1,5 @@
 #include "TestMap.h"
+#include "Core/Map.h"
 #include <iostream>
 
 void rapid::test_AVLMap_main()

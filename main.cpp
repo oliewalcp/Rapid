@@ -1,48 +1,17 @@
-#include "Core/DoubleLinkedList.h"
-#include "Core/SingleLinkedList.h"
+#include "Core/Vector.h"
 #include "Algorithm/Sorter.h"
-
-#ifdef QT_LIB
-#include "Test/TreeTool.h"
-#endif
 
 using namespace rapid;
 
-#ifdef cpp17
-#if __has_include(<QApplication>)
-    #define EN_WIDGET
-#endif
-#endif
-
-int main(int argc, char *argv[])
+int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 {
-#ifdef EN_WIDGET
-    app = new QApplication(argc, argv);
-#endif
-
-    DoubleLinkedList<int> dll1;
-    auto it = dll1.push_back(10);
-    dll1.push_back(20);
-    dll1.push_back(30);
-    dll1.push_front(100);
-    dll1.push_front(200);
-    it = dll1.insert(it, 0);
-    dll1.insert(it, -10);
-    it = dll1.insert(it, -20);
-    for(int i : dll1)
+    Vector<int> v({100, -1, 20, -90, -9, 0, 10, 40, 20, 1, -1});
+    ssort(v.begin(), v.end());
+    for(int k : v)
     {
-        std::cout << i << " ";
+        std::cout << k << " ";
     }
-    std::cout << std::endl;
-    fsort(dll1.begin(), dll1.end());
-    for(int i : dll1)
-    {
-        std::cout << i << " ";
-    }
-    std::cout << std::endl;
+    std::cout << std::endl << "finish" << std::endl;
 
-#ifdef EN_WIDGET
-    delete app;
-#endif
     return 0;
 }

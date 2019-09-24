@@ -1,4 +1,5 @@
 #include "TestRedBlackTree.h"
+#include "Core/RedBlackTree.h"
 #include "TreeTool.h"
 
 void rapid::test_RedBlackTree_main()
@@ -96,6 +97,6 @@ void rapid::test_RedBlackTree_main()
     mw2.show();
 #endif
 #ifdef QT_LIB
-    app->exec();
+    app.exec();
 #endif
 }

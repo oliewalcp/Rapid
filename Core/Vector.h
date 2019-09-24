@@ -26,10 +26,10 @@ public:
     using RvalueReference = ValueType&&;
     using SizeType = size_type;
 private:
-    SizeType _M_size;
-    SizeType _M_capacity;
-    SizeType _M_growth;
-    NodeBase<ValueType> *_M_data;
+    SizeType _M_size = 0;
+    SizeType _M_capacity = 1;
+    SizeType _M_growth = 0;
+    NodeBase<ValueType> *_M_data = nullptr;
 
     void _F_initialize(SizeType s);
     void _F_copy_data(const Vector &arg);
@@ -95,14 +95,32 @@ public:
             _F_init(it);
             return *this;
         }
-        iterator operator-(const SizeType s)
+        SizeType operator-(const iterator &it) const
+        { return _M_current_index - it._M_current_index; }
+        iterator operator-(const SizeType s) const
+        {
+            iterator it = *this;
+            it._M_current_index -= s;
+            if(it._M_current_index < 0 || it._M_current_index > it._M_max_index)
+            { it._M_current_index = it._M_max_index + 1; }
+            return it;
+        }
+        iterator operator+(const SizeType s) const
+        {
+            iterator it = *this;
+            it._M_current_index += s;
+            if(it._M_current_index < 0 || it._M_current_index > it._M_max_index)
+            { it._M_current_index = it._M_max_index + 1; }
+            return it;
+        }
+        iterator operator-=(const SizeType s)
         {
             _M_current_index -= s;
             if(_M_current_index < 0 || _M_current_index > _M_max_index)
             { _M_current_index = _M_max_index + 1; }
             return *this;
         }
-        iterator operator+(const SizeType s)
+        iterator operator+=(const SizeType s)
         {
             _M_current_index += s;
             if(_M_current_index < 0 || _M_current_index > _M_max_index)
@@ -131,6 +149,8 @@ public:
             _F_previous();
             return it;
         }
+        bool operator<(const iterator &it) const
+        { return _M_current_index < it._M_current_index; }
         Reference operator*()
         { return _M_data[_M_current_index]; }
 
@@ -180,7 +200,8 @@ public:
         { }
     public:
         const_iterator()
-            : _M_current_index(SizeType(-1)), _M_max_index(SizeType(-1)), _M_data(nullptr) { }
+            : _M_current_index(SizeType(-1)), _M_max_index(SizeType(-1)), _M_data(nullptr)
+        { }
         const_iterator(const const_iterator &it)
         { _F_init(it); }
         const_iterator(const_iterator && it)
@@ -191,14 +212,32 @@ public:
             _F_init(it);
             return *this;
         }
-        const_iterator operator-(const SizeType s)
+        SizeType operator-(const const_iterator &it) const
+        { return _M_current_index - it._M_current_index; }
+        const_iterator operator-(const SizeType s) const
+        {
+            const_iterator it = *this;
+            it._M_current_index -= s;
+            if(it._M_current_index < 0 || it._M_current_index > it._M_max_index)
+            { it._M_current_index = it._M_max_index + 1; }
+            return it;
+        }
+        const_iterator operator+(const SizeType s) const
+        {
+            const_iterator it = *this;
+            it._M_current_index += s;
+            if(it._M_current_index < 0 || it._M_current_index > it._M_max_index)
+            { it._M_current_index = it._M_max_index + 1; }
+            return it;
+        }
+        const_iterator operator-=(const SizeType s)
         {
             _M_current_index -= s;
             if(_M_current_index < 0 || _M_current_index > _M_max_index)
             { _M_current_index = _M_max_index + 1; }
             return *this;
         }
-        const_iterator operator+(const SizeType s)
+        const_iterator operator+=(const SizeType s)
         {
             _M_current_index += s;
             if(_M_current_index < 0 || _M_current_index > _M_max_index)
@@ -227,6 +266,8 @@ public:
             _F_previous();
             return it;
         }
+        bool operator<(const const_iterator &it) const
+        { return _M_current_index < it._M_current_index; }
         Reference operator*() const
         { return _M_data[_M_current_index]; }
 
@@ -281,6 +322,8 @@ public:
             _F_init(it);
             return *this;
         }
+        SizeType operator-(const reverse_iterator &it) const
+        { return _M_current_index + it._M_current_index; }
         reverse_iterator operator++()
         {
             _F_next();
@@ -303,6 +346,8 @@ public:
             _F_previous();
             return it;
         }
+        bool operator<(const reverse_iterator &it) const
+        { return _M_current_index > it._M_current_index; }
         Reference operator*()
         { return _M_data[_M_current_index]; }
 
@@ -357,6 +402,8 @@ public:
             _F_init(it);
             return *this;
         }
+        SizeType operator-(const const_reverse_iterator &it) const
+        { return _M_current_index + it._M_current_index; }
         const_reverse_iterator operator++()
         {
             _F_next();
@@ -379,6 +426,8 @@ public:
             _F_previous();
             return it;
         }
+        bool operator<(const const_reverse_iterator &it) const
+        { return _M_current_index > it._M_current_index; }
         Reference operator*() const
         { return _M_data[_M_current_index]; }
 
@@ -392,13 +441,13 @@ public:
     };
 
     Vector(SizeType size = 1)
-        : _M_size(0), _M_growth(static_cast<SizeType>(-1)), _M_data(nullptr)
     { _F_initialize(size); }
     Vector(const Vector &v)
-        : _M_size(v.size()), _M_capacity(v.capacity()), _M_growth(v._M_growth), _M_data(nullptr)
+        : _M_size(v.size()), _M_capacity(v.capacity()), _M_growth(v._M_growth)
     { _F_copy_data(v); }
     Vector(std::initializer_list<ValueType> arg)
     {
+        _F_initialize(arg.size());
         for(auto it = arg.begin(); it != arg.end(); ++it)
         { push_back(*it); }
     }

@@ -19,7 +19,7 @@
 namespace rapid
 {
 
-extern QApplication *app;
+extern QApplication app;
 
 template<typename NodeType>
 using GetDataFunctionType = std::function<std::string(const NodeType *)>;

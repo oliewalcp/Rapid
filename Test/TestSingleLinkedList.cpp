@@ -1,4 +1,5 @@
 #include "TestSingleLinkedList.h"
+#include "Core/SingleLinkedList.h"
 #include <iostream>
 
 void rapid::test_SingleLinkedList_main()

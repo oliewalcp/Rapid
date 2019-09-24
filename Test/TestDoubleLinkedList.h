@@ -1,7 +1,6 @@
 #ifndef TESTDOUBLELINKEDLIST_H
 #define TESTDOUBLELINKEDLIST_H
 
-#include "Core/DoubleLinkedList.h"
 
 namespace rapid
 {

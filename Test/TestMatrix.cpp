@@ -1,5 +1,6 @@
 #include "TestMatrix.h"
 #include "Core/Exception.h"
+#include "Core/Matrix.h"
 #include <iostream>
 #include <iomanip>
 using SizeType = long;

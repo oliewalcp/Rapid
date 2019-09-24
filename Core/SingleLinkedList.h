@@ -272,6 +272,14 @@ public:
     { sort(Compare<ValueType>()); }
     template<typename _Compare>
     void sort(_Compare c);
+
+    template<typename _Iter, typename _Compare = Compare<ValueType>>
+    void merge(_Iter b, _Iter e, _Compare c = _Compare())
+    {
+
+    }
+    void merge(const SingleLinkedList &list)
+    { merge(list.begin(), list.end()); }
 };
 
 //-----------------------impl-----------------------//

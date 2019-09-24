@@ -1,6 +1,7 @@
 #include "TestBinaryTree.h"
 #include "Core/DoubleLinkedList.h"
 #include "Test/TreeTool.h"
+#include "Core/BinaryTree.h"
 #include <iostream>
 
 void rapid::test_BinaryTree_main()
@@ -127,7 +128,7 @@ void rapid::test_BinaryTree_main()
     }
     std::cout << std::endl;
 #ifdef QT_LIB
-    app->exec();
+    app.exec();
 #endif
 }
 

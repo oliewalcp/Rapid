@@ -1,4 +1,6 @@
 #include "TestSet.h"
+#include "Core/Set.h"
+#include "TreeTool.h"
 #include <iostream>
 
 void rapid::test_AVLSet_main()

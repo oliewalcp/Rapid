@@ -1,5 +1,6 @@
 #include "TestAVLTree.h"
 #include "TreeTool.h"
+#include "Core/AVLTree.h"
 #include <iostream>
 
 void rapid::test_AVLTree_main()
@@ -82,6 +83,6 @@ void rapid::test_AVLTree_main()
     mw2.show();
 #endif
 #ifdef QT_LIB
-    app->exec();
+    app.exec();
 #endif
 }

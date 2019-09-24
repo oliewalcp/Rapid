@@ -4,8 +4,9 @@
 #ifdef QT_LIB
 namespace rapid
 {
-
-QApplication *app = nullptr;
+static int argc = 1;
+static char *argv[1] = {"rapid.exe"};
+QApplication app(argc, argv);
 
 void test_TreeTool_main()
 {
@@ -20,7 +21,7 @@ void test_TreeTool_main()
     mw1.setWindowTitle("test");
     mw1.show();
 
-    app->exec();
+    app.exec();
 }
 
 }
