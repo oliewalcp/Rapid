@@ -37,6 +37,9 @@ public:
     const T& const_ref_content()
     { return *address(); }
 
+    T& operator*()
+    { return ref_content(); }
+
 //    void clear()
 //    { mem_clear(address(), sizeof(NodeBase<T>)); }
 };

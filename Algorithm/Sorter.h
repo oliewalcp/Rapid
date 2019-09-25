@@ -2,7 +2,7 @@
 #define SORTER_H
 
 #include "Core/Compare.h"
-#include "Core/Version.h"
+#include "Core/TypeTraits.h"
 #include <type_traits>
 #include <cmath>
 #include <iostream>
@@ -10,8 +10,10 @@
 namespace rapid
 {
 
+typedef unsigned long long size_type;
+
 template<typename T>
-void swap(T &arg1, T &arg2)
+inline void swap(T &arg1, T &arg2)
 {
     T temp = arg1;
     arg1 = arg2;
@@ -24,9 +26,40 @@ constexpr size_type distance(const T &_1, const T &_2)
 
 // bubble_sort
 // not contain [end]
+template<typename _ForwardIter,
+         typename _Compare = Compare<decltype(*std::declval<_ForwardIter>())>>
+void fsort(_ForwardIter beg,
+           _ForwardIter end,
+           _Compare c = _Compare())
+{
+    _ForwardIter last_pos = end;
+    for(_ForwardIter v = beg; v != end; ++v)
+    {
+        _ForwardIter current_pos = end;
+        _ForwardIter b = beg, temp = b;
+        for(++temp; temp != last_pos; ++b, ++temp)
+        {
+            if(c(*temp, *b) > 0)
+            {
+                swap(*temp, *b);
+                current_pos = temp;
+            }
+        }
+        last_pos = current_pos;
+        if(last_pos == end)
+        {
+            return;
+        }
+    }
+}
+
+// bubble_sort
+// not contain [end]
 template<typename _BothIter,
          typename _Compare = Compare<decltype(*std::declval<_BothIter>())>>
-void bsort(_BothIter beg, _BothIter end, _Compare c = _Compare())
+void bsort(_BothIter beg,
+           _BothIter end,
+           _Compare c = _Compare())
 {
     _BothIter max_pos = end;
     _BothIter min_pos = beg;
@@ -66,39 +99,108 @@ void bsort(_BothIter beg, _BothIter end, _Compare c = _Compare())
     }
 }
 
-// bubble_sort
+// insertion sort
+// not contain [end]
+template<typename _BothIter,
+         typename _Compare = Compare<decltype(*std::declval<_BothIter>())>>
+void isort(_BothIter beg,
+           _BothIter end,
+           _Compare c = _Compare())
+{
+    _BothIter bound = beg;
+    for(++bound; bound != end; ++bound)
+    {
+        auto temp(*bound);
+        _BothIter it = bound;
+        _BothIter v = it;
+        while(v != beg)
+        {
+            if(c(temp, *--v) > 0)
+            {
+                *it = *v;
+                it = v;
+            }
+            else break;
+        }
+        *it = temp;
+    }
+}
+
+// merge
 // not contain [end]
 template<typename _ForwardIter,
          typename _Compare = Compare<decltype(*std::declval<_ForwardIter>())>>
-void fsort(_ForwardIter beg, _ForwardIter end, _Compare c = _Compare())
+void merge(_ForwardIter dst,
+           _ForwardIter src1_beg, _ForwardIter src1_end,
+           _ForwardIter src2_beg, _ForwardIter src2_end,
+           _Compare c = _Compare())
 {
-    _ForwardIter last_pos = end;
-    for(_ForwardIter v = beg; v != end; ++v)
+    while(src1_beg != src1_end && src2_beg != src2_end)
     {
-        _ForwardIter current_pos = end;
-        _ForwardIter b = beg, temp = b;
-        for(++temp; temp != last_pos; ++b, ++temp)
+        *dst++ = c(*src2_beg, *src1_beg) > 0 ? *src2_beg++ : *src1_beg++;
+    }
+    while(src1_beg != src1_end)
+    {
+        *dst++ = *src1_beg++;
+    }
+    while(src2_beg != src2_end)
+    {
+        *dst++ = *src2_beg++;
+    }
+}
+// merge sort
+// not contain [end]
+template<typename _RandomIter,
+         typename _ResultRandomIter = _RandomIter,
+         typename _Compare = Compare<decltype(*std::declval<_RandomIter>())>>
+void msort(_ResultRandomIter result,
+           _RandomIter beg,
+           _RandomIter end,
+           _Compare c = _Compare())
+{
+    size_type center = distance(beg, end) / 2;
+    if(center > 0)
+    {
+        msort(result, beg, beg + center, c);
+        msort(result + center, beg + center, end, c);
+        merge(result, beg, beg + center, beg + center, end, c);
+        for(_RandomIter it = beg; it != end; ++it)
         {
-            if(c(*temp, *b) > 0)
-            {
-                swap(*temp, *b);
-                current_pos = temp;
-            }
-        }
-        last_pos = current_pos;
-        if(last_pos == end)
-        {
-            return;
+            *it = *result++;
         }
     }
 }
+// merge sort
+// not contain [end]
+template<typename _RandomIter,
+         typename _Compare = Compare<decltype(*std::declval<_RandomIter>())>>
+void msort(_RandomIter beg,
+           _RandomIter end,
+           _Compare c = _Compare())
+{
+    using _IterValueType = decltype(*std::declval<_RandomIter>());
+    using _ValueType = typename RemoveReference<_IterValueType>::type;
+
+    size_type dist = distance(beg, end);
+    _ValueType *result = new _ValueType[dist];
+    msort(result, beg, end, c);
+    for(size_type i = 0; i < dist; ++i)
+    {
+        *beg++ = result[i];
+    }
+    delete[] result;
+}
+
 // shell sort
 // not contain [end]
 template<typename _RandomIter,
          typename _Compare = Compare<decltype(*std::declval<_RandomIter>())>>
-void ssort(_RandomIter beg, _RandomIter end, _Compare c = _Compare())
+void ssort(_RandomIter beg,
+           _RandomIter end,
+           _Compare c = _Compare())
 {
     size_type total_size = distance(beg, end);
+    if(total_size <= 1) return;
     size_type fin = static_cast<size_type>(std::log2(total_size - 1));
     size_type _1 = static_cast<size_type>(std::pow(2, fin));
     size_type dist = _1 - 1;
@@ -122,6 +224,70 @@ void ssort(_RandomIter beg, _RandomIter end, _Compare c = _Compare())
             break;
         _1 /= 2;
         dist = _1 - 1;
+    }
+}
+
+// get median for quick sort
+// not contain [end]
+template<typename _RandomIter,
+         typename _Compare = Compare<decltype(*std::declval<_RandomIter>())>>
+auto median(_RandomIter beg,
+            _RandomIter end,
+            _Compare c = _Compare())
+    -> decltype(*std::declval<_RandomIter>())
+{
+    size_type dist = distance(beg, end);
+    size_type center = dist / 2;
+    _RandomIter left = beg, right = beg + dist - 1;
+    if(c(*(left + center), *left) > 0)
+    {
+        swap(*(left + center), *left);
+    }
+    if(c(*right, *left) > 0)
+    {
+        swap(*right, *left);
+    }
+    if(c(*right, *(left + center)) > 0)
+    {
+        swap(*right, *(left + center));
+    }
+    swap(*(left + center), *(right - 1));
+    return *(right - 1);
+}
+
+// quick sort
+// not contain [end]
+template<typename _RandomIter,
+         typename _Compare = Compare<decltype(*std::declval<_RandomIter>())>>
+void qsort(_RandomIter beg,
+           _RandomIter end,
+           _Compare c = _Compare())
+{
+    size_type right = distance(beg, end) - 1;
+    if(right >= 3)
+    {
+        size_type i = 0, j = right - 1;
+
+        auto pivot(median(beg, end, c));
+
+        while(true)
+        {
+            while(c(*(beg + (++i)), pivot) > 0);
+            while(c(pivot, *(beg + (--j))) > 0);
+            if(i < j)
+            {
+                swap(*(beg + i), *(beg + j));
+            }
+            else break;
+        }
+        swap(*(beg + i), *(beg + right - 1));
+
+        qsort(beg, beg + i - 1);
+        qsort(beg + i + 1, beg + right);
+    }
+    else
+    {
+        isort(beg, end, c);
     }
 }
 
