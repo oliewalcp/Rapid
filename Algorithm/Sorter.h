@@ -2,15 +2,63 @@
 #define SORTER_H
 
 #include "Core/Compare.h"
-#include "Core/TypeTraits.h"
-#include <type_traits>
-#include <cmath>
-#include <iostream>
+#include "Core/Map.h"
+#include <type_traits> // std::declval
+#include <initializer_list> // std::initializer_list
+#include <cmath> // std::log2  std::pow
+#include <ctime> // std::time
 
 namespace rapid
 {
 
 typedef unsigned long long size_type;
+
+template<typename T = int>
+void generate_random(std::initializer_list<T*> arg, T size)
+{
+    Map<T, T> generator;
+    T remain = size;
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+    while(remain > 0)
+    {
+        T ret = rand() % remain;
+        auto it = generator.find(ret);
+        if(it == generator.end())
+        {
+            for(T *a : arg)
+            {
+                a[size - remain] = ret;
+            }
+            --remain;
+            auto exi = generator.find(remain);
+            if(exi == generator.end())
+            {
+                generator[ret] = remain;
+            }
+            else
+            {
+                generator[ret] = exi->Second;
+            }
+        }
+        else
+        {
+            for(T *a : arg)
+            {
+                a[size - remain] = ret;
+            }
+            --remain;
+            auto exi = generator.find(remain);
+            if(exi == generator.end())
+            {
+                it->Second = remain;
+            }
+            else
+            {
+                it->Second = exi->Second;
+            }
+        }
+    }
+}
 
 template<typename T>
 inline void swap(T &arg1, T &arg2)
@@ -128,11 +176,15 @@ void isort(_BothIter beg,
 
 // merge
 // not contain [end]
-template<typename _ForwardIter,
-         typename _Compare = Compare<decltype(*std::declval<_ForwardIter>())>>
-void merge(_ForwardIter dst,
-           _ForwardIter src1_beg, _ForwardIter src1_end,
-           _ForwardIter src2_beg, _ForwardIter src2_end,
+template<typename _ForwardIter1,
+         typename _ForwardIter2 = _ForwardIter1,
+         typename _OutputForwardIter = _ForwardIter1,
+         typename _Compare = Compare2<
+             decltype(*std::declval<_ForwardIter1>()),
+             decltype(*std::declval<_ForwardIter2>())> >
+void merge(_OutputForwardIter dst,
+           _ForwardIter1 src1_beg, _ForwardIter1 src1_end,
+           _ForwardIter2 src2_beg, _ForwardIter2 src2_end,
            _Compare c = _Compare())
 {
     while(src1_beg != src1_end && src2_beg != src2_end)
@@ -264,7 +316,7 @@ void qsort(_RandomIter beg,
            _Compare c = _Compare())
 {
     size_type right = distance(beg, end) - 1;
-    if(right >= 3)
+    if(right >= 10)
     {
         size_type i = 0, j = right - 1;
 
@@ -282,8 +334,8 @@ void qsort(_RandomIter beg,
         }
         swap(*(beg + i), *(beg + right - 1));
 
-        qsort(beg, beg + i - 1);
-        qsort(beg + i + 1, beg + right);
+        qsort(beg, beg + i);
+        qsort(beg + i + 1, end);
     }
     else
     {

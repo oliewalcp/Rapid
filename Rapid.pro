@@ -31,12 +31,14 @@ SOURCES += \
     Test/TestRedBlackTree.cpp \
     Test/TestSet.cpp \
     Test/TestSingleLinkedList.cpp \
+    Test/TestSorter.cpp \
     Test/TestStack.cpp \
     Test/TestVector.cpp \
     Test/TreeTool.cpp \
         main.cpp
 
 HEADERS += \
+    Algorithm/Genetic.h \
     Algorithm/Sorter.h \
     Core/AVLTree.h \
     Core/Atomic.h \
@@ -72,6 +74,7 @@ HEADERS += \
     Test/TestRedBlackTree.h \
     Test/TestSet.h \
     Test/TestSingleLinkedList.h \
+    Test/TestSorter.h \
     Test/TestStack.h \
     Test/TestVector.h \
     Test/TreeTool.h

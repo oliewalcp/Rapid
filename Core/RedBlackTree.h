@@ -651,7 +651,7 @@ typename RedBlackTree<_DataType, _Compare>::iterator
 {
     TreeNode *node = _M_tree.root();
     IteratorImpl result;
-    while(true)
+    while(node != nullptr)
     {
         int res = _CompareType()(arg, _F_node_data(node));
         if(res == 0)

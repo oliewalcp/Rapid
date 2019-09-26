@@ -1,14 +1,15 @@
-#include "Algorithm/Sorter.h"
-using namespace rapid;
+#include <functional>
+#include <iostream>
+
+int func(int a, int b)
+{
+    return a + b;
+}
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 {
-    int m[10]{10, 2, -9, 0, 200, 20, 2, 22, 1, 11};
-    qsort(m, m + 10);
-    for(int i : m)
-    {
-        std::cout << i << " ";
-    }
-    std::cout << std::endl;
+    std::function<int(int,int)> f = std::bind(&func, std::placeholders::_1, std::placeholders::_2);
+    int sum = f(10, 20);
+    std::cout << sum << std::endl;
     return 0;
 }
