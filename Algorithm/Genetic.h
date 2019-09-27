@@ -1,7 +1,6 @@
 #ifndef GENETIC_H
 #define GENETIC_H
 
-#include "Algorithm/Sorter.h"
 #include <iostream>
 #include <functional>
 

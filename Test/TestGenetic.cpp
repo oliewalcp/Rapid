@@ -114,7 +114,7 @@ void generate()
     g.init(population, population_size);
 }
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
+void rapid::test_Genetic_main()
 {
     generate();
     std::function<double(double)> f = std::bind(&fitness, std::placeholders::_1);
@@ -128,5 +128,4 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
     {
         std::cout << g[i] << " ----> " << f(g[i]) << std::endl;
     }
-    return 0;
 }

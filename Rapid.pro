@@ -39,8 +39,8 @@ SOURCES += \
         main.cpp
 
 HEADERS += \
-    Algorithm/BPNeuralNetwork.h \
     Algorithm/Genetic.h \
+    Algorithm/NeuralNetwork.h \
     Algorithm/Sorter.h \
     Core/AVLTree.h \
     Core/Atomic.h \
