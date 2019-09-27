@@ -1,27 +1,29 @@
-#include "Algorithm/Genetic.h"
 #include "Test/TestGenetic.h"
+#include "Algorithm/Genetic.h"
 #include <ctime>
 #include <cmath>
 #include <iostream>
 
-static constexpr int population_size = 10;
-static constexpr float cross_rate = 0.01f;
-static constexpr float variation_rate = 0.005f;
-static constexpr int iterator_size = 1000;
+static constexpr int population_size = 10;//种群规模
+static constexpr float cross_rate = 0.01f;//交叉概率
+static constexpr float variation_rate = 0.005f;//变异概率
+static constexpr int iterator_size = 1000;//迭代次数
 
 static rapid::Genetic<double, double> g;
 
 static constexpr int MAX = 300;
 static constexpr int MIN = -300;
 
-static double fitness(double x)
+//适应度函数
+double fitness(double x)
 {
     if(x < MIN) return -9999999;
     if(x > MAX) return -9999999;
     return x * sin(10 * M_PI * x) + 2;
 }
 
-static void cross(double *population, unsigned long long size)
+//交叉
+void cross(double *population, unsigned long long size)
 {
     srand(static_cast<unsigned int>(time(nullptr)));
     for(unsigned long long i = 0; i < size; ++i)
@@ -78,7 +80,8 @@ static void cross(double *population, unsigned long long size)
     }
 }
 
-static void variation(double *population, unsigned long long size)
+//变异
+void variation(double *population, unsigned long long size)
 {
     srand(static_cast<unsigned int>(time(nullptr)));
     for(unsigned long long i = 0; i < size; ++i)
@@ -98,7 +101,8 @@ static void variation(double *population, unsigned long long size)
     }
 }
 
-static void generate()
+//初始种群
+void generate()
 {
     double population[population_size];
     srand(static_cast<unsigned int>(time(nullptr)));
@@ -110,7 +114,7 @@ static void generate()
     g.init(population, population_size);
 }
 
-void rapid::test_Genetic_main()
+int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 {
     generate();
     std::function<double(double)> f = std::bind(&fitness, std::placeholders::_1);
@@ -124,4 +128,5 @@ void rapid::test_Genetic_main()
     {
         std::cout << g[i] << " ----> " << f(g[i]) << std::endl;
     }
+    return 0;
 }

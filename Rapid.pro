@@ -25,6 +25,7 @@ SOURCES += \
     Test/TestAVLTree.cpp \
     Test/TestBinaryTree.cpp \
     Test/TestDoubleLinkedList.cpp \
+    Test/TestGenetic.cpp \
     Test/TestMap.cpp \
     Test/TestMatrix.cpp \
     Test/TestMemory.cpp \
@@ -38,6 +39,7 @@ SOURCES += \
         main.cpp
 
 HEADERS += \
+    Algorithm/BPNeuralNetwork.h \
     Algorithm/Genetic.h \
     Algorithm/Sorter.h \
     Core/AVLTree.h \
@@ -68,6 +70,7 @@ HEADERS += \
     Test/TestAVLTree.h \
     Test/TestBinaryTree.h \
     Test/TestDoubleLinkedList.h \
+    Test/TestGenetic.h \
     Test/TestMap.h \
     Test/TestMatrix.h \
     Test/TestMemory.h \
