@@ -2,9 +2,6 @@
 using namespace rapid;
 #include <iostream>
 
-template<typename T>
-using ini = std::initializer_list<T>;
-
 int main()
 {
     std::initializer_list<
@@ -21,11 +18,12 @@ int main()
         {0.1},
         {0.05},
     };
-    std::vector<int> test(100);
-    std::vector<int> emp;
-    std::cout << test.capacity() << std::endl;
-    test.swap(emp);
-
-    std::cout << test.capacity() << std::endl;
+    BPNeuralNetwork n;
+    n.set_input_weight({
+                           {0.2, -0.7},
+                           {0.8, -0.5}
+                       });
+    n.train({0.3, -0.7}, {0.1});
+    n.train({0.4, -0.5}, {0.05});
     return 0;
 }

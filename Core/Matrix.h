@@ -18,7 +18,7 @@ namespace rapid
 template<typename _Tp>
 class Matrix
 {
-private:
+public:
     using ValueType = _Tp;
     using Reference = ValueType&;
     using ConstReference = const ValueType &;
