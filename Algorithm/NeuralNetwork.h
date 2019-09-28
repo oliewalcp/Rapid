@@ -285,7 +285,7 @@ struct alignas(8) BPNeuralNetwork
     }
 
     template<typename T>
-    void _F_realloc(const T &arg, SizeType s = 0)
+    void _F_realloc(T &arg, SizeType s = 0)
     {
         if
     #if __cplusplus >= 201703L
