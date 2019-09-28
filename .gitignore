@@ -1,6 +1,6 @@
-*.pro
-*.user
-main.cpp
-*.autosave
-*pre1
-*.orig
+*
+!*/
+!.gitignore
+!*.cpp
+!*.h
+!*.c
