@@ -1,6 +1,6 @@
 #include "TreeTool.h"
 
-
+#pragma GCC diagnostic ignored  "-Wwrite-strings"
 #ifdef QT_LIB
 namespace rapid
 {
