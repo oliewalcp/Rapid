@@ -29,6 +29,7 @@ SOURCES += \
     Test/TestMap.cpp \
     Test/TestMatrix.cpp \
     Test/TestMemory.cpp \
+    Test/TestNeuralNetwork.cpp \
     Test/TestRedBlackTree.cpp \
     Test/TestSet.cpp \
     Test/TestSingleLinkedList.cpp \
@@ -74,6 +75,7 @@ HEADERS += \
     Test/TestMap.h \
     Test/TestMatrix.h \
     Test/TestMemory.h \
+    Test/TestNeuralNetwork.h \
     Test/TestRedBlackTree.h \
     Test/TestSet.h \
     Test/TestSingleLinkedList.h \

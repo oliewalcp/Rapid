@@ -140,25 +140,25 @@ struct alignas(8) BPNeuralNetwork
     bool train(_InputIterator __ibegin, _InputIterator __iend, SizeType __is,
                _OutputIterator __obegin, _OutputIterator __oend, SizeType __os)
     {
-        if(_M_weight.size() == 0 || __is != _M_weight[0]->size())
+        if(_M_weight.size() == 0 || __is != input_number())
         {
             return false;
         }
 
-        for(SizeType i = 1; i < _M_weight.capacity(); ++i)
-        {
-            WeightGroup *group = new WeightGroup(__is);
-            for(SizeType j = 0; j < __is; ++j)
-            {
-                group->push_back(new WeightGroupItem(__is));
-            }
-            _M_weight.push_back(group);
-        }
-        _F_realloc(_M_output_weight, __is);
-        for(SizeType i = 0; i < __is; ++i)
-        {
-            _M_output_weight.push_back(new WeightGroupItem(__os));
-        }
+//        for(SizeType i = 1; i < _M_weight.capacity(); ++i)
+//        {
+//            WeightGroup *group = new WeightGroup(__is);
+//            for(SizeType j = 0; j < __is; ++j)
+//            {
+//                group->push_back(new WeightGroupItem(__is));
+//            }
+//            _M_weight.push_back(group);
+//        }
+//        _F_realloc(_M_output_weight, __is);
+//        for(SizeType i = 0; i < __is; ++i)
+//        {
+//            _M_output_weight.push_back(new WeightGroupItem(__os));
+//        }
 
         DataGroup __input, __output;
         _F_realloc(__input, __is);
@@ -292,11 +292,29 @@ struct alignas(8) BPNeuralNetwork
     DataGroup predict(_InputIterator __begin, _InputIterator = _InputIterator()) const
     {
         DataGroup __input(input_number()), __output(output_number());
+        DataGroup __temp(input_number());
+        __input.clear();
         for(SizeType __i = 0; __i < input_number(); ++__i, ++__begin)
         {
             __input.push_back(*__begin);
         }
-        _F_input_to_output(__input, __output);
+        DataGroup *__data[] = {&__input, &__temp};
+        SizeType __i;
+        for(__i = 0; __i < layer_number(); ++__i)
+        {
+            DataGroup &__this = *__data[__i % 2];
+            DataGroup &__next = *__data[(__i + 1) % 2];
+            for(SizeType __j = 0; __j < input_number(); ++__j)
+            {
+                _F_get_weighted_sum(__this, input_number(), __next[__j], __i, __j);
+            }
+        }
+        DataGroup &__this = *__data[__i % 2];
+        for(SizeType __j = 0; __j < output_number(); ++__j)
+        {
+            _F_get_weighted_sum(__this, input_number(),
+                    __output[__j], layer_number(), __j);
+        }
         return __output;
     }
 
@@ -306,6 +324,11 @@ struct alignas(8) BPNeuralNetwork
         _F_realloc(_M_output_weight);
         set_generation_number(0);
     }
+    /* get the weight
+     * param[__layer]:  the .no of layer
+     * param[__item]:  the .no of node
+     * param[__index]:  the .no of weight array
+     */
     WeightType _F_weight(SizeType __layer, SizeType __item, SizeType __index) const
     {
         if(__layer >= layer_number())
@@ -313,6 +336,31 @@ struct alignas(8) BPNeuralNetwork
             return _M_output_weight.at(__item)->at(__index);
         }
         return _M_weight.at(__layer)->at(__item)->at(__index);
+    }
+    /* calculate the weighted sum
+     * param[__in]:  to be calculated
+     * param[__size]:  the size of [__in]
+     * param[__value]:  __out__  calculation results
+     * param[__layer]:  the layer position of the data
+     * param[__item_num]:  the .no of the [__value]
+     */
+    void _F_get_weighted_sum(const DataGroup &__in,
+                             SizeType __size,
+                             DataType &__value, // __out__
+                             SizeType __layer,
+                             SizeType __item_num) const
+    {
+        __value = __Multiple<DataType, DataType, WeightType>(
+                      __in[0],
+                      _F_weight(__layer, __item_num, 0));
+        for(SizeType n = 1; n < __size; ++n)
+        {
+            __value = __Sum<DataType, DataType, DataType>(
+                          __value,
+                          __Multiple<DataType, DataType, WeightType>(
+                              __in[n],
+                              _F_weight(__layer, __item_num, n)));
+        }
     }
 
     void _F_layer_forward(const DataGroup &__in,
@@ -323,17 +371,7 @@ struct alignas(8) BPNeuralNetwork
     {
         for(SizeType j = 0; j < __item_num; ++j)
         {
-            __out[j] = __Multiple<DataType, DataType, WeightType>(
-                            __in[0],
-                            _F_weight(__layer, j, 0));
-            for(SizeType n = 1; n < __data_num; ++n)
-            {
-                __out[j] = __Sum<DataType, DataType, DataType>(
-                                __out[j],
-                                __Multiple<DataType, DataType, WeightType>(
-                                    __in[n],
-                                    _F_weight(__layer, j, n)));
-            }
+            _F_get_weighted_sum(__in, __data_num, __out[j], __layer, j);
             __out[j] = __Activation<DataType, DataType>(__out[j]);
         }
     }
@@ -347,53 +385,43 @@ struct alignas(8) BPNeuralNetwork
         for(SizeType j = 0; j < __item_num; ++j)
         {
             DataType __sigmoid = __out[j];
-            __out[j] = __Multiple<DataType, DataType, WeightType>(
-                            __in[0],
-                            _F_weight(__layer, j, 0));
-            for(SizeType n = 1; n < __data_num; ++n)
-            {
-                __out[j] = __Sum<DataType, DataType, DataType>(
-                                __out[j],
-                                __Multiple<DataType, DataType, WeightType>(
-                                    __in[n],
-                                    _F_weight(__layer, j, n)));
-            }
+            _F_get_weighted_sum(__in, __data_num, __out[j], __layer, j);
             __out[j] = __HResidual<DataType, DataType, DataType>(__out[j], __sigmoid);
         }
     }
 
-    void _F_input_to_output(const DataGroup &__in, DataGroup &__out) const
-    {
-        DataGroup __temp(input_number());
-        _F_input_to_hide(__in, __temp);
-        _F_hide_to_output(__temp, __out);
-    }
-    void _F_input_to_hide(const DataGroup &__in, DataGroup &__out) const
-    {
-        if(__out.capacity() != input_number())
-        {
-            return;
-        }
-        DataGroup __temp(input_number());
-        DataGroup *__data[2] = {&__in, &__temp};
-        SizeType i;
-        for(i = 0; i < layer_number(); ++i)
-        {
-            DataGroup &__this = *__data[i % 2];
-            DataGroup &__next = *__data[(i + 1) % 2];
-            _F_layer_forward(__this, __next, i, input_number(), input_number());
-        }
-        __out.swap(*__data[i % 2]);
-    }
+//    void _F_input_to_output(const DataGroup &__in, DataGroup &__out) const
+//    {
+//        DataGroup __temp(input_number());
+//        _F_input_to_hide(__in, __temp);
+//        _F_hide_to_output(__temp, __out);
+//    }
+//    void _F_input_to_hide(const DataGroup &__in, DataGroup &__out) const
+//    {
+//        if(__out.capacity() != input_number())
+//        {
+//            return;
+//        }
+//        DataGroup __temp(input_number());
+//        DataGroup *__data[2] = {&__in, &__temp};
+//        SizeType i;
+//        for(i = 0; i < layer_number(); ++i)
+//        {
+//            DataGroup &__this = *__data[i % 2];
+//            DataGroup &__next = *__data[(i + 1) % 2];
+//            _F_layer_forward(__this, __next, i, input_number(), input_number());
+//        }
+//        __out.swap(*__data[i % 2]);
+//    }
 
-    void _F_hide_to_output(const DataGroup &__h, DataGroup &__o) const
-    {
-        if(__o.capacity() != output_number())
-        {
-            return;
-        }
-        _F_layer_forward(__h, __o, layer_number(), output_number(), input_number());
-    }
+//    void _F_hide_to_output(const DataGroup &__h, DataGroup &__o) const
+//    {
+//        if(__o.capacity() != output_number())
+//        {
+//            return;
+//        }
+//        _F_layer_forward(__h, __o, layer_number(), output_number(), input_number());
+//    }
 
     void _F_get_activation(const DataGroup &__in,
                         DataGroup &__out,
@@ -496,17 +524,23 @@ struct alignas(8) BPNeuralNetwork
                               l, input_number(), input_number());
         }
     }
-    void _F_train(const DataGroup &__input, DataGroup &__output) const
+    // update weight
+    void _F_update_weight(const DataGroup &__input, DataGroup &__output)
+    {
+
+    }
+    void _F_train(const DataGroup &__input, DataGroup &__output)
     {
         DataGroup __temp(input_number()), __out;
         DataGroup *__hide_layer_sigmoid = new DataGroup[layer_number()];
-        for(SizeType i = 0; _M_generation == 0 || i <_M_generation; ++i)
+        for(SizeType i = 0; _M_generation == 0 || i < _M_generation; ++i)
         {
             _F_calculate_activated_value(__input, __hide_layer_sigmoid, __out);
             bool __meet_end = _F_calculate_error(__output, __out);
             // calculate the residual.
             _F_calculate_residual(__output, __hide_layer_sigmoid, __out);
             // update weight
+
 
             if(__meet_end) break;
         }
