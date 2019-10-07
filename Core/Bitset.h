@@ -18,6 +18,8 @@ struct Bitset
     using byte = unsigned char;
 
     byte _M_data[_S_total_byte];
+
+
 };
 
 }
