@@ -117,6 +117,13 @@ template<typename T>
 constexpr typename RemoveReference<T>::type&& move(T &&arg)
 { return static_cast<typename RemoveReference<T>::type&&>(arg); }
 
+static constexpr unsigned char __EndianValues[2] = {0, 1};
+
+struct IsBigEndian : ReferenceBase<bool, __EndianValues[0] == 0>
+{ };
+struct IsLittleEndian : ReferenceBase<bool, __EndianValues[1] == 0>
+{ };
+
 };
 
 #endif // TYPETRAITS_H

@@ -6,8 +6,16 @@
 namespace rapid
 {
 
+#if __cplusplus > 201703L
+template<size_type _Num>
+concept std_memory = requires { _Num % 2 == 0; }
+#endif
+
 template<size_type _Num,
          size_type _UnitBit = 1>
+#if __cplusplus > 201703L
+    requires std_memory<_UnitBit>
+#endif
 struct Bitset
 {
     static constexpr size_type _S_num = _Num;
@@ -19,7 +27,7 @@ struct Bitset
 
     byte _M_data[_S_total_byte];
 
-
+    void set_value();
 };
 
 }

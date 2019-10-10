@@ -18,7 +18,7 @@ rapid::RGB rapid::RGB::operator*=(double arg)
         }
         else
         {
-            Red() *= arg;
+            Red() = static_cast<unsigned char>(Red() * arg);
         }
         if(static_cast<int>(Green()) * arg > 255)
         {
@@ -26,7 +26,7 @@ rapid::RGB rapid::RGB::operator*=(double arg)
         }
         else
         {
-            Green() *= arg;
+            Green() = static_cast<unsigned char>(Green() * arg);
         }
         if(static_cast<int>(Blue()) * arg > 255)
         {
@@ -34,7 +34,7 @@ rapid::RGB rapid::RGB::operator*=(double arg)
         }
         else
         {
-            Blue() *= arg;
+            Blue() = static_cast<unsigned char>(Blue() * arg);
         }
     }
     return *this;
@@ -43,9 +43,9 @@ rapid::RGB rapid::RGB::operator*=(double arg)
 rapid::RGB rapid::RGB::operator+=(double arg)
 {
     int r = static_cast<int>(Red()), g = static_cast<int>(Green()), b = static_cast<int>(Blue());
-    r += arg;
-    b += arg;
-    g += arg;
+    r += static_cast<int>(arg);
+    b += static_cast<int>(arg);
+    g += static_cast<int>(arg);
     if(r < 0)
     {
         Red() = 0;
@@ -103,19 +103,27 @@ void rapid::BMP::parse(const char *filename)
     std::ifstream file;
     file.open(filename, std::ios::binary);
     if(!file.is_open())
-    { throw CannotParseFileException("CannotParseFileException: cannot open file!"); }
+    {
+        throw CannotParseFileException("CannotParseFileException: cannot open file!");
+    }
     if(_DataContent != nullptr)
-    { delete[] _DataContent; }
+    {
+        delete[] _DataContent;
+    }
     file.seekg(0, std::ios::end);
     long long length = file.tellg();
     if(length < 54)
-    { throw CannotParseFileException("CannotParseFileException: file size is to small!"); }
+    {
+        throw CannotParseFileException("CannotParseFileException: file size is to small!");
+    }
     char *result = new char[static_cast<unsigned long long>(length)];
     file.read(result, length);
     __HeaderBlock = reinterpret_cast<HeaderBlock*>(&result[0]);
     __DescribeInfoBlock = reinterpret_cast<DescribeInfoBlock*>(&result[sizeof(HeaderBlock)]);
     if(__DescribeInfoBlock->DataSize <= 0)
-    { throw CannotParseFileException("CannotParseFileException: there is no data!"); }
+    {
+        throw CannotParseFileException("CannotParseFileException: there is no data!");
+    }
     __ColorTable = reinterpret_cast<RGB*>(&result[sizeof(HeaderBlock) + sizeof(DescribeInfoBlock)]);
     _DataContent = &result[__data_begin_position()];
 }
