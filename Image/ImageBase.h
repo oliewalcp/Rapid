@@ -1,74 +1,27 @@
 #ifndef IMAGEBASE_H
 #define IMAGEBASE_H
 #include "Core/Version.h"
-#include "Core/Memory.h"
 #include "Core/TypeTraits.h"
-#include "Core/Matrix.h"
+#include "Image/rgb.h"
 
 namespace rapid
 {
 
-struct RGB
+template<typename _Tp>
+class Matrix;
+
+enum class ImageType : unsigned char
 {
-private:
-    union {
-        unsigned int Total;
-        struct {
-            unsigned char Blue;
-            unsigned char Green;
-            unsigned char Red;
-            unsigned char Alpha;
-        } Part;
-    } Data;
-public:
-    unsigned char& Red() { return Data.Part.Red; }
-    unsigned char& Green() { return Data.Part.Green; }
-    unsigned char& Blue() { return Data.Part.Blue; }
-    unsigned char& Alpha() { return Data.Part.Alpha; }
-    RGB(unsigned int arg)
-    { Data.Total = arg; }
-    RGB(unsigned char r = 0, unsigned char g = 0, unsigned char b = 0, unsigned char a = 0)
-    {
-        Red() = r;
-        Green() = g;
-        Blue() = b;
-        Alpha() = a;
-    }
-    RGB(const RGB &rgb)
-    { Data.Total = rgb.Data.Total; }
-    RGB(RGB &&rgb)
-    { Data.Total = forward<RGB>(rgb).Data.Total; }
-
-    RGB operator*(double arg)
-    { return RGB(*this) *= arg; }
-    RGB operator+(double arg)
-    { return RGB(*this) += arg; }
-    RGB operator=(const RGB &rgb)
-    {
-        Data.Total = rgb.Data.Total;
-        return *this;
-    }
-    RGB operator=(unsigned int arg)
-    {
-        Data.Total = arg;
-        return *this;
-    }
-    RGB operator*=(double arg);
-    RGB operator+=(double arg);
-    bool operator==(const RGB &rgb)
-    { return Data.Total == rgb.Data.Total; }
-    bool operator==(RGB &&rgb)
-    { return Data.Total == forward<RGB>(rgb).Data.Total; }
-
+    BMP,
+    UNKNOWN
 };
 
 class ImageBaseInterface
 {
 protected:
-    const char *_DataContent = nullptr;
+    char *_M_data_ontent = nullptr;
 public:
     virtual ~ImageBaseInterface();
-    virtual bool check_file_type() = 0;
     virtual void parse(const char *filename) = 0;
     virtual void to_matrix(Matrix<RGB>*) = 0;
     virtual void parse(Matrix<RGB>*) = 0;
@@ -82,7 +35,10 @@ private:
         char FileFlag[2]{'B', 'M'};
         char FileSize[4]{0};
         char Reverse[4]{0};
-        char DataBeginPosition[4]{0, 0, 0, 54};
+        char DataBeginPosition[4];
+
+        HeaderBlock()
+        { *reinterpret_cast<unsigned int *>(DataBeginPosition) = 1074; }
     };
     struct DescribeInfoBlock
     {
@@ -98,15 +54,16 @@ private:
         int ColorUsed = 0;
         int ColorImportant = 0;
     };
-    HeaderBlock *__HeaderBlock = nullptr;
-    RGB *__ColorTable = nullptr;
-    DescribeInfoBlock *__DescribeInfoBlock = nullptr;
+    HeaderBlock *_M_header_block = nullptr;
+    RGB *_M_color_table = nullptr;
+    DescribeInfoBlock *_M_describe_info_block = nullptr;
 
-    int __data_begin_position()
-    { return *reinterpret_cast<int *>(&__HeaderBlock->DataBeginPosition[0]); }
-    int __color_table_length()
-    {
-        return static_cast<int>(static_cast<unsigned long long>(__data_begin_position()) - sizeof(HeaderBlock) - sizeof(DescribeInfoBlock));
+    int _F_data_begin_position() const
+    { return *reinterpret_cast<int *>(&_M_header_block->DataBeginPosition[0]); }
+    int _F_color_table_length() const
+    { return static_cast<int>(
+                    static_cast<unsigned long long>(_F_data_begin_position()) -
+                    sizeof(HeaderBlock) - sizeof(DescribeInfoBlock));
     }
 public:
     BMP(Matrix<RGB> *m)
@@ -115,20 +72,17 @@ public:
     { parse(filename); }
     virtual ~BMP() override;
 
-    int file_size()
-    { return __HeaderBlock == nullptr ? 0 : *reinterpret_cast<int *>(&__HeaderBlock->FileSize[0]); }
-    bool is_bmp()
-    { return __HeaderBlock->FileFlag[0] == 'B' && __HeaderBlock->FileFlag[1] == 'M'; }
-    int width()
-    { return __DescribeInfoBlock == nullptr ? 0 : __DescribeInfoBlock->ImageWidth; }
-    int height()
-    { return __DescribeInfoBlock == nullptr ? 0 : __DescribeInfoBlock->ImageHeight; }
-    short color_bit()
-    { return __DescribeInfoBlock == nullptr ? 0 : __DescribeInfoBlock->ColorBit; }
+    int file_size() const
+    { return _M_header_block == nullptr ? 0 : *reinterpret_cast<int *>(&_M_header_block->FileSize[0]); }
+    bool is_bmp() const
+    { return _M_header_block->FileFlag[0] == 'B' && _M_header_block->FileFlag[1] == 'M'; }
+    int width() const
+    { return _M_describe_info_block == nullptr ? 0 : _M_describe_info_block->ImageWidth; }
+    int height() const
+    { return _M_describe_info_block == nullptr ? 0 : _M_describe_info_block->ImageHeight; }
+    short color_bit() const
+    { return _M_describe_info_block == nullptr ? 0 : _M_describe_info_block->ColorBit; }
     void clear();
-
-    virtual bool check_file_type() override
-    { return is_bmp(); }
 
     virtual void parse(const char *filename) override;
     virtual void parse(Matrix<RGB> *m) override;

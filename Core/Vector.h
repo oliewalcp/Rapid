@@ -25,6 +25,8 @@ public:
     using ConstReference = const ValueType &;
     using RvalueReference = ValueType&&;
     using SizeType = size_type;
+
+    using value_type = ValueType;// std
 private:
     SizeType _M_size = 0;
     SizeType _M_capacity = 1;

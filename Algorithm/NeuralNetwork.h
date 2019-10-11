@@ -58,31 +58,31 @@ template<typename _ResultType,
 std::function<_ResultType(_Args...)> __Error;
 template<typename _ResultType,
          typename ... _Args>
-std::function<_ResultType(_Args...)> __OResidual;
+std::function<_ResultType(_Args...)> __OResidual; // output layer residual function
 template<typename _ResultType,
          typename ... _Args>
-std::function<_ResultType(_Args...)> __HResidual;
+std::function<_ResultType(_Args...)> __HResidual; // hide layer residual function
 
 template<typename _DataType = double,
          typename _WeightType = double>
 struct alignas(8) BPNeuralNetwork
 {
-    static constexpr ErrorType _ERROR_BOUND_ = 0.0001;
     template<typename T>
-    using MatrixType = std::vector<T>;
+    using VectorType = std::vector<T>;
 
     using DataType = _DataType;
-    using DataGroup = MatrixType<DataType>;
+    using DataGroup = std::vector<DataType>;
     using SizeType = unsigned long long;
     using WeightType = _WeightType;
-    using WeightGroupItem = MatrixType<WeightType>;
-    using WeightGroup = MatrixType<WeightGroupItem*>;
-    using WeightData = MatrixType<WeightGroup*>;
+    using WeightGroupItem = std::vector<WeightType>;
+    using WeightGroup = std::vector<WeightGroupItem*>;
+    using WeightData = std::vector<WeightGroup*>;
 
     WeightData _M_weight;
     WeightGroup _M_output_weight;
-    SizeType _M_generation = 0;
+    SizeType _M_generation = 1;
     double _M_learn_efficency = 0.6;
+    ErrorType _M_error_bound = 0.001;
 
     BPNeuralNetwork()
     {
@@ -140,7 +140,7 @@ struct alignas(8) BPNeuralNetwork
     bool train(_InputIterator __ibegin, _InputIterator __iend, SizeType __is,
                _OutputIterator __obegin, _OutputIterator __oend, SizeType __os)
     {
-        if(_M_weight.size() == 0 || __is != input_number())
+        if(_M_weight.size() == 0 || __is != hide_node_size())
         {
             return false;
         }
@@ -225,7 +225,15 @@ struct alignas(8) BPNeuralNetwork
     void set_hide_layer_number(SizeType __s)
     {
         if(__s == 0) return;
-        _M_weight.resize(__s);
+        if(_M_weight.size() < __s)
+        {
+            _M_weight.resize(__s);
+        }
+        else
+        {
+            WeightData temp(_M_weight.begin(), _M_weight.begin() + __s);
+            _M_weight.swap(temp);
+        }
     }
     // param[__s]: 0--auto
     void set_generation_number(SizeType __s)
@@ -243,17 +251,18 @@ struct alignas(8) BPNeuralNetwork
                     _InputIterator __end,
                     SizeType __s)
     {
-        if(_M_weight.capacity() <= __layer)
-        {
-            WeightData __weight(_M_weight);
-            __weight.resize(layer_number() + 1);
-            _M_weight.swap(__weight);
-        }
+        SizeType __last = _M_weight.size();
         if(_M_weight.size() <= __layer)
         {
-            WeightGroup *__group = new WeightGroup(__s);
-            __group->clear();
-            _M_weight.push_back(__group);
+            _M_weight.resize(__layer + 1);
+        }
+        while(__last <= __layer)
+        {
+            _M_weight[__last++] = new WeightGroup(__s);
+        }
+        if(_M_weight[__layer] == nullptr)
+        {
+            _M_weight[__layer] = new WeightGroup(__s);
         }
         _F_set_weight(*(_M_weight[__layer]), __begin, __end, __s);
     }
@@ -263,11 +272,12 @@ struct alignas(8) BPNeuralNetwork
     void set_output_weight(_InputIterator __begin, _InputIterator __end, SizeType __s)
     { _F_set_weight(_M_output_weight, __begin, __end, __s); }
 
-    SizeType layer_number() const
+    // return size of the layer [hide]
+    SizeType layer_size() const
     { return _M_weight.capacity(); }
-    SizeType input_number() const
+    SizeType hide_node_size() const
     { return _M_weight.at(0)->at(0)->capacity(); }
-    SizeType output_number() const
+    SizeType output_size() const
     { return _M_output_weight.at(0)->capacity(); }
 
     DataGroup predict(std::initializer_list<DataType> __d) const
@@ -275,45 +285,45 @@ struct alignas(8) BPNeuralNetwork
     template<typename _InputIterator>
     DataGroup predict(_InputIterator __begin, _InputIterator = _InputIterator()) const
     {
-        DataGroup __input(input_number()), __output(output_number());
-        for(SizeType __i = 0; __i < input_number(); ++__i, ++__begin)
+        DataGroup __input(hide_node_size()), __output(output_size());
+        for(SizeType __i = 0; __i < hide_node_size(); ++__i, ++__begin)
         {
             __input[__i] = *__begin;
         }
         _F_input_to_output(__input, __output);
         return __output;
     }
-    void _F_input_to_output(const DataGroup &__in, DataGroup &__out) const
+    void _F_input_to_output(DataGroup &__in, DataGroup &__out) const
     {
-        DataGroup __temp(input_number());
+        DataGroup __temp(hide_node_size());
         _F_input_to_hide(__in, __temp);
         _F_hide_to_output(__temp, __out);
     }
-    void _F_input_to_hide(const DataGroup &__in, DataGroup &__out) const
+    void _F_input_to_hide(DataGroup &__in, DataGroup &__out) const
     {
-        if(__out.capacity() != input_number())
+        if(__out.capacity() != hide_node_size())
         {
             return;
         }
-        DataGroup __temp(input_number());
+        DataGroup __temp(hide_node_size());
         DataGroup *__data[2] = {&__in, &__temp};
         SizeType i;
-        for(i = 0; i < layer_number(); ++i)
+        for(i = 0; i < layer_size(); ++i)
         {
             DataGroup &__this = *__data[i % 2];
             DataGroup &__next = *__data[(i + 1) % 2];
-            _F_layer_forward(__this, __next, i, input_number(), input_number());
+            _F_layer_forward(__this, hide_node_size(), __next, i, hide_node_size());
         }
         __out.swap(*__data[i % 2]);
     }
 
     void _F_hide_to_output(const DataGroup &__h, DataGroup &__o) const
     {
-        if(__o.capacity() != output_number())
+        if(__o.capacity() != output_size())
         {
             return;
         }
-        _F_layer_forward(__h, __o, layer_number(), output_number(), input_number());
+        _F_layer_forward(__h, hide_node_size(), __o, layer_size(), output_size());
     }
 
     void _F_clear()
@@ -329,7 +339,7 @@ struct alignas(8) BPNeuralNetwork
      */
     WeightType _F_weight(SizeType __layer, SizeType __item, SizeType __index) const
     {
-        if(__layer >= layer_number())
+        if(__layer >= layer_size())
         {
             return _M_output_weight.at(__item)->at(__index);
         }
@@ -337,65 +347,90 @@ struct alignas(8) BPNeuralNetwork
     }
     /* calculate the weighted sum
      * param[__in]:  to be calculated
-     * param[__size]:  the size of [__in]
+     * param[__in_size]:  the size of [__in]
      * param[__value]:  __out__  calculation results
      * param[__layer]:  the layer position of the data
-     * param[__item_num]:  the .no of the [__value]
+     * param[__item_index]:  the .no of the [__value]
      */
-    void _F_get_weighted_sum(const DataGroup &__in,
-                             SizeType __size,
-                             DataType &__value, // __out__
-                             SizeType __layer,
-                             SizeType __item_num) const
+    void _F_get_weighted_sum_forward(const DataGroup &__in,
+                                     SizeType __in_size,
+                                     DataType &__value, // __out__
+                                     SizeType __layer,
+                                     SizeType __item_index) const
     {
         __value = __Multiple<DataType, DataType, WeightType>(
                       __in[0],
-                      _F_weight(__layer, __item_num, 0));
-        for(SizeType n = 1; n < __size; ++n)
+                      _F_weight(__layer, 0, __item_index));
+        for(SizeType n = 1; n < __in_size; ++n)
         {
             __value = __Sum<DataType, DataType, DataType>(
                           __value,
                           __Multiple<DataType, DataType, WeightType>(
                               __in[n],
-                              _F_weight(__layer, __item_num, n)));
+                              _F_weight(__layer, n, __item_index)));
         }
     }
-
+    /* calculate the weighted sum
+     * param[__in]:  to be calculated
+     * param[__in_size]:  the size of [__in]
+     * param[__value]:  __out__  calculation results
+     * param[__layer]:  the layer position of the data
+     * param[__item_index]:  the .no of the [__value]
+     */
+    void _F_get_weighted_sum_backward(const DataGroup &__in,
+                                      SizeType __in_size,
+                                      DataType &__value, // __out__
+                                      SizeType __layer,
+                                      SizeType __item_index) const
+    {
+        __value = __Multiple<DataType, DataType, WeightType>(
+                      __in[0],
+                      _F_weight(__layer, __item_index, 0));
+        for(SizeType n = 1; n < __in_size; ++n)
+        {
+            __value = __Sum<DataType, DataType, DataType>(
+                          __value,
+                          __Multiple<DataType, DataType, WeightType>(
+                              __in[n],
+                              _F_weight(__layer, __item_index, n)));
+        }
+    }
     void _F_layer_forward(const DataGroup &__in,
+                          SizeType __in_size,
                           DataGroup &__out,
                           SizeType __layer,
-                          SizeType __item_num,
-                          SizeType __data_num) const
+                          SizeType __out_item_size) const
     {
-        for(SizeType j = 0; j < __item_num; ++j)
+        for(SizeType j = 0; j < __out_item_size; ++j)
         {
-            _F_get_weighted_sum(__in, __data_num, __out[j], __layer, j);
+            _F_get_weighted_sum_forward(__in, __in_size, __out[j], __layer, j);
             __out[j] = __Activation<DataType, DataType>(__out[j]);
         }
     }
 
     void _F_layer_backward(const DataGroup &__in,
+                           SizeType __in_size,
                            DataGroup &__out,
                            SizeType __layer,
-                           SizeType __item_num,
-                           SizeType __data_num) const
+                           SizeType __item_num) const
     {
         for(SizeType j = 0; j < __item_num; ++j)
         {
             DataType __sigmoid = __out[j];
-            _F_get_weighted_sum(__in, __data_num, __out[j], __layer, j);
+            _F_get_weighted_sum_backward(__in, __in_size, __out[j], __layer, j);
             __out[j] = __HResidual<DataType, DataType, DataType>(__out[j], __sigmoid);
         }
     }
 
     void _F_get_activation(const DataGroup &__in,
-                        DataGroup &__out,
-                        SizeType __layer,
-                        SizeType __item_num,
-                        SizeType __data_num) const
+                           SizeType __in_size,
+                           DataGroup &__out,
+                           SizeType __layer,
+                           SizeType __out_item_size) const
     {
-        _F_realloc(__out, __item_num);
-        _F_layer_forward(__in, __out, __layer, __item_num, __data_num);
+        _F_realloc(__out, __out_item_size);
+        __out.resize(__out_item_size);
+        _F_layer_forward(__in, __in_size, __out, __layer, __out_item_size);
     }
 
     template<typename _InputIterator>
@@ -407,65 +442,96 @@ struct alignas(8) BPNeuralNetwork
         _F_realloc(__c, __s);
         for(auto it1 = __begin; it1 != __end; ++it1)
         {
-            WeightGroupItem *group = new WeightGroupItem(__s);
-            group->clear();
+            WeightGroupItem group;
             for(auto it2 = (*it1).begin(); it2 != (*it1).end(); ++it2)
             {
-                group->push_back(*it2);
+                group.push_back(*it2);
             }
-            __c.push_back(group);
+            __c.push_back(new WeightGroupItem(group.begin(), group.end()));
         }
     }
 
     template<typename T>
-    void _F_realloc(T &arg, SizeType s = 0) const
+    void _F_clear(T &__c, SizeType __s = 0) const
+    {
+        T empty(__s);
+        __c.swap(empty);
+        __c.clear();
+    }
+    void _F_realloc_weight_group(WeightGroup &__c, SizeType __s = 0) const
+    {
+        for(SizeType i = 0; i < __c.size(); ++i)
+        {
+            WeightGroupItem *__item = __c[i];
+            if(__item != nullptr)
+            {
+                _F_realloc(*__item);
+            }
+            delete __item;
+        }
+        _F_clear(__c, __s);
+    }
+    void _F_realloc_weight_data(WeightData &__c, SizeType __s = 0) const
+    {
+        for(SizeType i = 0; i < __c.size(); ++i)
+        {
+            WeightGroup *__group = __c[i];
+            if(__group != nullptr)
+            {
+                _F_realloc(*__group);
+            }
+            delete __group;
+        }
+        _F_clear(__c, __s);
+    }
+    template<typename T>
+    void _F_realloc(T &__c, SizeType __s = 0) const
     {
         if
-    #if __cplusplus >= 201703L
-                constexpr
-    #endif
-                (std::is_pointer<typename T::value_type>::value)
+        #if __cplusplus >= 201703L
+            constexpr
+        #endif
+            (std::is_same<T, WeightData>::value)
         {
-            for(auto __i : arg)
-            {
-                if
-            #if __cplusplus >= 201703L
-                        constexpr
-            #endif
-                        (std::is_pointer<typename T::value_type>::value)
-                {
-                    _F_realloc(*__i);
-                }
-                delete __i;
-            }
+            _F_realloc_weight_data(__c, __s);
         }
-        T empty(s);
-        arg.swap(empty);
-        arg.clear();
+        else if
+        #if __cplusplus >= 201703L
+            constexpr
+        #endif
+            (std::is_same<T, WeightGroup>::value)
+        {
+            _F_realloc_weight_group(__c, __s);
+        }
+        else
+        {
+            _F_clear(__c, __s);
+        }
     }
+
     // get the activated value of each layer
     void _F_calculate_activated_value(const DataGroup &__input,
                                       DataGroup *__hide_layer_sigmoid,
                                       DataGroup &__out) const
     {
-        _F_get_activation(__input, __hide_layer_sigmoid[0],
-                          0, input_number(), input_number());
-        for(SizeType l = 1; l < layer_number(); ++l)
+        _F_get_activation(__input, hide_node_size(),
+                          __hide_layer_sigmoid[0], 0, hide_node_size());
+        for(SizeType l = 1; l < layer_size(); ++l)
         {
-            _F_get_activation(__hide_layer_sigmoid[l - 1], __hide_layer_sigmoid[l],
-                              l, input_number(), input_number());
+            _F_get_activation(__hide_layer_sigmoid[l - 1], hide_node_size(),
+                              __hide_layer_sigmoid[l], l, hide_node_size());
         }
-        _F_get_activation(__hide_layer_sigmoid[layer_number() - 1], __out,
-                          layer_number(), output_number(), input_number());
+        _F_get_activation(__hide_layer_sigmoid[layer_size() - 1], hide_node_size(),
+                          __out, layer_size(), output_size());
     }
     // calculate the error.
     bool _F_calculate_error(const DataGroup &__output, const DataGroup &__out) const
     {
-        if(_M_generation == 0) return false;
-        for(SizeType n = 0; n < output_number(); ++n)
+        if(_M_generation > 0) return false;
+        for(SizeType n = 0; n < output_size(); ++n)
         {
             ErrorType __e = __Error<DataType, DataType, DataType>(__output[n], __out[n]);
-            if(__e > _ERROR_BOUND_)
+            if(__e > _M_error_bound)
             {
                 return false;
             }
@@ -477,22 +543,25 @@ struct alignas(8) BPNeuralNetwork
                                DataGroup *__hide_layer_sigmoid,
                                DataGroup &__out) const
     {
-        for(SizeType j = 0; j < output_number(); ++j)
+        for(SizeType j = 0; j < output_size(); ++j)
         {
             __out[j] = __OResidual<DataType, DataType, DataType>(__out[j], __output[j]);
         }
-        _F_layer_backward(__out, __hide_layer_sigmoid[layer_number() - 1],
-                          layer_number(), input_number(), output_number());
-        for(SizeType l = layer_number() - 1; l > 0; --l)
+        // output -> hide
+        _F_layer_backward(__out, output_size(),
+                          __hide_layer_sigmoid[layer_size() - 1],
+                          layer_size(), hide_node_size());
+        // hide -> hide
+        for(SizeType l = layer_size() - 1; l > 0; --l)
         {
-            _F_layer_backward(__hide_layer_sigmoid[l], __hide_layer_sigmoid[l - 1],
-                              l, input_number(), input_number());
+            _F_layer_backward(__hide_layer_sigmoid[l], hide_node_size(),
+                              __hide_layer_sigmoid[l - 1], l, hide_node_size());
         }
     }
 
     WeightType _F_amplitude(const DataType &__input1,
-                                const DataType &__input2,
-                                const double __learn_eff) const
+                            const DataType &__input2,
+                            const double __learn_eff) const
     { return __input1 * __input2 * __learn_eff; }
 
     WeightGroup _F_get_amplitude(const DataGroup &__input1,
@@ -550,30 +619,30 @@ struct alignas(8) BPNeuralNetwork
                           const DataGroup &__output_error)
     {
         // input -> hide
-        _F_update_weight(__input, input_number(),
-                         __hide_layer_error[0], input_number(),
-                         *_M_weight[0], input_number());
+        _F_update_weight(__input, hide_node_size(),
+                         __hide_layer_error[0], hide_node_size(),
+                         *_M_weight[0], hide_node_size());
         // hide -> hide
-        for(SizeType i = 0; i < layer_number() - 1; ++i)
+        for(SizeType i = 0; i < layer_size() - 1; ++i)
         {
-            _F_update_weight(__hide_layer_sigmoid[i], input_number(),
-                             __hide_layer_error[i + 1], input_number(),
-                             *_M_weight[i + 1], input_number());
+            _F_update_weight(__hide_layer_sigmoid[i], hide_node_size(),
+                             __hide_layer_error[i + 1], hide_node_size(),
+                             *_M_weight[i + 1], hide_node_size());
         }
         // hide -> output
-        _F_update_weight(__hide_layer_sigmoid[layer_number() - 1], input_number(),
-                         __output_error, output_number(),
-                         _M_output_weight, output_number());
+        _F_update_weight(__hide_layer_sigmoid[layer_size() - 1], hide_node_size(),
+                         __output_error, output_size(),
+                         _M_output_weight, output_size());
     }
     void _F_train(const DataGroup &__input, const DataGroup &__output)
     {
-        DataGroup __temp(input_number()), __out;
-        DataGroup *__hide_layer_sigmoid = new DataGroup[layer_number()];
-        DataGroup *__hide_layer_error = new DataGroup[layer_number()];
+        DataGroup __temp(hide_node_size()), __out;
+        DataGroup *__hide_layer_sigmoid = new DataGroup[layer_size()];
+        DataGroup *__hide_layer_error = new DataGroup[layer_size()];
         for(SizeType i = 0; _M_generation == 0 || i < _M_generation; ++i)
         {
             _F_calculate_activated_value(__input, __hide_layer_sigmoid, __out);
-            for(SizeType n = 0; n < layer_number(); ++n)
+            for(SizeType n = 0; n < layer_size(); ++n)
             {
                 __hide_layer_error[n] = __hide_layer_sigmoid[n];
             }
@@ -586,7 +655,7 @@ struct alignas(8) BPNeuralNetwork
 
             if(__meet_end) break;
         }
-        for(SizeType i = 0; i < layer_number(); ++i)
+        for(SizeType i = 0; i < layer_size(); ++i)
         {
             _F_realloc(__hide_layer_sigmoid[i]);
             _F_realloc(__hide_layer_error[i]);
