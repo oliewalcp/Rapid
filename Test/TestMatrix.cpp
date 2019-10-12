@@ -36,7 +36,7 @@ void rapid::test_Matrix_main()
     Matrix<int> m3(m1);
     try
     {
-        [[maybe_unused]] Matrix<int> *m4 = Matrix<int>::multiply(m2, m3);
+        [[maybe_unused]] Matrix<int> m4 = Matrix<int>::multiply(m2, m3);
     }
     catch(Exception &e)
     {

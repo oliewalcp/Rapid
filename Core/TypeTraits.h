@@ -117,11 +117,9 @@ template<typename T>
 constexpr typename RemoveReference<T>::type&& move(T &&arg)
 { return static_cast<typename RemoveReference<T>::type&&>(arg); }
 
-static constexpr unsigned char __EndianValues[2] = {0, 1};
-
-struct IsBigEndian : ReferenceBase<bool, __EndianValues[0] == 0>
+struct IsBigEndian : ReferenceBase<bool, /*static_cast<unsigned char>(0x0001) == 1*/true>
 { };
-struct IsLittleEndian : ReferenceBase<bool, __EndianValues[1] == 0>
+struct IsLittleEndian : ReferenceBase<bool, /*static_cast<unsigned char>(0x0001) == 0*/false>
 { };
 
 };

@@ -7,6 +7,9 @@
 namespace rapid
 {
 
+extern inline void adjust_memory_order4(void *begin);
+extern inline void adjust_memory_order2(void *begin);
+
 template<typename _Tp>
 class Matrix;
 
@@ -25,8 +28,8 @@ protected:
 public:
     virtual ~ImageBaseInterface();
     virtual void parse(const char *filename) = 0;
-    virtual void to_matrix(Matrix<RGB>*) = 0;
-    virtual void parse(Matrix<RGB>*) = 0;
+    virtual Matrix<RGB> to_matrix() = 0;
+    virtual void parse(const Matrix<RGB>&) = 0;
     virtual void write(const char *filename) = 0;
 };
 
@@ -61,9 +64,7 @@ private:
     RGB *_M_color_table = nullptr;
     DescribeInfoBlock *_M_describe_info_block = nullptr;
 
-    inline void _F_adjust_memory_order4(char *begin);
-    inline void _F_adjust_memory_order2(char *begin);
-    inline void _F_adjust_memory_order();
+    void _F_adjust_memory_order();
     int _F_data_begin_position() const
     { return *reinterpret_cast<int *>(&_M_header_block->DataBeginPosition[0]); }
     int _F_color_table_length() const
@@ -71,8 +72,13 @@ private:
                     static_cast<unsigned long long>(_F_data_begin_position()) -
                     sizeof(HeaderBlock) - sizeof(DescribeInfoBlock));
     }
+
+    void _F_write_matrix(Matrix<RGB> &m, char *visit,
+                         unsigned char pixel_bype, int row, int column);
+    char* _F_next_pixel(char *visit, int pixel_byte, int column);
 public:
-    BMP(Matrix<RGB> *m)
+
+    BMP(const Matrix<RGB> &m)
     { parse(m); }
     BMP(const char *filename = nullptr)
     { parse(filename); }
@@ -81,18 +87,20 @@ public:
     int file_size() const
     { return _M_header_block == nullptr ? 0 : *reinterpret_cast<int *>(&_M_header_block->FileSize[0]); }
     bool is_bmp() const
-    { return _M_header_block->FileFlag[0] == 'B' && _M_header_block->FileFlag[1] == 'M'; }
+    { return _M_header_block == nullptr ? false :
+                                          _M_header_block->FileFlag[0] == 'B' &&
+                                          _M_header_block->FileFlag[1] == 'M'; }
     int width() const
     { return _M_describe_info_block == nullptr ? 0 : _M_describe_info_block->ImageWidth; }
     int height() const
-    { return _M_describe_info_block == nullptr ? 0 : _M_describe_info_block->ImageHeight; }
+    { return _M_describe_info_block == nullptr ? 0 : (_M_describe_info_block->ImageHeight & 0x7FFFFFFF); }
     short color_bit() const
     { return _M_describe_info_block == nullptr ? 0 : _M_describe_info_block->ColorBit; }
     void clear();
 
     virtual void parse(const char *filename) override;
-    virtual void parse(Matrix<RGB> *m) override;
-    virtual void to_matrix(Matrix<RGB> *m) override;
+    virtual void parse(const Matrix<RGB> &m) override;
+    virtual Matrix<RGB> to_matrix() override;
     virtual void write(const char *filename) override;
 };
 
