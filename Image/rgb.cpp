@@ -31,24 +31,24 @@ rapid::RGB rapid::RGB::operator*=(double arg)
 {
     if(arg < 0)
     {
-        Red() = Green() = Blue() = 0;
+        Red = Green = Blue = 0;
     }
     else
     {
-        operator_rgb(Red(), arg);
-        operator_rgb(Green(), arg);
-        operator_rgb(Blue(), arg);
+        operator_rgb(Red, arg);
+        operator_rgb(Green, arg);
+        operator_rgb(Blue, arg);
     }
     return *this;
 }
 
 rapid::RGB rapid::RGB::operator+=(double arg)
 {
-    int r = static_cast<int>(Red()) + static_cast<int>(arg);
-    int g = static_cast<int>(Green()) + static_cast<int>(arg);
-    int b = static_cast<int>(Blue()) + static_cast<int>(arg);
-    limit_rgb(Red(), r);
-    limit_rgb(Green(), g);
-    limit_rgb(Blue(), b);
+    int r = static_cast<int>(Red) + static_cast<int>(arg);
+    int g = static_cast<int>(Green) + static_cast<int>(arg);
+    int b = static_cast<int>(Blue) + static_cast<int>(arg);
+    limit_rgb(Red, r);
+    limit_rgb(Green, g);
+    limit_rgb(Blue, b);
     return *this;
 }

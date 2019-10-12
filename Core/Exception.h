@@ -27,6 +27,7 @@ public:
 RegistException(IndexOutOfArrayException);
 RegistException(SizeDoesNotMatchException);
 RegistException(CannotParseFileException);
+RegistException(CannotWriteFileException);
 
 };
 

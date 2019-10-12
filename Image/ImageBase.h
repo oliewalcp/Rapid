@@ -1,14 +1,16 @@
 #ifndef IMAGEBASE_H
 #define IMAGEBASE_H
+
 #include "Core/Version.h"
 #include "Core/TypeTraits.h"
-#include "Image/rgb.h"
 
 namespace rapid
 {
 
 template<typename _Tp>
 class Matrix;
+
+struct RGB;
 
 enum class ImageType : unsigned char
 {
@@ -19,12 +21,13 @@ enum class ImageType : unsigned char
 class ImageBaseInterface
 {
 protected:
-    char *_M_data_ontent = nullptr;
+    const char *_M_data_content = nullptr;
 public:
     virtual ~ImageBaseInterface();
     virtual void parse(const char *filename) = 0;
     virtual void to_matrix(Matrix<RGB>*) = 0;
     virtual void parse(Matrix<RGB>*) = 0;
+    virtual void write(const char *filename) = 0;
 };
 
 class BMP : public ImageBaseInterface
@@ -38,7 +41,7 @@ private:
         char DataBeginPosition[4];
 
         HeaderBlock()
-        { *reinterpret_cast<unsigned int *>(DataBeginPosition) = 1074; }
+        { *reinterpret_cast<unsigned int *>(DataBeginPosition) = 54; }
     };
     struct DescribeInfoBlock
     {
@@ -58,6 +61,9 @@ private:
     RGB *_M_color_table = nullptr;
     DescribeInfoBlock *_M_describe_info_block = nullptr;
 
+    inline void _F_adjust_memory_order4(char *begin);
+    inline void _F_adjust_memory_order2(char *begin);
+    inline void _F_adjust_memory_order();
     int _F_data_begin_position() const
     { return *reinterpret_cast<int *>(&_M_header_block->DataBeginPosition[0]); }
     int _F_color_table_length() const
@@ -87,6 +93,7 @@ public:
     virtual void parse(const char *filename) override;
     virtual void parse(Matrix<RGB> *m) override;
     virtual void to_matrix(Matrix<RGB> *m) override;
+    virtual void write(const char *filename) override;
 };
 
 }
