@@ -19,10 +19,10 @@ struct RGB final
         unsigned char b = 0, unsigned char a = 255)
         : Blue(b), Green(g), Red(r), Alpha(a)
     { }
-    RGB(const RGB &rgb)
-    { this->operator=(rgb); }
-    RGB(RGB &&rgb)
-    { this->operator=(forward<RGB>(rgb)); }
+    RGB(const RGB &rgb) : Blue(rgb.Blue), Green(rgb.Green), Red(rgb.Red), Alpha(rgb.Alpha)
+    { }
+    RGB(RGB &&rgb) : Blue(rgb.Blue), Green(rgb.Green), Red(rgb.Red), Alpha(rgb.Alpha)
+    { }
 
     RGB operator*(double arg) const
     { return RGB(*this) *= arg; }
@@ -31,7 +31,7 @@ struct RGB final
     RGB operator=(const RGB &rgb)
     {
         *reinterpret_cast<unsigned int*>(this) = *reinterpret_cast<const unsigned int*>(&rgb);
-        return *this;
+        return rgb;
     }
     RGB operator=(unsigned int arg)
     {

@@ -191,8 +191,9 @@ void rapid::BMP::parse(const Matrix<RGB> &m)
 void rapid::BMP::_F_write_matrix(Matrix<RGB> &m, char *visit, unsigned char pixel_byte,
                                  int row, int column)
 {
+    unsigned char temp = static_cast<unsigned char>(8 / color_bit());
     RGB rgb = get_RGB(visit, static_cast<unsigned char>(pixel_byte),
-                      static_cast<unsigned char>(column % (8 / color_bit())),
+                      static_cast<unsigned char>(temp == 0 ? 0 : (column % temp)),
                       static_cast<unsigned char>(color_bit()));
     if(_M_describe_info_block->ImageHeight > 0)
     {

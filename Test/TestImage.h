@@ -4,7 +4,7 @@
 namespace rapid
 {
 
-void test_Image_main();
+void test_BMP_main();
 
 }
 
