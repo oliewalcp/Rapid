@@ -63,7 +63,7 @@ public:
         bool operator==(const iterator& arg) const
         { return _M_current > arg._M_current; }
         bool operator!=(const iterator& arg) const
-        { return _M_current != arg._M_current; }
+        { return _M_current <= arg._M_current; }
     };
     class reverse_iterator
     {
@@ -105,11 +105,12 @@ public:
         { return &_M_current; }
 
         bool operator==(const reverse_iterator& arg) const
-        { return _M_current > arg._M_current; }
+        { return _M_current < arg._M_current; }
         bool operator!=(const reverse_iterator& arg) const
-        { return _M_current != arg._M_current; }
+        { return _M_current >= arg._M_current; }
     };
 
+    Range() : _M_start(0), _M_end(0) { }
     Range(RvalueReference s, RvalueReference e)
         : _M_start(forward<ValueType>(s)), _M_end(forward<ValueType>(e)) { }
     Range(ConstReference s, ConstReference e) : _M_start(s), _M_end(e) { }
@@ -133,6 +134,31 @@ public:
     { return reverse_iterator(_M_start); }
 
 };
+
+Range<int> operator""_i(const char *c, size_type n)
+{
+    int start = 0, end = 0;
+    bool is_start = true;
+    const char *e = c + n;
+    while(c != e)
+    {
+        if(*c != ' ')
+        {
+            is_start = false;
+        }
+        else if(is_start)
+        {
+            start = start * 10 + *c - 48;
+        }
+        else
+        {
+            end = end * 10 + *c - 48;
+        }
+        c++;
+    }
+    Range<int> r(start, end);
+    return r;
+}
 
 };
 

@@ -30,7 +30,10 @@ struct RGB final
     { return RGB(*this) += arg; }
     RGB operator=(const RGB &rgb)
     {
-        *reinterpret_cast<unsigned int*>(this) = *reinterpret_cast<const unsigned int*>(&rgb);
+        Blue = rgb.Blue;
+        Green = rgb.Green;
+        Red = rgb.Red;
+        Alpha = rgb.Alpha;
         return rgb;
     }
     RGB operator=(unsigned int arg)
@@ -58,6 +61,8 @@ struct RGB_16 final
         Green = static_cast<unsigned short>((low >> 5) & ((high & 0b00000111) << 3));
         Red = static_cast<unsigned short>(high >> 3);
     }
+    RGB_16(const RGB &rgb) : Blue(rgb.Blue), Green(rgb.Green), Red(rgb.Red)
+    { }
 
     RGB to_rgb() const
     { return RGB(Blue, Green, Red); }
@@ -80,17 +85,7 @@ struct RGB_24 final
     { return RGB(Blue, Green, Red); }
 };
 
-template<unsigned int>
-struct ColorType
-{ typedef RGB type; };
-
-template<>
-struct ColorType<1>
-{ typedef unsigned char type; };
-
-template<>
-struct ColorType<2>
-{ typedef unsigned short type; };
+RGB operator""_rgb(const char *str, unsigned long long size);
 
 }
 

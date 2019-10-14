@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 
-static std::string path("C:\\Users\\super\\Desktop\\");
+static std::string path("C:\\Users\\Administrator\\Desktop\\");
 static std::string file_name("test.bmp");
 
 void rapid::test_BMP_main()

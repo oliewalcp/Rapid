@@ -52,3 +52,21 @@ rapid::RGB rapid::RGB::operator+=(double arg)
     limit_rgb(Blue, b);
     return *this;
 }
+
+rapid::RGB operator""_c(const char *str, unsigned long long size)
+{
+    unsigned char rgb[4]{0};
+    rgb[3] = 255;
+    unsigned char index = 0;
+    const char *end = str + size;
+    while(str != end)
+    {
+        if(*str != ' ')
+        {
+            rgb[index] = static_cast<unsigned char>(rgb[index] * 10 + *str - 48);
+        }
+        else ++index;
+        str++;
+    }
+    return rapid::RGB(rgb[0], rgb[1], rgb[2], rgb[3]);
+}

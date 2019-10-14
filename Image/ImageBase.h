@@ -73,8 +73,8 @@ private:
                     sizeof(HeaderBlock) - sizeof(DescribeInfoBlock));
     }
 
-    void _F_write_matrix(Matrix<RGB> &m, char *visit,
-                         unsigned char pixel_bype, int row, int column);
+    void _F_write_matrix(Matrix<RGB> &m, char *visit, unsigned char pixel_bype,
+                         int row, int column);
     char* _F_next_pixel(char *visit, int pixel_byte, int column);
 public:
 
@@ -93,7 +93,9 @@ public:
     int width() const
     { return _M_describe_info_block == nullptr ? 0 : _M_describe_info_block->ImageWidth; }
     int height() const
-    { return _M_describe_info_block == nullptr ? 0 : (_M_describe_info_block->ImageHeight & 0x7FFFFFFF); }
+    { return _M_describe_info_block == nullptr ? 0 : (_M_describe_info_block->ImageHeight < 0 ?
+                                                          -_M_describe_info_block->ImageHeight :
+                                                          _M_describe_info_block->ImageHeight); }
     short color_bit() const
     { return _M_describe_info_block == nullptr ? 0 : _M_describe_info_block->ColorBit; }
     void clear();

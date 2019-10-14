@@ -7,6 +7,7 @@
 #include "Core/Exception.h"
 #include "Core/Memory.h"
 #include <initializer_list>
+#include <iostream>
 
 namespace rapid
 {
@@ -36,8 +37,10 @@ protected:
     void _F_copy(MatrixRef m);
     void _F_resize(SizeType r, SizeType c);
     void _F_construct_default(SizeType r, SizeType c, ConstReference v);
+    void _F_set_value(Reference v, ConstReference value)
+    { v = value; }
     void _F_set_value(SizeType r, SizeType c, ConstReference v)
-    { _M_data[r][c].ref_content() = v; }
+    { _F_set_value(_M_data[r][c].ref_content(), v); }
     void _F_multiply(MatrixRef m);
     void _F_multiply(SizeType r, ConstReference n);
     void _F_add(MatrixRef m);
@@ -335,6 +338,7 @@ void Matrix<_Tp>::_F_filter(MatrixRef m)
         {
             DataType dt;
             mem_clear(dt.address(), sizeof(dt));
+            mem_clear(&dt, sizeof(dt));
             for(SizeType x = 0; x < m.row(); x++)
             {
                 for(SizeType y = 0; y < m.column(); y++)
@@ -344,7 +348,7 @@ void Matrix<_Tp>::_F_filter(MatrixRef m)
                     dt.construct(dt.content() + m.get_value(x, y) * get_value(tempx, tempy));
                 }
             }
-            result.set_value(i, j, dt.content());
+            result.set_value(i, j, dt.ref_content());
         }
     }
     clear_and_copy(result);

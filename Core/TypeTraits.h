@@ -117,11 +117,19 @@ template<typename T>
 constexpr typename RemoveReference<T>::type&& move(T &&arg)
 { return static_cast<typename RemoveReference<T>::type&&>(arg); }
 
-struct IsBigEndian : ReferenceBase<bool, /*static_cast<unsigned char>(0x0001) == 1*/true>
+#if defined(__GNUC__) || defined(__GNUG__) || defined(__clang__)
+struct IsBigEndian : ReferenceBase<bool, __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__>
 { };
-struct IsLittleEndian : ReferenceBase<bool, /*static_cast<unsigned char>(0x0001) == 0*/false>
+struct IsLittleEndian : ReferenceBase<bool, __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__>
 { };
+#else
+static constexpr unsigned char __EndianValues[2] = {0, 1};
 
+struct IsBigEndian : ReferenceBase<bool, __EndianValues[0] == 0x01>
+{ };
+struct IsLittleEndian : ReferenceBase<bool, __EndianValues[0] == 0x00>
+{ };
+#endif
 };
 
 #endif // TYPETRAITS_H
