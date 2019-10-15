@@ -1,4 +1,4 @@
-#include "rgb.h"
+#include "RGB.h"
 
 static void operator_rgb(unsigned char &value, double arg)
 {
@@ -27,7 +27,7 @@ static void limit_rgb(unsigned char &value, int target)
     }
 }
 
-rapid::RGB rapid::RGB::operator*=(double arg)
+rapid::RGBA rapid::RGBA::operator*=(double arg)
 {
     if(arg < 0)
     {
@@ -42,7 +42,7 @@ rapid::RGB rapid::RGB::operator*=(double arg)
     return *this;
 }
 
-rapid::RGB rapid::RGB::operator+=(double arg)
+rapid::RGBA rapid::RGBA::operator+=(double arg)
 {
     int r = static_cast<int>(Red) + static_cast<int>(arg);
     int g = static_cast<int>(Green) + static_cast<int>(arg);
@@ -53,7 +53,7 @@ rapid::RGB rapid::RGB::operator+=(double arg)
     return *this;
 }
 
-rapid::RGB operator""_c(const char *str, unsigned long long size)
+rapid::RGBA operator""_c(const char *str, unsigned long long size)
 {
     unsigned char rgb[4]{0};
     rgb[3] = 255;
@@ -68,5 +68,5 @@ rapid::RGB operator""_c(const char *str, unsigned long long size)
         else ++index;
         str++;
     }
-    return rapid::RGB(rgb[0], rgb[1], rgb[2], rgb[3]);
+    return rapid::RGBA(rgb[0], rgb[1], rgb[2], rgb[3]);
 }

@@ -25,29 +25,35 @@ public:
     using ConstReference = const ValueType &;
     using RvalueReference = ValueType &&;
     using SizeType = long;
-    using DataType = NodeBase<ValueType>;
 
     using MatrixRef = Matrix<_Tp>&;
     using RvalueMatrixRef = Matrix<_Tp> &&;
+    using ConstMatrixRef = const Matrix<_Tp>&;
 protected:
+    using DataType = NodeBase<ValueType>;
+
     DataType **_M_data = nullptr;
     SizeType _M_row = 0;
     SizeType _M_column = 0;
 
-    void _F_copy(MatrixRef m);
+    Reference _F_data(SizeType r, SizeType c)
+    { return _M_data[r][c].ref_content(); }
+    ConstReference _F_data(SizeType r, SizeType c) const
+    { return _M_data[r][c].const_ref_content(); }
+    void _F_copy(ConstMatrixRef m);
     void _F_resize(SizeType r, SizeType c);
     void _F_construct_default(SizeType r, SizeType c, ConstReference v);
     void _F_set_value(Reference v, ConstReference value)
     { v = value; }
     void _F_set_value(SizeType r, SizeType c, ConstReference v)
     { _F_set_value(_M_data[r][c].ref_content(), v); }
-    void _F_multiply(MatrixRef m);
+    void _F_multiply(ConstMatrixRef m);
     void _F_multiply(SizeType r, ConstReference n);
-    void _F_add(MatrixRef m);
-    void _F_filter(MatrixRef m);
+    void _F_add(ConstMatrixRef m);
+    void _F_filter(ConstMatrixRef m);
 
     static void _SF_clear(DataType **mem, SizeType r);
-    static Matrix<_Tp> _SF_multiply(MatrixRef m1, MatrixRef m2);
+    static Matrix<_Tp> _SF_multiply(ConstMatrixRef m1, ConstMatrixRef m2);
 public:
     Matrix(SizeType r = 1, SizeType c = 1)
     { _F_resize(r, c); }
@@ -55,9 +61,10 @@ public:
     { _F_construct_default(r, c, default_value); }
     Matrix(SizeType r, SizeType c, RvalueReference default_value)
     { _F_construct_default(r, c, forward<ValueType>(default_value)); }
-    Matrix(MatrixRef m)
+    Matrix(ConstMatrixRef m)
     { _F_copy(m); }
-    Matrix(RvalueMatrixRef m) : _M_data(m._M_data), _M_row(m._M_row), _M_column(m._M_column)
+    Matrix(RvalueMatrixRef m)
+        : _M_data(m._M_data), _M_row(m._M_row), _M_column(m._M_column)
     {
         m._M_data = nullptr;
         m._M_row = 0;
@@ -73,7 +80,7 @@ public:
     { _F_set_value(r, c, forward<ValueType>(v)); }
 
     ValueType get_value(SizeType r, SizeType c) const
-    { return _M_data[r][c].content(); }
+    { return _F_data(r, c); }
 
     SizeType row() const
     { return _M_row; }
@@ -90,17 +97,17 @@ public:
     { _F_multiply(r, n); }
     void multiply(SizeType r, RvalueReference n)
     { _F_multiply(r, forward<ValueType>(n)); }
-    void multiply(MatrixRef m)
+    void multiply(ConstMatrixRef m)
     { _F_multiply(m); }
     void multiply(RvalueMatrixRef m)
     { _F_multiply(forward<Matrix<_Tp>>(m)); }
 
-    void add(const Matrix &m)
+    void add(ConstMatrixRef m)
     { _F_add(m); }
-    void add(Matrix &&m)
+    void add(RvalueMatrixRef m)
     { _F_add(forward<Matrix<_Tp>>(m)); }
 
-    void filter(MatrixRef m)
+    void filter(ConstMatrixRef m)
     { _F_filter(m); }
     void filter(RvalueMatrixRef m)
     { _F_filter(forward<Matrix<_Tp>>(m)); }
@@ -111,17 +118,17 @@ public:
     void clear()
     { _SF_clear(_M_data, row()); }
 
-    static Matrix<_Tp> multiply(MatrixRef m1, MatrixRef m2)
+    static Matrix<_Tp> multiply(ConstMatrixRef m1, ConstMatrixRef m2)
     { return _SF_multiply(m1, m2); }
-    static Matrix<_Tp> multiply(MatrixRef m1, RvalueMatrixRef m2)
+    static Matrix<_Tp> multiply(ConstMatrixRef m1, RvalueMatrixRef m2)
     { return _SF_multiply(m1, forward<Matrix<_Tp>>(m2)); }
-    static Matrix<_Tp> multiply(RvalueMatrixRef m1, MatrixRef m2)
+    static Matrix<_Tp> multiply(RvalueMatrixRef m1, ConstMatrixRef m2)
     { return _SF_multiply(forward<Matrix<_Tp>>(m1), m2); }
     static Matrix<_Tp> multiply(RvalueMatrixRef m1, RvalueMatrixRef m2)
     { return _SF_multiply(forward<Matrix<_Tp>>(m1), forward<Matrix<_Tp>>(m2)); }
 
     // copy [m]'s data reference to [this]
-    void copy_from(MatrixRef m)
+    void copy_from(ConstMatrixRef m)
     { 
         _M_data = m._M_data;
         _M_row = m._M_row;
@@ -140,55 +147,29 @@ public:
         copy_from(m);
     }
 
-    Matrix<_Tp> operator*(MatrixRef m)
+    Matrix<_Tp> operator*(ConstMatrixRef m)
     {
         return _SF_multiply(*this, m);
     }
-    Matrix<_Tp> operator*(RvalueMatrixRef m)
-    {
-        return _SF_multiply(*this, forward<Matrix<_Tp>>(m));
-    }
-
-    MatrixRef operator*=(MatrixRef m)
+    MatrixRef operator*=(ConstMatrixRef m)
     {
         multiply(m);
         return *this;
     }
-    MatrixRef operator*=(RvalueMatrixRef m)
-    {
-        multiply(forward<Matrix<_Tp>>(m));
-        return *this;
-    }
-    MatrixRef operator=(MatrixRef m)
+    MatrixRef operator=(ConstMatrixRef m)
     {
         _F_copy(m);
         return *this;
     }
-    MatrixRef operator=(RvalueMatrixRef m)
-    {
-        _F_copy(forward<Matrix<_Tp>>(m));
-        return *this;
-    }
-    Matrix<_Tp> operator+(MatrixRef m)
+    Matrix<_Tp> operator+(ConstMatrixRef m)
     {
         Matrix<_Tp> temp(*this);
         temp._F_add(m);
         return temp;
     }
-    Matrix<_Tp> operator+(RvalueMatrixRef m)
-    {
-        Matrix<_Tp> temp(*this);
-        temp._F_add(forward<Matrix<_Tp>>(m));
-        return temp;
-    }
-    MatrixRef operator+=(MatrixRef m)
+    MatrixRef operator+=(ConstMatrixRef m)
     {
         _F_add(m);
-        return *this;
-    }
-    MatrixRef operator+=(RvalueMatrixRef m)
-    {
-        _F_add(forward<Matrix<_Tp>>(m));
         return *this;
     }
 
@@ -222,7 +203,7 @@ Matrix<_Tp>::Matrix(std::initializer_list<std::initializer_list<ValueType>> m)
 }
 
 template<typename _Tp>
-void Matrix<_Tp>::_F_copy(MatrixRef m)
+void Matrix<_Tp>::_F_copy(ConstMatrixRef m)
 {
     _F_resize(m.row(), m.column());
     for(SizeType i = 0; i < row(); i++)
@@ -277,7 +258,7 @@ void Matrix<_Tp>::_SF_clear(DataType **mem, SizeType r)
 }
 
 template<typename _Tp>
-void Matrix<_Tp>::_F_multiply(MatrixRef m)
+void Matrix<_Tp>::_F_multiply(ConstMatrixRef m)
 {
     if(row() != m.column() || column() != m.row())
     { throw SizeDoesNotMatchException("exception: target size does not match from source size!"); }
@@ -293,7 +274,7 @@ void Matrix<_Tp>::_F_multiply(SizeType r, ConstReference n)
 }
 
 template<typename _Tp>
-Matrix<_Tp> Matrix<_Tp>::_SF_multiply(MatrixRef m1, MatrixRef m2)
+Matrix<_Tp> Matrix<_Tp>::_SF_multiply(ConstMatrixRef m1, ConstMatrixRef m2)
 {
     if(m1.row() != m2.column() || m1.column() != m2.row())
     { throw SizeDoesNotMatchException("exception: target size does not match from source size!"); }
@@ -314,7 +295,7 @@ Matrix<_Tp> Matrix<_Tp>::_SF_multiply(MatrixRef m1, MatrixRef m2)
 }
 
 template<typename _Tp>
-void Matrix<_Tp>::_F_add(MatrixRef m)
+void Matrix<_Tp>::_F_add(ConstMatrixRef m)
 {
     if(row() != m.row() || column() != m.column())
     { throw SizeDoesNotMatchException("exception: target size does not match from source size!"); }
@@ -322,13 +303,13 @@ void Matrix<_Tp>::_F_add(MatrixRef m)
     {
         for(SizeType j = 0; j < column(); j++)
         {
-            _M_data[i][j] = _M_data[i][j] + m._M_data[i][j];
+            _F_data(i, j) = _F_data(i, j) + m._F_data(i, j);
         }
     }
 }
 
 template<typename _Tp>
-void Matrix<_Tp>::_F_filter(MatrixRef m)
+void Matrix<_Tp>::_F_filter(ConstMatrixRef m)
 {
     Matrix<_Tp> result(row(), column());
     SizeType center_row = (m.row() - 1) / 2, center_column = (m.column() - 1) / 2;
