@@ -14,15 +14,16 @@ struct RGBA;
 
 namespace magnification
 {
+using SizeType = rapid::Matrix<RGBA>::SizeType;
 
 Matrix<RGBA> nearest_neighbor_interpolation(const Matrix<RGBA> &m,
-                                            rapid::Matrix<RGBA>::SizeType new_row,
-                                            rapid::Matrix<RGBA>::SizeType new_column);
+                                            SizeType new_row,
+                                            SizeType new_column);
 Matrix<RGBA> nearest_neighbor_interpolation(const Matrix<RGBA> &m,
                                             double rate);
 Matrix<RGBA> bilinear_interpolation(const Matrix<RGBA> &m,
-                                    rapid::Matrix<RGBA>::SizeType new_row,
-                                    rapid::Matrix<RGBA>::SizeType new_column);
+                                    SizeType new_row,
+                                    SizeType new_column);
 Matrix<RGBA> bilinear_interpolation(const Matrix<RGBA> &m,
                                     double rate);
 }

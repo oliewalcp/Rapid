@@ -17,11 +17,13 @@ struct RGBA final
         unsigned char b = 0, unsigned char a = 255)
         : Blue(b), Green(g), Red(r), Alpha(a)
     { }
-    RGBA(const RGBA &rgb) : Blue(rgb.Blue), Green(rgb.Green), Red(rgb.Red), Alpha(rgb.Alpha)
+    RGBA(const RGBA &rgb)
+        : Blue(rgb.Blue), Green(rgb.Green), Red(rgb.Red), Alpha(rgb.Alpha)
     { }
-    RGBA(RGBA &&rgb) : Blue(rgb.Blue), Green(rgb.Green), Red(rgb.Red), Alpha(rgb.Alpha)
+    RGBA(RGBA &&rgb)
+        : Blue(rgb.Blue), Green(rgb.Green), Red(rgb.Red), Alpha(rgb.Alpha)
     { }
-
+    RGBA operator+(const RGBA &rgb) const;
     RGBA operator*(double arg) const
     { return RGBA(*this) *= arg; }
     RGBA operator+(double arg) const
@@ -57,25 +59,37 @@ struct RGB_16 final
     RGB_16(const RGBA &rgb) : Blue(rgb.Blue), Green(rgb.Green), Red(rgb.Red)
     { }
 
-    RGBA to_rgb() const
+    RGBA to_rgba() const
     { return RGBA(Blue, Green, Red); }
 };
 
 struct RGB_24 final
 {
-    unsigned char Blue;
-    unsigned char Green;
-    unsigned char Red;
+    unsigned char Blue = 0;
+    unsigned char Green = 0;
+    unsigned char Red = 0;
 
     RGB_24() = default;
     RGB_24(unsigned char r = 0, unsigned char g = 0, unsigned char b = 0)
         : Blue(b), Green(g), Red(r)
     { }
-    RGB_24(const RGBA &rgb) : Blue(rgb.Blue), Green(rgb.Green), Red(rgb.Red)
+    RGB_24(const RGBA &rgb)
+        : Blue(rgb.Blue), Green(rgb.Green), Red(rgb.Red)
     { }
 
-    RGBA to_rgb() const
+    RGBA to_rgba() const
     { return RGBA(Blue, Green, Red); }
+
+    RGB_24 operator+(const RGB_24 &rgb) const;
+    RGB_24 operator*(double arg) const
+    { return RGB_24(*this) *= arg; }
+    RGB_24 operator+(double arg) const
+    { return RGB_24(*this) += arg; }
+    RGB_24 operator*=(double arg);
+    RGB_24 operator+=(double arg);
+    bool operator==(const RGB_24 &rgb) const
+    { return Blue == rgb.Blue && Green == rgb.Green && Red == rgb.Red; }
+
 };
 
 using RGB = RGB_24;

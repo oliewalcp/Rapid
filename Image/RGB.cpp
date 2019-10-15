@@ -11,19 +11,15 @@ static void operator_rgb(unsigned char &value, double arg)
         value = static_cast<unsigned char>(value * arg);
     }
 }
-static void limit_rgb(unsigned char &value, int target)
+static unsigned char limit_value(int value1, int value2)
 {
-    if(target < 0)
+    if(255 - value1 > value2)
     {
-        value = 0;
-    }
-    else if(target > 255)
-    {
-        value = 255;
+        return static_cast<unsigned char>(value1 + value2);
     }
     else
     {
-        value = static_cast<unsigned char>(target);
+        return 255;
     }
 }
 
@@ -44,12 +40,9 @@ rapid::RGBA rapid::RGBA::operator*=(double arg)
 
 rapid::RGBA rapid::RGBA::operator+=(double arg)
 {
-    int r = static_cast<int>(Red) + static_cast<int>(arg);
-    int g = static_cast<int>(Green) + static_cast<int>(arg);
-    int b = static_cast<int>(Blue) + static_cast<int>(arg);
-    limit_rgb(Red, r);
-    limit_rgb(Green, g);
-    limit_rgb(Blue, b);
+    Red = limit_value(static_cast<int>(Red), static_cast<int>(arg));
+    Green = limit_value(static_cast<int>(Green), static_cast<int>(arg));
+    Blue = limit_value(static_cast<int>(Blue), static_cast<int>(arg));
     return *this;
 }
 
@@ -69,4 +62,40 @@ rapid::RGBA operator""_c(const char *str, unsigned long long size)
         str++;
     }
     return rapid::RGBA(rgb[0], rgb[1], rgb[2], rgb[3]);
+}
+
+rapid::RGBA rapid::RGBA::operator+(const rapid::RGBA &rgb) const
+{
+    return RGBA(limit_value(Red, rgb.Red), limit_value(Green, rgb.Green),
+                limit_value(Blue, rgb.Blue), limit_value(Alpha, rgb.Alpha));
+}
+
+rapid::RGB_24 rapid::RGB_24::operator+(const rapid::RGB_24 &rgb) const
+{
+    return RGB_24(limit_value(Red, rgb.Red),
+                  limit_value(Green, rgb.Green),
+                  limit_value(Blue, rgb.Blue));
+}
+
+rapid::RGB_24 rapid::RGB_24::operator*=(double arg)
+{
+    if(arg < 0)
+    {
+        Red = Green = Blue = 0;
+    }
+    else
+    {
+        operator_rgb(Red, arg);
+        operator_rgb(Green, arg);
+        operator_rgb(Blue, arg);
+    }
+    return *this;
+}
+
+rapid::RGB_24 rapid::RGB_24::operator+=(double arg)
+{
+    Red = limit_value(static_cast<int>(Red), static_cast<int>(arg));
+    Green = limit_value(static_cast<int>(Green), static_cast<int>(arg));
+    Blue = limit_value(static_cast<int>(Blue), static_cast<int>(arg));
+    return *this;
 }

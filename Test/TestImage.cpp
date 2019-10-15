@@ -19,7 +19,14 @@ void rapid::test_BMP_main()
     std::cout << "exchange finish" << std::endl;
 
     std::cout << "magnification" << std::endl;
-    m = magnification::nearest_neighbor_interpolation(m, 4);
+    m = magnification::bilinear_interpolation(m, 2);
+    std::cout << "filter" << std::endl;
+    m.filter({
+                 {1, 2, 1},
+                 {2, 4, 2},
+                 {1, 2, 1}
+             });
+    std::cout << "filter finish" << std::endl;
 
     BMP bb;
     bb.parse(m);

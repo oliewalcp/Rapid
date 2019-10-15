@@ -72,10 +72,4 @@ void rapid::test_Matrix_main()
     m6.filter(m7);
     print_matrix(m6);
     std::cout << "-----------test Matrix end----------" << std::endl;
-    m1.clear();
-    m2.clear();
-    m3.clear();
-    m5.clear();
-    m6.clear();
-    m7.clear();
 }

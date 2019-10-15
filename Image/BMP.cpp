@@ -33,7 +33,7 @@ static rapid::RGBA get_RGB(void *ch, unsigned char unit_byte)
     switch(unit_byte)
     {
     case 1:return RGBA(*c, *c, *c);
-    case 2:return RGB_16(*c, *(c + 1)).to_rgb();
+    case 2:return RGB_16(*c, *(c + 1)).to_rgba();
     case 3:return RGBA(*(c + 2), *(c + 1), *c);
     case 4:return RGBA(*(c + 2), *(c + 1), *c, *(c + 3));
     default:return RGBA();

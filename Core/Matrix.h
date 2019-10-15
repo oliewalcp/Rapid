@@ -17,7 +17,7 @@ namespace rapid
  * _Tp operator=(_Tp)
  */
 template<typename _Tp>
-class Matrix
+class Matrix final
 {
 public:
     using ValueType = _Tp;
@@ -50,7 +50,8 @@ protected:
     void _F_multiply(ConstMatrixRef m);
     void _F_multiply(SizeType r, ConstReference n);
     void _F_add(ConstMatrixRef m);
-    void _F_filter(ConstMatrixRef m);
+    template<typename _FilterType>
+    void _F_filter(const Matrix<_FilterType> m);
 
     static void _SF_clear(DataType **mem, SizeType r);
     static Matrix<_Tp> _SF_multiply(ConstMatrixRef m1, ConstMatrixRef m2);
@@ -71,7 +72,7 @@ public:
         m._M_column = 0;
     }
     Matrix(std::initializer_list<std::initializer_list<ValueType>> m);
-    virtual ~Matrix()
+    ~Matrix()
     { clear(); }
 
     void set_value(SizeType r, SizeType c, ConstReference v)
@@ -111,12 +112,17 @@ public:
     { _F_filter(m); }
     void filter(RvalueMatrixRef m)
     { _F_filter(forward<Matrix<_Tp>>(m)); }
+    void filter(std::initializer_list<std::initializer_list<double>> m)
+    { _F_filter(Matrix<double>(m)); }
 
     void power(SizeType p);
 
     // need call by manual
     void clear()
-    { _SF_clear(_M_data, row()); }
+    {
+        _SF_clear(_M_data, row());
+        _M_data = nullptr;
+    }
 
     static Matrix<_Tp> multiply(ConstMatrixRef m1, ConstMatrixRef m2)
     { return _SF_multiply(m1, m2); }
@@ -140,17 +146,12 @@ public:
         temp.copy_from(m);
         m.copy_from(*this);
         copy_from(temp);
-    }
-    void clear_and_copy(MatrixRef m)
-    { 
-        clear();
-        copy_from(m);
+        temp._M_data = nullptr;
+        temp._M_row = temp._M_column = 0;
     }
 
     Matrix<_Tp> operator*(ConstMatrixRef m)
-    {
-        return _SF_multiply(*this, m);
-    }
+    { return _SF_multiply(*this, m); }
     MatrixRef operator*=(ConstMatrixRef m)
     {
         multiply(m);
@@ -263,7 +264,7 @@ void Matrix<_Tp>::_F_multiply(ConstMatrixRef m)
     if(row() != m.column() || column() != m.row())
     { throw SizeDoesNotMatchException("exception: target size does not match from source size!"); }
     Matrix<_Tp> temp = _SF_multiply(*this, m);
-    clear_and_copy(temp);
+    swap(temp);
 }
 
 template<typename _Tp>
@@ -309,7 +310,8 @@ void Matrix<_Tp>::_F_add(ConstMatrixRef m)
 }
 
 template<typename _Tp>
-void Matrix<_Tp>::_F_filter(ConstMatrixRef m)
+template<typename _FilterType>
+void Matrix<_Tp>::_F_filter(const Matrix<_FilterType> m)
 {
     Matrix<_Tp> result(row(), column());
     SizeType center_row = (m.row() - 1) / 2, center_column = (m.column() - 1) / 2;
@@ -318,7 +320,6 @@ void Matrix<_Tp>::_F_filter(ConstMatrixRef m)
         for(SizeType j = 0; j < column(); j++)
         {
             DataType dt;
-            mem_clear(dt.address(), sizeof(dt));
             mem_clear(&dt, sizeof(dt));
             for(SizeType x = 0; x < m.row(); x++)
             {
@@ -326,13 +327,13 @@ void Matrix<_Tp>::_F_filter(ConstMatrixRef m)
                 {
                     SizeType tempx = i - center_row + x, tempy = j - center_column + y;
                     if(tempx < 0 || tempy < 0 || tempx >= row() || tempy >= column()) continue;
-                    dt.construct(dt.content() + m.get_value(x, y) * get_value(tempx, tempy));
+                    dt.construct(dt.content() + get_value(tempx, tempy) * m.get_value(x, y));
                 }
             }
             result.set_value(i, j, dt.ref_content());
         }
     }
-    clear_and_copy(result);
+    swap(result);
 }
 
 template<typename _Tp>
@@ -346,7 +347,7 @@ void Matrix<_Tp>::T()
             temp.set_value(j, i, get_value(i, j));
         }
     }
-    clear_and_copy(temp);
+    swap(temp);
 }
 
 template<typename _Tp>
@@ -355,11 +356,11 @@ void Matrix<_Tp>::power(SizeType p)
     if(row() != column())
     { throw SizeDoesNotMatchException("exception: target size does not match from source size!"); }
     Matrix<_Tp> temp(*this);
-    for(SizeType i = 0; i < p - 1; i++)
+    for(SizeType i = 1; i < p; i++)
     {
         temp.multiply(*this);
     }
-    clear_and_copy(temp);
+    swap(temp);
 }
 
 
