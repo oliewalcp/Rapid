@@ -3,17 +3,17 @@
 #include "Image/RGB.h"
 
 #define construct_result_matrix(new_row, new_column) \
-    Matrix<RGBA> result(static_cast<SizeType>(new_row), \
-                        static_cast<SizeType>(new_column)); \
+    Matrix<RGBA> result(static_cast<ImageSizeType>(new_row), \
+                        static_cast<ImageSizeType>(new_column)); \
     if(new_row < m.row() || new_column < m.column()) \
     { \
         return result; \
     }
 
 #define foreach_result_matrix_begin \
-    for(SizeType i = 0; i < new_row; ++i) \
+    for(ImageSizeType i = 0; i < new_row; ++i) \
     { \
-        for(SizeType j = 0; j < new_column; ++j) \
+        for(ImageSizeType j = 0; j < new_column; ++j) \
         {
 
 #define foreach_result_matrix_end \
@@ -29,26 +29,26 @@ static inline double rate(double target, double src)
 { return distance(src, target); }
 
 Matrix<RGBA> magnification::nearest_neighbor_interpolation(const Matrix<RGBA> &m,
-                                                           SizeType new_row,
-                                                           SizeType new_column)
+                                                           ImageSizeType new_row,
+                                                           ImageSizeType new_column)
 {
     construct_result_matrix(new_row, new_column)
     double row_rate = static_cast<double>(new_row) / m.row();
     double column_rate = static_cast<double>(new_column) / m.column();
     foreach_result_matrix_begin
-    result.set_value(i, j, m.get_value(static_cast<SizeType>(i / row_rate),
-                                       static_cast<SizeType>(j / column_rate)));
+    result.set_value(i, j, m.get_value(static_cast<ImageSizeType>(i / row_rate),
+                                       static_cast<ImageSizeType>(j / column_rate)));
     foreach_result_matrix_end
     return result;
 }
 
 Matrix<RGBA> magnification::nearest_neighbor_interpolation(const Matrix<RGBA> &m, double rate)
-{ return nearest_neighbor_interpolation(m, static_cast<SizeType>(m.row() * rate),
-                                        static_cast<SizeType>(m.column() * rate)); }
+{ return nearest_neighbor_interpolation(m, static_cast<ImageSizeType>(m.row() * rate),
+                                        static_cast<ImageSizeType>(m.column() * rate)); }
 
 Matrix<RGBA> magnification::bilinear_interpolation(const Matrix<RGBA> &m,
-                                                   SizeType new_row,
-                                                   SizeType new_column)
+                                                   ImageSizeType new_row,
+                                                   ImageSizeType new_column)
 {
     construct_result_matrix(new_row, new_column)
     double row_rate = static_cast<double>(new_row) / m.row();
@@ -56,8 +56,8 @@ Matrix<RGBA> magnification::bilinear_interpolation(const Matrix<RGBA> &m,
     foreach_result_matrix_begin
     double target_row = i / row_rate;
     double target_column = j / column_rate;
-    SizeType temp_row = static_cast<SizeType>(target_row);
-    SizeType temp_column = static_cast<SizeType>(target_column);
+    ImageSizeType temp_row = static_cast<ImageSizeType>(target_row);
+    ImageSizeType temp_column = static_cast<ImageSizeType>(target_column);
     RGBA rgba1 = m.get_value(temp_row, temp_column) * rate(temp_column, target_column) +
             m.get_value(temp_row, temp_column + 1) * rate(temp_column + 1, target_column);
     RGBA rgba2;
@@ -76,8 +76,47 @@ Matrix<RGBA> magnification::bilinear_interpolation(const Matrix<RGBA> &m,
 }
 
 Matrix<RGBA> magnification::bilinear_interpolation(const Matrix<RGBA> &m, double rate)
-{ return bilinear_interpolation(m, static_cast<SizeType>(m.row() * rate),
-                                static_cast<SizeType>(m.column() * rate)); }
+{ return bilinear_interpolation(m, static_cast<ImageSizeType>(m.row() * rate),
+                                static_cast<ImageSizeType>(m.column() * rate)); }
+
+Matrix<RGBA> filter(const Matrix<RGBA> &m, const Matrix<double> &f)
+{
+    ImageSizeType center_row = (f.row() - 1) / 2, center_column = (f.column() - 1) / 2;
+
+    Matrix<RGBA> result(m.row(), m.column());
+    for(ImageSizeType i = 0; i < m.row(); i++)
+    {
+        for(ImageSizeType j = 0; j < m.column(); j++)
+        {
+            typename Matrix<RGBA>::DataType dt;
+            for(ImageSizeType x = 0; x < f.row(); x++)
+            {
+                for(ImageSizeType y = 0; y < f.column(); y++)
+                {
+                    ImageSizeType tempx = i - center_row + x, tempy = j - center_column + y;
+                    if(tempx < 0 || tempy < 0 || tempx >= m.row() || tempy >= m.column())
+                        continue;
+                    dt.construct(dt.content() + m.get_value(tempx, tempy) * f.get_value(x, y));
+                }
+            }
+            result.set_value(i, j, dt.ref_content());
+        }
+    }
+    return result;
+}
+
+Matrix<RGBA> filter(const Matrix<RGBA> &m, std::initializer_list<std::initializer_list<double> > f)
+{ return filter(m, Matrix<double>(f)); }
+
+Matrix<RGBA> fft(const Matrix<RGBA> &m)
+{
+
+}
+
+Matrix<RGBA> dft(const Matrix<RGBA> &m)
+{
+
+}
 
 
 

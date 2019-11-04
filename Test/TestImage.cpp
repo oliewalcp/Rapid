@@ -21,11 +21,16 @@ void rapid::test_BMP_main()
     std::cout << "magnification" << std::endl;
     m = magnification::bilinear_interpolation(m, 2);
     std::cout << "filter" << std::endl;
-    m.filter({
-                 {1, 2, 1},
-                 {2, 4, 2},
-                 {1, 2, 1}
-             });
+//    m.filter({
+//                 {1, 2, 1},
+//                 {2, 4, 2},
+//                 {1, 2, 1}
+//             });
+    m = filter(m, {
+                   {-1, -1, -1},
+                   {-1, 8, -1},
+                   {-1, -1, -1}
+               });
     std::cout << "filter finish" << std::endl;
 
     BMP bb;

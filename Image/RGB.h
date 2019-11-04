@@ -26,6 +26,8 @@ struct RGBA final
     RGBA operator+(const RGBA &rgb) const;
     RGBA operator*(double arg) const
     { return RGBA(*this) *= arg; }
+    RGBA operator/(double arg) const
+    { return RGBA(*this) /= arg; }
     RGBA operator+(double arg) const
     { return RGBA(*this) += arg; }
     RGBA operator=(const RGBA &rgb)
@@ -36,6 +38,8 @@ struct RGBA final
         Alpha = rgb.Alpha;
         return rgb;
     }
+    RGBA operator/=(double arg)
+    { return operator*=(1 / arg); }
     RGBA operator*=(double arg);
     RGBA operator+=(double arg);
     bool operator==(const RGBA &rgb) const

@@ -29,8 +29,8 @@ public:
     using MatrixRef = Matrix<_Tp>&;
     using RvalueMatrixRef = Matrix<_Tp> &&;
     using ConstMatrixRef = const Matrix<_Tp>&;
-protected:
     using DataType = NodeBase<ValueType>;
+protected:
 
     DataType **_M_data = nullptr;
     SizeType _M_row = 0;
@@ -50,8 +50,8 @@ protected:
     void _F_multiply(ConstMatrixRef m);
     void _F_multiply(SizeType r, ConstReference n);
     void _F_add(ConstMatrixRef m);
-    template<typename _FilterType>
-    void _F_filter(const Matrix<_FilterType> m);
+//    template<typename _FilterType>
+//    void _F_filter(const Matrix<_FilterType> m);
 
     static void _SF_clear(DataType **mem, SizeType r);
     static Matrix<_Tp> _SF_multiply(ConstMatrixRef m1, ConstMatrixRef m2);
@@ -108,12 +108,12 @@ public:
     void add(RvalueMatrixRef m)
     { _F_add(forward<Matrix<_Tp>>(m)); }
 
-    void filter(ConstMatrixRef m)
-    { _F_filter(m); }
-    void filter(RvalueMatrixRef m)
-    { _F_filter(forward<Matrix<_Tp>>(m)); }
-    void filter(std::initializer_list<std::initializer_list<double>> m)
-    { _F_filter(Matrix<double>(m)); }
+//    void filter(ConstMatrixRef m)
+//    { _F_filter(m); }
+//    void filter(RvalueMatrixRef m)
+//    { _F_filter(forward<Matrix<_Tp>>(m)); }
+//    void filter(std::initializer_list<std::initializer_list<double>> m)
+//    { _F_filter(Matrix<double>(m)); }
 
     void power(SizeType p);
 
@@ -148,6 +148,19 @@ public:
         copy_from(temp);
         temp._M_data = nullptr;
         temp._M_row = temp._M_column = 0;
+    }
+
+    DataType total_value()
+    {
+        DataType total;
+        for(SizeType x = 0; x < row(); x++)
+        {
+            for(SizeType y = 0; y < column(); y++)
+            {
+                total.construct(total.content() + get_value(x, y));
+            }
+        }
+        return total;
     }
 
     Matrix<_Tp> operator*(ConstMatrixRef m)
@@ -309,32 +322,37 @@ void Matrix<_Tp>::_F_add(ConstMatrixRef m)
     }
 }
 
-template<typename _Tp>
-template<typename _FilterType>
-void Matrix<_Tp>::_F_filter(const Matrix<_FilterType> m)
-{
-    Matrix<_Tp> result(row(), column());
-    SizeType center_row = (m.row() - 1) / 2, center_column = (m.column() - 1) / 2;
-    for(SizeType i = 0; i < row(); i++)
-    {
-        for(SizeType j = 0; j < column(); j++)
-        {
-            DataType dt;
-            mem_clear(&dt, sizeof(dt));
-            for(SizeType x = 0; x < m.row(); x++)
-            {
-                for(SizeType y = 0; y < m.column(); y++)
-                {
-                    SizeType tempx = i - center_row + x, tempy = j - center_column + y;
-                    if(tempx < 0 || tempy < 0 || tempx >= row() || tempy >= column()) continue;
-                    dt.construct(dt.content() + get_value(tempx, tempy) * m.get_value(x, y));
-                }
-            }
-            result.set_value(i, j, dt.ref_content());
-        }
-    }
-    swap(result);
-}
+//template<typename _Tp>
+//template<typename _FilterType>
+//void Matrix<_Tp>::_F_filter(const Matrix<_FilterType> m)
+//{
+//    Matrix<_Tp> result(row(), column());
+//    SizeType center_row = (m.row() - 1) / 2, center_column = (m.column() - 1) / 2;
+
+//    auto total = total_value();
+
+//    for(SizeType i = 0; i < row(); i++)
+//    {
+//        for(SizeType j = 0; j < column(); j++)
+//        {
+//            DataType dt;
+//            for(SizeType x = 0; x < m.row(); x++)
+//            {
+//                for(SizeType y = 0; y < m.column(); y++)
+//                {
+//                    SizeType tempx = i - center_row + x, tempy = j - center_column + y;
+//                    if(tempx < 0 || tempy < 0 || tempx >= row() || tempy >= column()) continue;
+//                    dt.construct(dt.content() +
+//                                 get_value(tempx, tempy) /
+//                                 total.content() == 0 ? 1 : total.content() *
+//                                 m.get_value(x, y));
+//                }
+//            }
+//            result.set_value(i, j, dt.ref_content());
+//        }
+//    }
+//    swap(result);
+//}
 
 template<typename _Tp>
 void Matrix<_Tp>::T()

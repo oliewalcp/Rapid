@@ -10,7 +10,7 @@ template<typename T>
 struct NodeBase
 {
 public:
-    alignas(__alignof__(T)) unsigned char __Data[sizeof(T)];
+    alignas(__alignof__(T)) unsigned char __Data[sizeof(T)]{0};
 
     NodeBase() { }
 

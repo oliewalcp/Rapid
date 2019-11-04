@@ -65,11 +65,11 @@ void rapid::test_Matrix_main()
                        {22, -2, -10, -5},
                        {1, 5, 5, 5},
                    });
-    Matrix<int> m7({
-                    {1, -1},
-                    {-1, 1}
-                });
-    m6.filter(m7);
+//    Matrix<int> m7({
+//                    {1, -1},
+//                    {-1, 1}
+//                });
+//    m6.filter(m7);
     print_matrix(m6);
     std::cout << "-----------test Matrix end----------" << std::endl;
 }

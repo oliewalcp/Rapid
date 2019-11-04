@@ -2,6 +2,12 @@
 #define SOCKET_H
 
 #ifdef __linux
+#define socket_type int
+#else
+#define socket_type SOCKET
+#endif
+
+#ifdef __linux
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

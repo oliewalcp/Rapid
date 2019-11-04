@@ -2,9 +2,14 @@
 
 static void operator_rgb(unsigned char &value, double arg)
 {
-    if(static_cast<int>(value) * arg > 255)
+    double result = static_cast<int>(value) * arg;
+    if(result > 255)
     {
         value = 255;
+    }
+    else if(result > 0 && result < 1)
+    {
+        value = 1;
     }
     else
     {

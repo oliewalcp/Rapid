@@ -1,6 +1,7 @@
 #ifndef SORTER_H
 #define SORTER_H
 
+#include "Core/Memory.h" // rapid::mem_copy
 #include "Core/Compare.h"
 #include "Core/Map.h"
 #include <type_traits> // std::declval
@@ -341,6 +342,37 @@ void qsort(_RandomIter beg,
     {
         isort(beg, end, c);
     }
+}
+
+//
+template<typename _ForwardIter>
+void hsort(_ForwardIter beg,
+           _ForwardIter end,
+           long long min = 0,
+           long long max = 65536)//not contain [max]
+{
+    using __element_type = typename std::remove_reference<decltype(*std::declval<_ForwardIter>())>::type;
+    static_assert(std::is_arithmetic<__element_type>::value, "only support arithmetic type temporary");
+
+    long long interval = min;
+    max -= min;
+    min = 0;
+    __element_type *ele = new __element_type[static_cast<std::size_t>(max)];
+    mem_clear(ele, static_cast<size_type>(max) * sizeof(__element_type));
+    _ForwardIter it = beg;
+    while(it != end)
+    {
+        ele[(*it++) - interval]++;
+    }
+    __element_type *visit = ele;
+    for(long long i = 0; i < max; ++i, ++visit)
+    {
+        while((*visit)-- > 0)
+        {
+            *beg++ = i + interval;
+        }
+    }
+    delete[] ele;
 }
 
 }

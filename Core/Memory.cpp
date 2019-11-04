@@ -6,8 +6,8 @@ using uint32 = unsigned int;
 using uint16 = unsigned short;
 using uint8 = unsigned char;
 
-#define null_return1(a) if((a) == nullptr) return;
-#define null_return2(a, b) if((a) == nullptr || (b) == nullptr) return;
+#define null_return1(a) if((a) == nullptr) return
+#define null_return2(a, b) if((a) == nullptr || (b) == nullptr) return
 
 unsigned long rapid::address_to_integer(const void *a)
 {
